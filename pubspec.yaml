@@ -1,0 +1,38 @@
+name: intrencity_provider
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.4.4 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  firebase_core: ^3.2.0
+  another_dashed_container: ^1.0.0
+  google_fonts: ^6.2.1
+  lottie: ^3.1.2
+  flutter_animate: ^4.5.0
+  figma_squircle: ^0.5.3
+  font_awesome_flutter: ^10.7.0
+  email_validator: ^3.0.0
+  country_picker: ^2.0.26
+  provider:
+  firebase_auth: ^5.1.2
+  google_sign_in: ^6.2.1
+  cloud_firestore: ^5.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/animations/
+    - assets/images/

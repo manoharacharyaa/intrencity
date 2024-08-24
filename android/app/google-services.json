@@ -1,0 +1,126 @@
+{
+  "project_info": {
+    "project_number": "581976899789",
+    "project_id": "intrencity",
+    "storage_bucket": "intrencity.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581976899789:android:0458eb9350ad3c33cb6984",
+        "android_client_info": {
+          "package_name": "com.example.intrencity"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581976899789-n38kt8goqkgmaq8eg4j762tshb83h2qp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.intrencity",
+            "certificate_hash": "3f67a0ce7a0baeb52d0e271b8ca55bdee2394c48"
+          }
+        },
+        {
+          "client_id": "581976899789-oul3vcch4lkikhm81o8idscobkn7ov3r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1qeDk2BlFvT5jEbc3YLQy-efHuJKDhv4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581976899789-oul3vcch4lkikhm81o8idscobkn7ov3r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "581976899789-09h6vge50damhumo998pmd2ml5e68r5j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.intrencity"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581976899789:android:85dddb28440a0947cb6984",
+        "android_client_info": {
+          "package_name": "com.example.intrencity_provider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581976899789-oul3vcch4lkikhm81o8idscobkn7ov3r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1qeDk2BlFvT5jEbc3YLQy-efHuJKDhv4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581976899789-oul3vcch4lkikhm81o8idscobkn7ov3r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "581976899789-09h6vge50damhumo998pmd2ml5e68r5j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.intrencity"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581976899789:android:8dfc2da07f5a6ebdcb6984",
+        "android_client_info": {
+          "package_name": "com.example.rental"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581976899789-oul3vcch4lkikhm81o8idscobkn7ov3r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1qeDk2BlFvT5jEbc3YLQy-efHuJKDhv4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581976899789-oul3vcch4lkikhm81o8idscobkn7ov3r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "581976899789-09h6vge50damhumo998pmd2ml5e68r5j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.intrencity"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

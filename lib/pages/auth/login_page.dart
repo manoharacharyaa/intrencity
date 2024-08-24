@@ -1,0 +1,151 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:intrencity_provider/pages/parking_slot_page.dart';
+import 'package:intrencity_provider/providers/auth_provider.dart';
+import 'package:intrencity_provider/providers/validator_provider.dart';
+import 'package:intrencity_provider/widgets/auth_button.dart';
+import 'package:intrencity_provider/widgets/custom_auth_field.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final loginEmailController = TextEditingController();
+  final loginPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final auth = context.watch<AuthenticationProvider>();
+    final validator = context.watch<AuthValidationProvider>();
+
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+                CustomAuthField(
+                  controller: loginEmailController,
+                  prefixIcon: Icons.mail,
+                  hintText: 'Email',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter email';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: size.height * 0.02),
+                CustomAuthField(
+                  controller: loginPasswordController,
+                  prefixIcon:
+                      validator.isVisible ? Icons.lock_open : Icons.lock,
+                  hintText: 'Password',
+                  obscureText: validator.isVisible ? false : true,
+                  suffixIcon: validator.passwordEmpty
+                      ? null
+                      : validator.error
+                          ? null
+                          : IconButton(
+                              onPressed: () {
+                                validator.invertIsVisible();
+                              },
+                              icon: validator.isVisible
+                                  ? const Icon(Icons.visibility)
+                                  : const Icon(Icons.visibility_off),
+                            ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter password';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: size.height * 0.05),
+                AuthButton(
+                  onPressed: () {
+                    try {
+                      validator.loading(true);
+                      assert(
+                          EmailValidator.validate(loginEmailController.text));
+                      auth
+                          .login(
+                        loginEmailController.text,
+                        loginPasswordController.text,
+                      )
+                          .then(
+                        (value) {
+                          validator.loading(false);
+                          Future.delayed(
+                            const Duration(seconds: 2),
+                            () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const ParkingSlotPage(),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ).onError(
+                        (error, stackTrace) {
+                          validator.loading(false);
+                        },
+                      );
+                    } catch (e) {
+                      validator.loading(false);
+                      validator.isLoading = false;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Container(
+                            height: size.height * 0.2,
+                            decoration: const BoxDecoration(
+                              color: Color.fromARGB(55, 255, 255, 255),
+                            ),
+                            child: const Text('Enter a valid email'),
+                          ),
+                        ),
+                      );
+                    }
+                    if (_formKey.currentState!.validate()) {
+                      // authValidation.loading(true);
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   const SnackBar(
+                      //     content: Text('Processing Data'),
+                      //   ),
+                      // );
+                    } else {
+                      validator.errorCheck();
+                    }
+                  },
+                  widget: validator.isLoading
+                      ? const CupertinoActivityIndicator()
+                      : Text(
+                          'Login',
+                          style:
+                              Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
