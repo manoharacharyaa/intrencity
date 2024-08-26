@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intrencity_provider/pages/auth/auth_page.dart';
-import 'package:intrencity_provider/pages/parking_slot_page.dart';
+import 'package:intrencity_provider/home_page.dart';
+import 'package:intrencity_provider/providers/admin_provider.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/booking_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
@@ -32,6 +31,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => BookingProvider()),
         ChangeNotifierProvider(create: (context) => AuthValidationProvider()),
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (context) => AdminProvide()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -49,15 +49,16 @@ class MainApp extends StatelessWidget {
             ),
           ),
         ),
-        home: StreamBuilder(
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const AuthPage();
-            }
-            return const ParkingSlotPage();
-          },
-        ),
+        // home: StreamBuilder(
+        //   stream: FirebaseAuth.instance.authStateChanges(),
+        //   builder: (context, snapshot) {
+        //     if (!snapshot.hasData) {
+        //       return const AuthPage();
+        //     }
+        //     return const ParkingSlotPage();
+        //   },
+        // ),
+        home: const HomePage(),
       ),
     );
   }

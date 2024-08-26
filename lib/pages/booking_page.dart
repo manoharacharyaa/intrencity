@@ -2,7 +2,6 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/providers/booking_provider.dart';
-import 'package:intrencity_provider/widgets/booking_page_form_field.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -16,24 +15,47 @@ class BookingPage extends StatefulWidget {
 }
 
 class _BookingPageState extends State<BookingPage> {
-  final daysController = TextEditingController();
-  final hoursController = TextEditingController();
-  final minutesController = TextEditingController();
-  final secondsController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  DateTime? startDateTime;
+  DateTime? endDateTime;
 
-  @override
-  void dispose() {
-    daysController.dispose();
-    hoursController.dispose();
-    minutesController.dispose();
-    secondsController.dispose();
-    super.dispose();
+  Future<void> _selectDateTime(BuildContext context, bool isStart) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          final selectedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+
+          if (isStart) {
+            startDateTime = selectedDateTime;
+          } else {
+            endDateTime = selectedDateTime;
+          }
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -52,74 +74,122 @@ class _BookingPageState extends State<BookingPage> {
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          BookingPageFormField(
-                            controller: daysController,
-                            hintText: 'Enter Days',
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => _selectDateTime(context, true),
+                      child: ClipSmoothRect(
+                        radius: SmoothBorderRadius(
+                          cornerRadius: 16,
+                          cornerSmoothing: 2,
+                        ),
+                        child: Container(
+                          height: 60,
+                          color: textFieldGrey,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
                           ),
-                          BookingPageFormField(
-                            controller: hoursController,
-                            hintText: 'Enter Hours',
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                startDateTime == null
+                                    ? 'Select start date & time'
+                                    : '${startDateTime!.toLocal()}'
+                                        .split('.')[0],
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                      Row(
-                        children: [
-                          BookingPageFormField(
-                            controller: minutesController,
-                            hintText: 'Enter Minutes',
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () => _selectDateTime(context, false),
+                      child: ClipSmoothRect(
+                        radius: SmoothBorderRadius(
+                          cornerRadius: 16,
+                          cornerSmoothing: 2,
+                        ),
+                        child: Container(
+                          height: 60,
+                          color: textFieldGrey,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
                           ),
-                          BookingPageFormField(
-                            controller: secondsController,
-                            hintText: 'Enter Seconds',
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                endDateTime == null
+                                    ? 'Select end date & time'
+                                    : '${endDateTime!.toLocal()}'.split('.')[0],
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 4,
-                  horizontal: 16,
+                  horizontal: 10,
                 ),
                 child: ClipSmoothRect(
                   radius: SmoothBorderRadius(
-                    cornerRadius: 15,
-                    cornerSmoothing: 2,
+                    cornerRadius: 16,
+                    cornerSmoothing: 1,
                   ),
-                  child: MaterialButton(
-                    onPressed: () {
-                      final days = int.tryParse(daysController.text) ?? 0;
-                      final hours = int.tryParse(hoursController.text) ?? 0;
-                      final minutes = int.tryParse(minutesController.text) ?? 0;
-                      final seconds = int.tryParse(secondsController.text) ?? 0;
-                      final duration = Duration(
-                        days: days,
-                        hours: hours,
-                        minutes: minutes,
-                        seconds: seconds,
-                      );
-
-                      context
-                          .read<BookingProvider>()
-                          .bookSlot(widget.slotNumber, duration);
-                      Navigator.pop(context);
-                    },
-                    height: 50,
-                    minWidth: double.infinity,
+                  child: Container(
+                    height: 60,
                     color: primaryBlue,
-                    child: Text(
-                      'Book',
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                    child: MaterialButton(
+                      onPressed: (startDateTime == null || endDateTime == null)
+                          ? null
+                          : () {
+                              if (endDateTime!.isBefore(startDateTime!)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'End time cannot be before start time.',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              final duration =
+                                  endDateTime!.difference(startDateTime!);
+
+                              context.read<BookingProvider>().bookSlot(
+                                    widget.slotNumber,
+                                    duration,
+                                  );
+                              Navigator.pop(context);
+                            },
+                      height: 50,
+                      minWidth: double.infinity,
+                      child: Text(
+                        'Book',
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                      ),
                     ),
                   ),
                 ),

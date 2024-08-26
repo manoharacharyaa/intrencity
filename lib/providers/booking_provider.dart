@@ -14,7 +14,6 @@ class BookingProvider extends ChangeNotifier {
 
   void bookSlot(int slotNumber, Duration duration) {
     isBooked[slotNumber] = true;
-
     slotDuration[slotNumber] = duration;
     _startTimer(slotNumber, duration);
     notifyListeners();
@@ -22,9 +21,25 @@ class BookingProvider extends ChangeNotifier {
 
   void _startTimer(int slotNumber, Duration duration) {
     Future.delayed(duration, () {
-      isBooked[slotNumber] = false;
-      slotDuration[slotNumber] = Duration.zero;
-      notifyListeners();
+      unbookSlot(slotNumber);
     });
+  }
+
+  void unbookSlot(int slotNumber) {
+    isBooked[slotNumber] = false;
+    slotDuration[slotNumber] = Duration.zero;
+    notifyListeners();
+  }
+
+  void markStillParked(int slotNumber) {
+    if (isBooked.containsKey(slotNumber)) {
+      isBooked[slotNumber] = true;
+      notifyListeners();
+    }
+  }
+
+  void updateSlotStatus(int slotNumber, bool status) {
+    isBooked[slotNumber] = status;
+    notifyListeners();
   }
 }
