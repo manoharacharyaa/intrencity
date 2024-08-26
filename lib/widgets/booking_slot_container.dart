@@ -45,7 +45,7 @@ class _BookingSlotContainerState extends State<BookingSlotContainer> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 15),
                     child: Text(
-                      'Slot ${widget.slotNumber.toString()}',
+                      'Slot ${widget.slotNumber}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -66,7 +66,6 @@ class _BookingSlotContainerState extends State<BookingSlotContainer> {
                                   ),
                                 ),
                               );
-                              setState(() {});
                             },
                       minWidth: double.infinity,
                       color: isBooked ? Colors.grey : primaryBlue,

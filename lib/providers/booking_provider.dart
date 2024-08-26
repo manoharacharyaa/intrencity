@@ -1,33 +1,47 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class BookingProvider extends ChangeNotifier {
-  Map<int, Duration> slotDuration = {};
   Map<int, bool> isBooked = {};
-
-  Duration getBookingDuration(int slotNumber) {
-    return slotDuration[slotNumber] ?? Duration.zero;
-  }
+  Map<int, Timer?> bookingTimers = {};
 
   bool getBookingStatus(int slotNumber) {
     return isBooked[slotNumber] ?? false;
   }
 
-  void bookSlot(int slotNumber, Duration duration) {
-    isBooked[slotNumber] = true;
-    slotDuration[slotNumber] = duration;
-    _startTimer(slotNumber, duration);
+  void bookSlot(int slotNumber, DateTime startTime, Duration duration) {
+    final now = DateTime.now();
+
+    if (startTime.isAfter(now)) {
+      // Set a timer to start booking at the future startTime
+      final durationUntilStart = startTime.difference(now);
+
+      bookingTimers[slotNumber]?.cancel();
+      bookingTimers[slotNumber] = Timer(durationUntilStart, () {
+        _startBooking(slotNumber, duration);
+      });
+    } else {
+      // If start time is now or in the past, start booking immediately
+      _startBooking(slotNumber, duration);
+    }
     notifyListeners();
   }
 
-  void _startTimer(int slotNumber, Duration duration) {
-    Future.delayed(duration, () {
+  void _startBooking(int slotNumber, Duration duration) {
+    isBooked[slotNumber] = true;
+    notifyListeners();
+
+    // Set a timer to unbook the slot after the duration
+    bookingTimers[slotNumber]?.cancel();
+    bookingTimers[slotNumber] = Timer(duration, () {
       unbookSlot(slotNumber);
     });
   }
 
   void unbookSlot(int slotNumber) {
     isBooked[slotNumber] = false;
-    slotDuration[slotNumber] = Duration.zero;
+    bookingTimers[slotNumber]?.cancel();
+    bookingTimers.remove(slotNumber);
     notifyListeners();
   }
 

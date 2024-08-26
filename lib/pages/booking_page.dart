@@ -52,6 +52,32 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
+  void _showAlertDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Invalid Time Selection",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          content: Text(
+            message,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -162,12 +188,17 @@ class _BookingPageState extends State<BookingPage> {
                           ? null
                           : () {
                               if (endDateTime!.isBefore(startDateTime!)) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'End time cannot be before start time.',
-                                    ),
-                                  ),
+                                _showAlertDialog(
+                                  context,
+                                  "End time cannot be before start time.",
+                                );
+                                return;
+                              }
+
+                              if (startDateTime!.isBefore(DateTime.now())) {
+                                _showAlertDialog(
+                                  context,
+                                  "The time selected has already passed.",
                                 );
                                 return;
                               }
@@ -177,6 +208,7 @@ class _BookingPageState extends State<BookingPage> {
 
                               context.read<BookingProvider>().bookSlot(
                                     widget.slotNumber,
+                                    startDateTime!,
                                     duration,
                                   );
                               Navigator.pop(context);
