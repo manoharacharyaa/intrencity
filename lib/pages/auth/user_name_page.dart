@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/widgets/custom_auth_field.dart';
+import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 
 class UserNamePage extends StatefulWidget {
   const UserNamePage({super.key});
@@ -17,7 +17,7 @@ class _UserNamePageState extends State<UserNamePage> {
       body: SafeArea(
         child: Column(
           children: [
-            CustomAuthField(
+            CustomTextFormField(
               controller: userNameController,
             ),
           ],

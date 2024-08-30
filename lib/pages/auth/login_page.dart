@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/pages/parking_slot_page.dart';
+import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
 import 'package:intrencity_provider/widgets/auth_button.dart';
-import 'package:intrencity_provider/widgets/custom_auth_field.dart';
+import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:provider/provider.dart';
 
@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
-                CustomAuthField(
+                CustomTextFormField(
                   controller: loginEmailController,
                   prefixIcon: Icons.mail,
                   hintText: 'Email',
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.02),
-                CustomAuthField(
+                CustomTextFormField(
                   controller: loginPasswordController,
                   prefixIcon:
                       validator.isVisible ? Icons.lock_open : Icons.lock,

@@ -2,12 +2,12 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/pages/parking_slot_page.dart';
+import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
 import 'package:intrencity_provider/widgets/auth_button.dart';
-import 'package:intrencity_provider/widgets/custom_auth_field.dart';
+import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:provider/provider.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -42,7 +42,7 @@ class _SignUpPageState extends State<SignUpPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
-                CustomAuthField(
+                CustomTextFormField(
                   controller: nameController,
                   prefixIcon: Icons.person,
                   hintText: 'Name',
@@ -54,7 +54,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.02),
-                CustomAuthField(
+                CustomTextFormField(
                   controller: emailController,
                   prefixIcon: Icons.mail,
                   hintText: 'Email',
@@ -66,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.02),
-                CustomAuthField(
+                CustomTextFormField(
                   controller: passwordController,
                   prefixIcon:
                       validator.isVisible ? Icons.lock_open : Icons.lock,
@@ -99,7 +99,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.02),
-                CustomAuthField(
+                CustomTextFormField(
                   controller: confirmPasswordController,
                   prefixIcon: Icons.lock,
                   hintText: 'Confirm Password',

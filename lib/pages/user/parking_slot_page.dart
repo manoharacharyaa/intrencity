@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/pages/auth/auth_page.dart';
-import 'package:intrencity_provider/providers/auth_provider.dart';
+import 'package:intrencity_provider/pages/user/profile_page.dart';
 import 'package:intrencity_provider/widgets/booking_slot_container.dart';
-import 'package:provider/provider.dart';
 
 class ParkingSlotPage extends StatelessWidget {
   const ParkingSlotPage({super.key});
@@ -17,18 +15,21 @@ class ParkingSlotPage extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              context.read<AuthenticationProvider>().logout().then(
-                    (_) => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AuthPage(),
-                      ),
-                    ),
-                  );
-            },
-            icon: const Icon(Icons.logout),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfilePage(),
+                  ),
+                );
+              },
+              child: const CircleAvatar(
+                backgroundColor: primaryBlue,
+              ),
+            ),
           ),
         ],
       ),

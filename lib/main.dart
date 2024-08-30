@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:intrencity_provider/constants/theme.dart';
 import 'package:intrencity_provider/home_page.dart';
 import 'package:intrencity_provider/providers/admin_provider.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
@@ -35,20 +35,7 @@ class MainApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: const ColorScheme.dark(),
-          useMaterial3: true,
-          textTheme: TextTheme(
-            bodySmall: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-            bodyMedium: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
+        theme: darkTheme,
         // home: StreamBuilder(
         //   stream: FirebaseAuth.instance.authStateChanges(),
         //   builder: (context, snapshot) {

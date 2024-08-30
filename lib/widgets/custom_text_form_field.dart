@@ -4,8 +4,8 @@ import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
 import 'package:provider/provider.dart';
 
-class CustomAuthField extends StatelessWidget {
-  const CustomAuthField({
+class CustomTextFormField extends StatelessWidget {
+  const CustomTextFormField({
     super.key,
     this.controller,
     this.hintText,
@@ -16,6 +16,8 @@ class CustomAuthField extends StatelessWidget {
     this.validator,
     this.keyboardType,
     this.obscureText = false,
+    this.verticalPadding = 0,
+    this.horizontalPadding = 0,
   });
 
   final TextEditingController? controller;
@@ -27,28 +29,36 @@ class CustomAuthField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool obscureText;
   final TextInputType? keyboardType;
+  final double verticalPadding;
+  final double horizontalPadding;
 
   @override
   Widget build(BuildContext context) {
     final error = context.watch<AuthValidationProvider>().error;
-    return SizedBox(
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: horizontalPadding,
+      ),
       child: ClipSmoothRect(
         radius: SmoothBorderRadius(
-          cornerRadius: 18,
-          cornerSmoothing: 2,
+          cornerRadius: 16,
+          cornerSmoothing: 1,
         ),
         child: TextFormField(
           controller: controller,
           cursorColor: Colors.white,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          style: Theme.of(context).textTheme.bodySmall,
           decoration: InputDecoration(
+            contentPadding: const EdgeInsets.all(18),
             filled: true,
             fillColor: textFieldGrey,
             prefix: prefix,
             hintText: hintText,
             hintStyle: TextStyle(
-              color: error ? redAccent : Colors.white,
+              color: error ? redAccent : Colors.grey,
             ),
             prefixIcon: Icon(
               prefixIcon,
@@ -60,14 +70,14 @@ class CustomAuthField extends StatelessWidget {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: SmoothBorderRadius(
-                cornerRadius: 18,
-                cornerSmoothing: 2,
+                cornerRadius: 16,
+                cornerSmoothing: 1,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: SmoothBorderRadius(
-                cornerRadius: 18,
-                cornerSmoothing: 2,
+                cornerRadius: 16,
+                cornerSmoothing: 1,
               ),
             ),
             errorStyle: const TextStyle(color: redAccent),
