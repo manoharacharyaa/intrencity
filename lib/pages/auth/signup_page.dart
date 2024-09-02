@@ -1,7 +1,10 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity_provider/home_page.dart';
 import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
@@ -128,88 +131,90 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.02),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       flex: 1,
-                //       child: InkWell(
-                //         onTap: () {
-                //           showCountryPicker(
-                //               context: context,
-                //               countryListTheme: CountryListThemeData(
-                //                 flagSize: 25,
-                //                 backgroundColor: scaffoldColor,
-                //                 textStyle: const TextStyle(fontSize: 14),
-                //                 bottomSheetHeight: 500,
-                //                 borderRadius: const BorderRadius.only(
-                //                   topLeft: Radius.circular(20.0),
-                //                   topRight: Radius.circular(20.0),
-                //                 ),
-                //                 inputDecoration: InputDecoration(
-                //                   fillColor: textFieldGrey,
-                //                   filled: true,
-                //                   labelText: 'Search',
-                //                   hintText: 'Start typing to search',
-                //                   prefixIcon: const Icon(Icons.search),
-                //                   border: OutlineInputBorder(
-                //                     borderSide: BorderSide.none,
-                //                     borderRadius: BorderRadius.circular(15),
-                //                   ),
-                //                 ),
-                //               ),
-                //               onSelect: (Country country) {
-                //                 authValidation.country(country.phoneCode);
-                //               });
-                //         },
-                //         child: Padding(
-                //           padding: EdgeInsets.only(
-                //             bottom: validator.error ? 30 : 0,
-                //           ),
-                //           child: ClipSmoothRect(
-                //             radius: SmoothBorderRadius(
-                //               cornerRadius: 20,
-                //               cornerSmoothing: 2,
-                //             ),
-                //             child: Container(
-                //               height: 60,
-                //               decoration: const BoxDecoration(
-                //                 color: textFieldGrey,
-                //               ),
-                //               child: Center(
-                //                 child: Text(
-                //                   "+${validator.selectedCountry ?? '91'} ",
-                //                   style: GoogleFonts.poppins(
-                //                     fontSize: 17,
-                //                     fontWeight: FontWeight.w600,
-                //                     color: validator.error
-                //                         ? redAccent
-                //                         : Colors.white,
-                //                   ),
-                //                 ),
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //     SizedBox(width: size.width * 0.02),
-                //     Expanded(
-                //       flex: 4,
-                //       child: CustomAuthField(
-                //         controller: phoneController,
-                //         prefixIcon: Icons.phone,
-                //         hintText: 'Phone Number',
-                //         keyboardType: TextInputType.phone,
-                //         validator: (value) {
-                //           if (value == null || value.isEmpty) {
-                //             return 'Please enter email';
-                //           }
-                //           return null;
-                //         },
-                //       ),
-                //     ),
-                //   ],
-                // ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        onTap: () {
+                          showCountryPicker(
+                              context: context,
+                              countryListTheme: CountryListThemeData(
+                                flagSize: 25,
+                                backgroundColor: scaffoldColor,
+                                textStyle: const TextStyle(fontSize: 10),
+                                bottomSheetHeight: 500,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20.0),
+                                  topRight: Radius.circular(20.0),
+                                ),
+                                inputDecoration: InputDecoration(
+                                  fillColor: textFieldGrey,
+                                  filled: true,
+                                  labelText: 'Search',
+                                  labelStyle:
+                                      Theme.of(context).textTheme.titleMedium,
+                                  hintText: 'Start typing to search',
+                                  prefixIcon: const Icon(Icons.search),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                              ),
+                              onSelect: (Country country) {
+                                validator.country(country.phoneCode);
+                              });
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            bottom: validator.error ? 30 : 0,
+                          ),
+                          child: ClipSmoothRect(
+                            radius: SmoothBorderRadius(
+                              cornerRadius: 20,
+                              cornerSmoothing: 2,
+                            ),
+                            child: Container(
+                              height: 60,
+                              decoration: const BoxDecoration(
+                                color: textFieldGrey,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "+${validator.selectedCountry ?? '91'} ",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600,
+                                    color: validator.error
+                                        ? redAccent
+                                        : Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: size.width * 0.02),
+                    Expanded(
+                      flex: 4,
+                      child: CustomTextFormField(
+                        controller: phoneController,
+                        prefixIcon: Icons.phone,
+                        hintText: 'Phone Number',
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter email';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: size.height * 0.04),
                 AuthButton(
                   onPressed: () {
@@ -225,8 +230,15 @@ class _SignUpPageState extends State<SignUpPage> {
                         (value) {
                           validator.loading(false);
                           Future.delayed(
-                            const Duration(seconds: 2),
-                            () {},
+                            const Duration(seconds: 1),
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HomePage(),
+                                ),
+                              );
+                            },
                           );
                         },
                       ).onError(
@@ -298,7 +310,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             (_) => Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ParkingSlotPage(),
+                                builder: (context) => const HomePage(),
                               ),
                             ),
                           );

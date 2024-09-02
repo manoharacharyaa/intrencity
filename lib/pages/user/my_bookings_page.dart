@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
+import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -22,47 +24,16 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Bookings',
+            'Parkings',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          bottom: TabBar(
-            dividerHeight: 0,
-            enableFeedback: false,
-            labelColor: primaryBlue,
-            overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-            labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 18,
-                ),
-            indicator: const UnderlineTabIndicator(
-              borderSide: BorderSide.none,
-            ),
-            tabs: const [
-              Tab(text: 'Reserve'),
-              Tab(text: 'History'),
-            ],
+          leading: IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.gps_fixed),
           ),
+          actions: [],
         ),
-        body: const SafeArea(
-          child: TabBarView(
-            children: [
-              Reservation(),
-              History(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class History extends StatelessWidget {
-  const History({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('History'),
+        body: const Reservation(),
       ),
     );
   }
@@ -83,73 +54,50 @@ class _ReservationState extends State<Reservation> {
   List searchParkingSpace = [];
   late Future<List<ParkingSpacePost>> _fetchSpaces;
 
+  bool _isListening = false;
+  Timer? _timer;
+
   void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize();
     setState(() {});
   }
 
   void _startListening() async {
+    setState(() {
+      _isListening = true;
+    });
     await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
+
+    // Start a timer to stop listening after 10 seconds
+    _timer = Timer(const Duration(seconds: 5), () {
+      if (_isListening) {
+        _stopListening();
+      }
+    });
   }
 
   void _stopListening() async {
+    _timer?.cancel(); // Cancel the timer if it’s still active
     await _speechToText.stop();
-    setState(() {});
+    setState(() {
+      _isListening = false;
+    });
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
     setState(() {
       _lastWords = result.recognizedWords;
       searchController.text = _lastWords;
-      searchSpace();
+      voicesearchSpace();
     });
+    _stopListening();
   }
 
-  // List<ParkingSpacePost> spaces = [
-  //   ParkingSpacePost(
-  //     spaceName: "Govandi",
-  //     spacePrice: '99₹/hr',
-  //     spaceLocation:
-  //         'Location: 5th Avenue, Street No 16, Sakinaka, Mumbai 400065',
-  //     spaceThumbnail: "assets/images/parkingslot.png",
-  //   ),
-  //   ParkingSpacePost(
-  //     spaceName: "Sakinaka",
-  //     spacePrice: '200₹/hr',
-  //     spaceLocation:
-  //         'Location: 5th Avenue, Street No 16, Sakinaka, Mumbai 400065',
-  //     spaceThumbnail: "assets/images/parkingslot.png",
-  //   ),
-  //   ParkingSpacePost(
-  //     spacePrice: '150₹/hr',
-  //     spaceName: "Sakinaka",
-  //     spaceLocation:
-  //         'Location: 5th Avenue, Street No 16, Sakinaka, Mumbai 400065',
-  //     spaceThumbnail: "assets/images/parkingslot.png",
-  //   ),
-  //   ParkingSpacePost(
-  //     spacePrice: '150₹/hr',
-  //     spaceName: "Dombivli",
-  //     spaceLocation:
-  //         'Location: 5th Avenue, Street No 16, Sakinaka, Mumbai 400065',
-  //     spaceThumbnail: "assets/images/parkingslot.png",
-  //   ),
-  // ];
-
-  // void searchSpace() {
-  //   String searchTerm = _lastWords.toLowerCase();
-  //   searchParkingSpace = spaces.where((space) {
-  //     return space.spaceName.toLowerCase().contains(searchTerm);
-  //   }).toList();
-  //   setState(() {});
-  // }
-
-  void searchSpace() async {
+  void voicesearchSpace() async {
     String searchTerm = _lastWords.toLowerCase();
     List<ParkingSpacePost> spaces = await fetchSpaces();
     searchParkingSpace = spaces.where((space) {
-      return space.spaceName.toLowerCase().contains(searchTerm);
+      return space.spaceLocation.toLowerCase().contains(searchTerm);
     }).toList();
     setState(() {});
   }
@@ -169,7 +117,7 @@ class _ReservationState extends State<Reservation> {
     _initSpeech();
     searchController.addListener(() {
       _lastWords = searchController.text;
-      searchSpace();
+      voicesearchSpace();
     });
     _fetchSpaces = fetchSpaces();
   }
@@ -180,7 +128,7 @@ class _ReservationState extends State<Reservation> {
     return Scaffold(
       body: Column(
         children: [
-          //Search Bar
+          // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
             child: ClipSmoothRect(
@@ -201,59 +149,90 @@ class _ReservationState extends State<Reservation> {
                   fillColor: textFieldGrey,
                   hintText: 'Search places',
                   prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: IconButton(
-                    onPressed: _speechToText.isNotListening
-                        ? _startListening
-                        : _stopListening,
-                    icon: const Icon(Icons.mic),
-                  ),
+                  suffixIcon: _isListening
+                      ? Lottie.asset(
+                          'assets/animations/voice_search.json',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.fill,
+                        )
+                      : IconButton(
+                          onPressed: _speechToText.isNotListening
+                              ? _startListening
+                              : _stopListening,
+                          icon: const Icon(Icons.mic),
+                        ),
                 ),
               ),
             ),
           ),
           Expanded(
-            child: FutureBuilder(
-              future: _fetchSpaces,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error ${snapshot.error}'),
-                  );
-                } else {
-                  List<ParkingSpacePost> spaces = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: searchController.text.isEmpty
-                        ? spaces.length
-                        : searchParkingSpace.length,
-                    itemBuilder: (context, index) {
-                      final space = searchController.text.isEmpty
-                          ? spaces[index]
-                          : searchParkingSpace[index];
-                      return ParkingSpace(
-                        size: size,
-                        spaceName: space.spaceName,
-                        spaceLocation: space.spaceLocation,
-                        thumbnail: space.spaceThumbnail,
-                        spacePrice: space.spacePrice,
-                        navigateTo: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ParkingSpaceDetailsPage(
-                                spaceDetails: spaces[index],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                }
+            child: RefreshIndicator(
+              onRefresh: () {
+                return fetchSpaces();
               },
+              color: Colors.white,
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    FirebaseFirestore.instance.collection('spaces').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error ${snapshot.error}'),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('No parking spaces found'),
+                    );
+                  } else {
+                    List<ParkingSpacePost> spaces = snapshot.data!.docs
+                        .map((doc) => ParkingSpacePost.fromJson(
+                            doc.data() as Map<String, dynamic>))
+                        .toList();
+
+                    List<ParkingSpacePost> searchParkingSpace =
+                        spaces.where((space) {
+                      return space.spaceLocation.toLowerCase().contains(
+                            searchController.text.toLowerCase(),
+                          );
+                    }).toList();
+
+                    return ListView.builder(
+                      itemCount: searchController.text.isEmpty
+                          ? spaces.length
+                          : searchParkingSpace.length,
+                      itemBuilder: (context, index) {
+                        final space = searchController.text.isEmpty
+                            ? spaces[index]
+                            : searchParkingSpace[index];
+                        return ParkingSpace(
+                          size: size,
+                          spaceName: space.spaceName,
+                          spaceLocation: space.spaceLocation,
+                          thumbnail: space.spaceThumbnail[0],
+                          spacePrice: space.spacePrice,
+                          navigateTo: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ParkingSpaceDetailsPage(
+                                  spaceDetails: searchController.text.isEmpty
+                                      ? spaces[index]
+                                      : searchParkingSpace[index],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             ),
           ),
         ],

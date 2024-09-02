@@ -25,4 +25,7 @@ var darkTheme = ThemeData(
       fontSize: 20,
     ),
   ),
+  progressIndicatorTheme: const ProgressIndicatorThemeData(
+    color: Colors.white,
+  ),
 );

@@ -40,7 +40,8 @@ class CustomButton extends StatelessWidget {
             child: Center(
               child: isLoading
                   ? const CupertinoActivityIndicator(
-                      radius: 12,
+                      radius: 13,
+                      animating: true,
                       color: Colors.white,
                     )
                   : Text(

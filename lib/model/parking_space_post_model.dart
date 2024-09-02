@@ -2,7 +2,7 @@ class ParkingSpacePost {
   final String spaceName;
   final String spacePrice;
   final String spaceLocation;
-  final String spaceThumbnail;
+  final List<String> spaceThumbnail;
 
   ParkingSpacePost({
     required this.spaceName,
@@ -25,7 +25,7 @@ class ParkingSpacePost {
       spaceName: json['spaceName'],
       spacePrice: json['spacePrice'],
       spaceLocation: json['spaceLocation'],
-      spaceThumbnail: json['spaceThumbnail'],
+      spaceThumbnail: List<String>.from(json['spaceThumbnail']),
     );
   }
 }

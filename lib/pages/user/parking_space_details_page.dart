@@ -22,14 +22,9 @@ class ParkingSpaceDetailsPage extends StatefulWidget {
 class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
   @override
   Widget build(BuildContext context) {
-    List<String> images = [
-      'https://miro.medium.com/v2/resize:fit:1400/0*yNQrasZXZxq-KALC.jpg',
-      'https://d27p8o2qkwv41j.cloudfront.net/wp-content/uploads/2018/01/shutterstock_521216080-e1515000863176.jpg',
-      'https://www.bdcnetwork.com/sites/default/files/parking.jpg'
-    ];
+    List<String> images = widget.spaceDetails.spaceThumbnail;
 
-    List<int> list = [1, 2, 3, 4, 5];
-    final size = MediaQuery.sizeOf(context);
+    final height = MediaQuery.sizeOf(context).height;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -37,73 +32,117 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: size.height * 0.015),
-          CarouselSlider(
-            options: CarouselOptions(
-              // autoPlay: true,
-              enlargeCenterPage: true,
-              autoPlayInterval: const Duration(seconds: 2),
-            ),
-            items: images
-                .map((image) => ClipSmoothRect(
-                      radius: SmoothBorderRadius(
-                        cornerRadius: 10,
-                        cornerSmoothing: 1,
-                      ),
-                      child: Image.network(
-                        image,
-                        fit: BoxFit.cover,
-                      ),
-                    ))
-                .toList(),
-          ),
-          const SizedBox(height: 30),
-          Text(
-            widget.spaceDetails.spaceName,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 15),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ClipSmoothRect(
-              radius: SmoothBorderRadius(
-                cornerRadius: 15,
-                cornerSmoothing: 1,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: height * 0.015),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: height * 0.3,
+                autoPlay: true,
+                enlargeCenterPage: true,
+                autoPlayInterval: const Duration(seconds: 2),
               ),
-              child: Container(
-                color: textFieldGrey,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Location',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    Text(
-                      widget.spaceDetails.spaceLocation,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
+              items: images
+                  .map((image) => ClipSmoothRect(
+                        radius: SmoothBorderRadius(
+                          cornerRadius: 10,
+                          cornerSmoothing: 1,
+                        ),
+                        child: Image.network(
+                          image,
+                          fit: BoxFit.cover,
+                        ),
+                      ))
+                  .toList(),
             ),
-          ),
-          const Spacer(),
-          CustomButton(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ParkingSlotPage(),
+            const SizedBox(height: 30),
+            Column(
+              children: [
+                Text(
+                  widget.spaceDetails.spaceName,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-              );
-            },
-          ),
-        ],
+                const SizedBox(height: 15),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: ClipSmoothRect(
+                    radius: SmoothBorderRadius(
+                      cornerRadius: 15,
+                      cornerSmoothing: 1,
+                    ),
+                    child: Container(
+                      color: textFieldGrey,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Price',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: secondaryBlue),
+                          ),
+                          Text(
+                            widget.spaceDetails.spacePrice,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const CustomDivider(),
+                          Text(
+                            'Location',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(color: secondaryBlue),
+                          ),
+                          Text(
+                            widget.spaceDetails.spaceLocation,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: height * 0.18,
+            ),
+            CustomButton(
+              horizontalPadding: 10,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ParkingSlotPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomDivider extends StatelessWidget {
+  const CustomDivider({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 4),
+      child: Container(
+        height: 0.2,
+        color: Colors.white,
       ),
     );
   }

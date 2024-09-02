@@ -50,12 +50,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       pickImage();
                     },
                     child: _imgFile == null
-                        ? const CircleAvatar(
-                            radius: 50,
-                            backgroundColor: textFieldGrey,
-                            child: Icon(
-                              Icons.camera_alt_rounded,
-                              color: Colors.white,
+                        ? SizedBox(
+                            height: size.height * 0.14,
+                            width: size.width * 0.3,
+                            child: const CircleAvatar(
+                              backgroundColor: textFieldGrey,
+                              child: Icon(
+                                Icons.add_photo_alternate,
+                                size: 32,
+                                color: Colors.white,
+                              ),
                             ),
                           )
                         : ClipRRect(
@@ -66,6 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Image.file(
                                 _imgFile!,
                                 fit: BoxFit.cover,
+                                filterQuality: FilterQuality.high,
                               ),
                             ),
                           ),
