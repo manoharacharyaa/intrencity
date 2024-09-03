@@ -9,9 +9,13 @@ class BookingSlotContainer extends StatefulWidget {
   const BookingSlotContainer({
     super.key,
     required this.slotNumber,
+    this.startDate,
+    this.endDate,
   });
 
   final int slotNumber;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   @override
   State<BookingSlotContainer> createState() => _BookingSlotContainerState();
@@ -63,6 +67,8 @@ class _BookingSlotContainerState extends State<BookingSlotContainer> {
                                 MaterialPageRoute(
                                   builder: (context) => BookingPage(
                                     slotNumber: widget.slotNumber,
+                                    startDate: widget.startDate!,
+                                    endDate: widget.endDate!,
                                   ),
                                 ),
                               );

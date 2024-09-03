@@ -11,6 +11,7 @@ class CustomTextFormField extends StatelessWidget {
     this.hintText,
     this.prefixIcon,
     this.prefix,
+    this.maxLines,
     this.onChanged,
     this.suffixIcon,
     this.validator,
@@ -31,6 +32,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputType? keyboardType;
   final double verticalPadding;
   final double horizontalPadding;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,7 @@ class CustomTextFormField extends StatelessWidget {
         ),
         child: TextFormField(
           controller: controller,
+          maxLines: maxLines,
           cursorColor: Colors.white,
           obscureText: obscureText,
           keyboardType: keyboardType,

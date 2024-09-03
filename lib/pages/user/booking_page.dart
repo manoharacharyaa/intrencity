@@ -1,4 +1,5 @@
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/providers/booking_provider.dart';
@@ -6,9 +7,16 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key, required this.slotNumber});
+  const BookingPage({
+    super.key,
+    required this.slotNumber,
+    required this.startDate,
+    required this.endDate,
+  });
 
   final int slotNumber;
+  final DateTime startDate;
+  final DateTime endDate;
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -21,9 +29,9 @@ class _BookingPageState extends State<BookingPage> {
   Future<void> _selectDateTime(BuildContext context, bool isStart) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
+      // initialDate: DateTime.now(),
+      firstDate: widget.startDate,
+      lastDate: widget.endDate,
     );
 
     if (pickedDate != null) {

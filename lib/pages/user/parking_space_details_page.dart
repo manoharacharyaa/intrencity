@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
@@ -23,6 +25,10 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
   @override
   Widget build(BuildContext context) {
     List<String> images = widget.spaceDetails.spaceThumbnail;
+    final startDate = DateTime.parse(widget.spaceDetails.startDate.toString());
+    final endDate = DateTime.parse(widget.spaceDetails.endDate.toString());
+    final formatedStartDate = DateFormat('dd-MM-yy').format(startDate);
+    final formatedEndDate = DateFormat('dd-MM-yy').format(endDate);
 
     final height = MediaQuery.sizeOf(context).height;
     return Scaffold(
@@ -47,7 +53,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
               items: images
                   .map((image) => ClipSmoothRect(
                         radius: SmoothBorderRadius(
-                          cornerRadius: 10,
+                          cornerRadius: 20,
                           cornerSmoothing: 1,
                         ),
                         child: Image.network(
@@ -74,34 +80,46 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                       cornerSmoothing: 1,
                     ),
                     child: Container(
-                      color: textFieldGrey,
+                      color: Colors.grey[900],
                       width: double.infinity,
                       padding: const EdgeInsets.all(15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Price',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: secondaryBlue),
-                          ),
-                          Text(
-                            widget.spaceDetails.spacePrice,
-                            style: Theme.of(context).textTheme.bodySmall,
+                          SpaceDetailInfo(
+                            label: 'Name',
+                            info: widget.spaceDetails.spaceName,
                           ),
                           const CustomDivider(),
-                          Text(
-                            'Location',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(color: secondaryBlue),
+                          SpaceDetailInfo(
+                            label: 'Location',
+                            info: widget.spaceDetails.spaceLocation,
                           ),
-                          Text(
-                            widget.spaceDetails.spaceLocation,
-                            style: Theme.of(context).textTheme.bodySmall,
+                          const CustomDivider(),
+                          SpaceDetailInfo(
+                            label: 'Vehicle Tpes',
+                            info: widget.spaceDetails.vehicleType.join(', '),
+                          ),
+                          const CustomDivider(),
+                          SpaceDetailInfo(
+                            label: 'Slots & Price',
+                            info:
+                                'No of slots (${widget.spaceDetails.spaceSlots}) & ${widget.spaceDetails.spacePrice}',
+                          ),
+                          const CustomDivider(),
+                          SpaceDetailInfo(
+                            label: 'Aminities',
+                            info: widget.spaceDetails.aminitiesType.join(', '),
+                          ),
+                          const CustomDivider(),
+                          SpaceDetailInfo(
+                            label: 'Available From',
+                            info: '$formatedStartDate  To  $formatedEndDate',
+                          ),
+                          const CustomDivider(),
+                          SpaceDetailInfo(
+                            label: 'Space Description',
+                            info: widget.spaceDetails.description!,
                           ),
                         ],
                       ),
@@ -110,16 +128,19 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                 ),
               ],
             ),
-            SizedBox(
-              height: height * 0.18,
-            ),
             CustomButton(
               horizontalPadding: 10,
+              verticalPadding: 20,
               onTap: () {
+                print(int.parse(widget.spaceDetails.spaceSlots));
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ParkingSlotPage(),
+                    builder: (context) => ParkingSlotPage(
+                      noOfSlots: int.parse(widget.spaceDetails.spaceSlots),
+                      startDate: widget.spaceDetails.startDate,
+                      endDate: widget.spaceDetails.endDate,
+                    ),
                   ),
                 );
               },
@@ -127,6 +148,42 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SpaceDetailInfo extends StatelessWidget {
+  const SpaceDetailInfo({
+    super.key,
+    required this.label,
+    required this.info,
+  });
+
+  final String label;
+  final String info;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: primaryBlue,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          info,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -139,7 +196,7 @@ class CustomDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 10, 0, 4),
+      padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
       child: Container(
         height: 0.2,
         color: Colors.white,

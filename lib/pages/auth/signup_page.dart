@@ -75,6 +75,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       validator.isVisible ? Icons.lock_open : Icons.lock,
                   hintText: 'Password',
                   obscureText: validator.isVisible ? false : true,
+                  maxLines: 1,
                   suffixIcon: validator.passwordEmpty
                       ? null
                       : validator.error
@@ -106,6 +107,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   controller: confirmPasswordController,
                   prefixIcon: Icons.lock,
                   hintText: 'Confirm Password',
+                  maxLines: 1,
                   obscureText: true,
                   onChanged: (_) {
                     validator.validatePassword(

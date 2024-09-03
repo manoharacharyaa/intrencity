@@ -4,7 +4,15 @@ import 'package:intrencity_provider/pages/user/profile_page.dart';
 import 'package:intrencity_provider/widgets/booking_slot_container.dart';
 
 class ParkingSlotPage extends StatelessWidget {
-  const ParkingSlotPage({super.key});
+  const ParkingSlotPage({
+    super.key,
+    this.noOfSlots,
+    this.startDate,
+    this.endDate,
+  });
+  final int? noOfSlots;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +56,12 @@ class ParkingSlotPage extends StatelessWidget {
                 crossAxisCount: 2,
                 childAspectRatio: 5 / 5,
               ),
-              itemCount: 20,
+              itemCount: noOfSlots,
               itemBuilder: (context, index) {
                 return BookingSlotContainer(
                   slotNumber: index + 1,
+                  startDate: startDate,
+                  endDate: endDate,
                 );
               },
             ),
