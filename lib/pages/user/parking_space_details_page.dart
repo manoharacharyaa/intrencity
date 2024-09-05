@@ -53,7 +53,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
               items: images
                   .map((image) => ClipSmoothRect(
                         radius: SmoothBorderRadius(
-                          cornerRadius: 20,
+                          cornerRadius: 10,
                           cornerSmoothing: 1,
                         ),
                         child: Image.network(

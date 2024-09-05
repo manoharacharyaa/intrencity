@@ -16,8 +16,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const AdminPannelPage(),
-    const ParkingSlotPage(),
+    // const AdminPannelPage(),
+    // const ParkingSlotPage(),
     const MyBookingsPage(),
     const SpacePostingPage(),
   ];
@@ -34,14 +34,14 @@ class _HomePageState extends State<HomePage> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.admin_panel_settings),
-            label: 'Admin Panel',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.local_parking),
-            label: 'Parking Slots',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.admin_panel_settings),
+          //   label: 'Admin Panel',
+          // ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.local_parking),
+          //   label: 'Parking Slots',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_add_rounded),
             label: 'My Booking',

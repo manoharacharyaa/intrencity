@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
+import 'package:intrencity_provider/home_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
 import 'package:intrencity_provider/widgets/auth_button.dart';
@@ -22,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLoading = false;
     final size = MediaQuery.of(context).size;
     final auth = context.watch<AuthenticationProvider>();
     final validator = context.watch<AuthValidationProvider>();
@@ -39,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
                 CustomTextFormField(
                   controller: loginEmailController,
                   prefixIcon: Icons.mail,
+                  maxLines: 1,
                   hintText: 'Email',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -54,6 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                       validator.isVisible ? Icons.lock_open : Icons.lock,
                   hintText: 'Password',
                   obscureText: validator.isVisible ? false : true,
+                  maxLines: 1,
                   suffixIcon: validator.passwordEmpty
                       ? null
                       : validator.error
@@ -66,6 +69,12 @@ class _LoginPageState extends State<LoginPage> {
                                   ? const Icon(Icons.visibility)
                                   : const Icon(Icons.visibility_off),
                             ),
+                  onChanged: (_) {
+                    if (loginPasswordController.text.isEmpty) {
+                      validator.passwordEmpty = true;
+                    }
+                    validator.passwordIsEmpty(loginPasswordController.text);
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter password';
@@ -89,12 +98,14 @@ class _LoginPageState extends State<LoginPage> {
                         (value) {
                           validator.loading(false);
                           Future.delayed(
-                            const Duration(seconds: 2),
+                            const Duration(seconds: 1),
                             () {
+                              loginEmailController.clear();
+                              loginPasswordController.clear();
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const ParkingSlotPage(),
+                                  builder: (context) => const HomePage(),
                                 ),
                               );
                             },
@@ -121,12 +132,6 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     }
                     if (_formKey.currentState!.validate()) {
-                      // authValidation.loading(true);
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   const SnackBar(
-                      //     content: Text('Processing Data'),
-                      //   ),
-                      // );
                     } else {
                       validator.errorCheck();
                     }

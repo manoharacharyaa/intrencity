@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/theme.dart';
 import 'package:intrencity_provider/home_page.dart';
+import 'package:intrencity_provider/pages/auth/auth_page.dart';
 import 'package:intrencity_provider/providers/admin_provider.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/booking_provider.dart';

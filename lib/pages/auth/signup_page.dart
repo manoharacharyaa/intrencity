@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/home_page.dart';
-import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
@@ -35,6 +34,16 @@ class _SignUpPageState extends State<SignUpPage> {
     final validator = context.watch<AuthValidationProvider>();
     final auth = context.watch<AuthenticationProvider>();
 
+    String getCountryPlusPhone() {
+      String phoneNumber = '';
+      setState(() {
+        phoneNumber = validator.selectedCountry == null
+            ? '${'+91'} ${phoneController.text}'
+            : '$selectedCountry ${phoneController.text}';
+      });
+      return phoneNumber;
+    }
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -47,6 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 20),
                 CustomTextFormField(
                   controller: nameController,
+                  maxLines: 1,
                   prefixIcon: Icons.person,
                   hintText: 'Name',
                   validator: (value) {
@@ -60,6 +70,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 CustomTextFormField(
                   controller: emailController,
                   prefixIcon: Icons.mail,
+                  maxLines: 1,
                   hintText: 'Email',
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -94,6 +105,9 @@ class _SignUpPageState extends State<SignUpPage> {
                       passwordController.text,
                       confirmPasswordController.text,
                     );
+                    if (passwordController.text.isEmpty) {
+                      validator.passwordEmpty = true;
+                    }
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -204,6 +218,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       flex: 4,
                       child: CustomTextFormField(
                         controller: phoneController,
+                        maxLines: 1,
                         prefixIcon: Icons.phone,
                         hintText: 'Phone Number',
                         keyboardType: TextInputType.phone,
@@ -227,6 +242,8 @@ class _SignUpPageState extends State<SignUpPage> {
                           .signUp(
                         emailController.text,
                         passwordController.text,
+                        nameController.text,
+                        getCountryPlusPhone(),
                       )
                           .then(
                         (value) {
@@ -234,7 +251,11 @@ class _SignUpPageState extends State<SignUpPage> {
                           Future.delayed(
                             const Duration(seconds: 1),
                             () {
-                              Navigator.push(
+                              nameController.clear();
+                              emailController.clear();
+                              phoneController.clear();
+
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const HomePage(),

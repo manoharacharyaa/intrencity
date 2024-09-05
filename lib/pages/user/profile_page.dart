@@ -1,8 +1,13 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity_provider/model/user_profile_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,6 +19,15 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   File? _imgFile;
   final ImagePicker picker = ImagePicker();
+  UserProfile? user;
+  String name = '';
+  String email = '';
+  String phone = '';
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  bool isEditing = false;
+  String? profilePicUrl;
 
   void pickImage() async {
     XFile? image = await picker.pickImage(
@@ -26,6 +40,91 @@ class _ProfilePageState extends State<ProfilePage> {
         _imgFile = File(image.path);
       });
     }
+
+    if (_imgFile != null) {
+      try {
+        String uid = FirebaseAuth.instance.currentUser!.uid;
+        UploadTask uploadTask = FirebaseStorage.instance
+            .ref()
+            .child('profilePic/$uid')
+            .putFile(_imgFile!);
+
+        TaskSnapshot snapshot = await uploadTask;
+        profilePicUrl = await snapshot.ref.getDownloadURL();
+      } catch (e) {
+        print("Error uploading profile picture: $e");
+      }
+    }
+  }
+
+  Future<UserProfile?> getUserProfileInfo() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      final docSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (docSnapshot.exists) {
+        return UserProfile.fromJson(docSnapshot.data()!);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching user profile: $e");
+      return null;
+    }
+  }
+
+  void currentUser() async {
+    UserProfile? currentUser = await getUserProfileInfo();
+    if (currentUser != null) {
+      setState(() {
+        name = currentUser.name;
+        email = currentUser.email;
+        phone = currentUser.phoneNumber;
+        profilePicUrl = currentUser.profilePic;
+
+        nameController.text = name;
+        emailController.text = email;
+        phoneController.text = phone;
+      });
+    }
+  }
+
+  Future<void> updateCurrentUser() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      Map<String, dynamic> updateData = {
+        'name': nameController.text,
+        'email': emailController.text,
+        'phoneNumber': phoneController.text,
+        'profilePic': profilePicUrl,
+      };
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update(updateData);
+      setState(() {
+        name = nameController.text;
+        email = emailController.text;
+        phone = phoneController.text;
+        isEditing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile updated sucessfully'),
+        ),
+      );
+    } catch (e) {
+      print("Error updating profile: $e");
+    }
+  }
+
+  @override
+  void initState() {
+    currentUser();
+    super.initState();
   }
 
   @override
@@ -46,22 +145,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: GestureDetector(
-                    onTap: () {
-                      pickImage();
-                    },
+                    onTap: isEditing == true
+                        ? () {
+                            pickImage();
+                          }
+                        : null,
                     child: _imgFile == null
-                        ? SizedBox(
-                            height: size.height * 0.14,
-                            width: size.width * 0.3,
-                            child: const CircleAvatar(
-                              backgroundColor: textFieldGrey,
-                              child: Icon(
-                                Icons.add_photo_alternate,
-                                size: 32,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
+                        ? profilePicUrl != null
+                            ? SizedBox(
+                                height: size.height * 0.14,
+                                width: size.width * 0.3,
+                                child: CircleAvatar(
+                                  backgroundColor: textFieldGrey,
+                                  backgroundImage: NetworkImage(profilePicUrl!),
+                                  radius: 50,
+                                ),
+                              )
+                            : SizedBox(
+                                height: size.height * 0.14,
+                                width: size.width * 0.3,
+                                child: const CircleAvatar(
+                                  backgroundColor: textFieldGrey,
+                                  child: Icon(
+                                    Icons.add_photo_alternate,
+                                    size: 32,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(200),
                             child: SizedBox(
@@ -77,9 +188,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('User Details'),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'User Details',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                  ),
+                ),
               ),
               ClipSmoothRect(
                 radius: SmoothBorderRadius(
@@ -87,9 +203,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   cornerSmoothing: 1,
                 ),
                 child: Container(
-                  color: textFieldGrey,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  color: Colors.grey[900],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -97,18 +213,21 @@ class _ProfilePageState extends State<ProfilePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             UserDetailsCardItem(
-                              text: '  Manohar Acharya',
+                              controller: nameController,
                               icon: Icons.person_rounded,
+                              isEditing: isEditing,
                             ),
-                            Divider(thickness: 0.1),
+                            const Divider(thickness: 0.1),
                             UserDetailsCardItem(
-                              text: '  manohar@gmail.com',
+                              controller: emailController,
                               icon: Icons.email,
+                              isEditing: isEditing,
                             ),
-                            Divider(thickness: 0.1),
+                            const Divider(thickness: 0.1),
                             UserDetailsCardItem(
-                              text: '  +91 9645124785',
+                              controller: phoneController,
                               icon: Icons.phone,
+                              isEditing: isEditing,
                             ),
                           ],
                         ),
@@ -117,6 +236,31 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      if (isEditing) {
+                        updateCurrentUser().then((_) {
+                          setState(() {
+                            isEditing = false;
+                          });
+                        });
+                      } else {
+                        isEditing = true;
+                      }
+                    });
+                  },
+                  child: Text(
+                    isEditing ? 'Save Profile' : 'Edit Profile',
+                    style: GoogleFonts.poppins(
+                      color: Colors.blueAccent,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ),
@@ -125,34 +269,39 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-//User Details Card Element Widget
 class UserDetailsCardItem extends StatelessWidget {
   const UserDetailsCardItem({
     super.key,
-    required this.text,
+    this.edit,
+    this.isEditing = false,
     required this.icon,
+    required this.controller,
   });
 
-  final String text;
   final IconData icon;
+  final bool isEditing;
+  final TextEditingController controller;
+  final void Function()? edit;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Row(
         children: [
-          Icon(icon),
-          Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall,
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Icon(icon),
           ),
-          const Spacer(),
-          GestureDetector(
-            child: Text(
-              'Edit',
-              style:
-                  Theme.of(context).textTheme.bodySmall!.copyWith(fontSize: 13),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              enabled: isEditing ? true : false,
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
+              maxLines: 1,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+              ),
             ),
           ),
         ],

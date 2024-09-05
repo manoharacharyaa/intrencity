@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
+import 'package:intrencity_provider/pages/user/profile_page.dart';
 import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -31,7 +32,27 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
             onPressed: () {},
             icon: const Icon(Icons.gps_fixed),
           ),
-          actions: [],
+          actions: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 5, 5),
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfilePage(),
+                  ),
+                ),
+                child: const CircleAvatar(
+                  radius: 22,
+                  backgroundColor: textFieldGrey,
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         body: const Reservation(),
       ),
