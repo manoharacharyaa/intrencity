@@ -499,14 +499,14 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 5,
                       cursorColor: Colors.white,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'description',
-                        contentPadding: EdgeInsets.all(20),
+                        contentPadding: const EdgeInsets.all(20),
                         prefixIcon: Padding(
-                          padding: EdgeInsets.fromLTRB(15, 0, 10, 90),
-                          child: Icon(Icons.description),
+                          padding: EdgeInsets.fromLTRB(15, 0, 10, height * 0.1),
+                          child: const Icon(Icons.description),
                         ),
-                        prefixIconConstraints: BoxConstraints(
+                        prefixIconConstraints: const BoxConstraints(
                           maxHeight: double.infinity,
                           maxWidth: double.infinity,
                         ),

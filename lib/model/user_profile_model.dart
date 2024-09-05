@@ -1,11 +1,11 @@
-class UserProfile {
+class UserProfileModel {
   final String name;
   final String email;
   final String password;
   final String phoneNumber;
   final String? profilePic;
 
-  UserProfile({
+  UserProfileModel({
     required this.name,
     required this.email,
     required this.password,
@@ -23,8 +23,8 @@ class UserProfile {
     };
   }
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
+  factory UserProfileModel.fromJson(Map<String, dynamic> json) {
+    return UserProfileModel(
       name: json['name'],
       email: json['email'],
       password: json['password'],

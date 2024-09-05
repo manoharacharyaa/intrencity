@@ -29,7 +29,7 @@ class AuthenticationProvider extends ChangeNotifier {
       password: password,
     );
     String uid = userCredentials.user!.uid;
-    UserProfile userProfile = UserProfile(
+    UserProfileModel userProfile = UserProfileModel(
       name: name,
       email: email,
       password: password,

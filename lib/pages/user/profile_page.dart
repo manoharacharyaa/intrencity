@@ -19,7 +19,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   File? _imgFile;
   final ImagePicker picker = ImagePicker();
-  UserProfile? user;
+  UserProfileModel? user;
   String name = '';
   String email = '';
   String phone = '';
@@ -57,14 +57,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<UserProfile?> getUserProfileInfo() async {
+  Future<UserProfileModel?> getUserProfileInfo() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       final docSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
       if (docSnapshot.exists) {
-        return UserProfile.fromJson(docSnapshot.data()!);
+        return UserProfileModel.fromJson(docSnapshot.data()!);
       } else {
         return null;
       }
@@ -75,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void currentUser() async {
-    UserProfile? currentUser = await getUserProfileInfo();
+    UserProfileModel? currentUser = await getUserProfileInfo();
     if (currentUser != null) {
       setState(() {
         name = currentUser.name;

@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
+import 'package:intrencity_provider/model/user_profile_model.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
 import 'package:intrencity_provider/pages/user/profile_page.dart';
+import 'package:intrencity_provider/providers/user_provider.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -18,8 +22,57 @@ class MyBookingsPage extends StatefulWidget {
 }
 
 class _MyBookingsPageState extends State<MyBookingsPage> {
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   context.read<UserProvider>();
+  // }
+
+  UserProfileModel? currentUser;
+  String currentUserName = '';
+  String currentUserEmail = '';
+  String currentUserPhone = '';
+  String currentUserProfilePic = '';
+
+  Future<UserProfileModel?> getCurrentUser() async {
+    try {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      final docSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (docSnapshot.exists) {
+        return UserProfileModel.fromJson(docSnapshot.data()!);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching user profile: $e");
+      return null;
+    }
+  }
+
+  void currentUserInfo() async {
+    try {
+      currentUser = await getCurrentUser();
+      currentUserName = currentUser!.name;
+      currentUserEmail = currentUser!.email;
+      currentUserPhone = currentUser!.phoneNumber;
+      currentUserProfilePic = currentUser!.profilePic!;
+      setState(() {});
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    currentUserInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final profilePic = currentUserProfilePic;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -42,13 +95,25 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                     builder: (context) => const ProfilePage(),
                   ),
                 ),
-                child: const CircleAvatar(
+                child: CircleAvatar(
                   radius: 22,
                   backgroundColor: textFieldGrey,
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.white,
-                  ),
+                  child: profilePic.isNotEmpty
+                      ? Container(
+                          height: 45,
+                          width: 45,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.network(
+                              profilePic,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person,
+                          color: Colors.white,
+                        ),
                 ),
               ),
             ),
