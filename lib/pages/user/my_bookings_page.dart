@@ -7,7 +7,9 @@ import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
 import 'package:intrencity_provider/pages/user/profile_page.dart';
+import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
+import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -22,8 +24,16 @@ class MyBookingsPage extends StatefulWidget {
 class _MyBookingsPageState extends State<MyBookingsPage> {
   @override
   Widget build(BuildContext context) {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
     String profilePic = '';
+    String? uid;
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      uid = user.uid;
+    } else {
+      CustomDilogue.showSuccessDialog(
+          context, 'assets/animations/cross.json', 'No user found');
+    }
 
     return DefaultTabController(
       length: 2,
@@ -46,6 +56,27 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                   .doc(uid)
                   .snapshots(),
               builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting ||
+                    uid!.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      ),
+                      child: const CircleAvatar(
+                        backgroundColor: textFieldGrey,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  );
+                }
                 if (snapshot.hasData) {
                   var userProfile =
                       snapshot.data!.data() as Map<String, dynamic>;
@@ -85,20 +116,20 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
             )
           ],
         ),
-        body: const Reservation(),
+        body: const SpacesListPage(),
       ),
     );
   }
 }
 
-class Reservation extends StatefulWidget {
-  const Reservation({super.key});
+class SpacesListPage extends StatefulWidget {
+  const SpacesListPage({super.key});
 
   @override
-  State<Reservation> createState() => _ReservationState();
+  State<SpacesListPage> createState() => _SpacesListPageState();
 }
 
-class _ReservationState extends State<Reservation> {
+class _SpacesListPageState extends State<SpacesListPage> {
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _lastWords = '';
@@ -110,7 +141,11 @@ class _ReservationState extends State<Reservation> {
   Timer? _timer;
 
   void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
+    try {
+      _speechEnabled = await _speechToText.initialize();
+    } catch (e) {
+      return null;
+    }
     setState(() {});
   }
 
@@ -167,6 +202,7 @@ class _ReservationState extends State<Reservation> {
   void initState() {
     super.initState();
     _initSpeech();
+
     searchController.addListener(() {
       _lastWords = searchController.text;
       voicesearchSpace();
@@ -177,6 +213,7 @@ class _ReservationState extends State<Reservation> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+
     return Scaffold(
       body: Column(
         children: [
@@ -229,9 +266,7 @@ class _ReservationState extends State<Reservation> {
                     FirebaseFirestore.instance.collection('spaces').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const SpacesListShimmer();
                   } else if (snapshot.hasError) {
                     return Center(
                       child: Text('Error ${snapshot.error}'),

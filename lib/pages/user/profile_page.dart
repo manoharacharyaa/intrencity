@@ -134,7 +134,12 @@ class _ProfilePageState extends State<ProfilePage> {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
-          .update(updateData);
+          .update(updateData)
+          .then((_) => CustomDilogue.showSuccessDialog(
+                context,
+                'assets/animations/tick.json',
+                'Successfully Updated!',
+              ));
 
       setState(() {
         name = nameController.text;
@@ -142,12 +147,6 @@ class _ProfilePageState extends State<ProfilePage> {
         phone = phoneController.text;
         isEditing = false;
       });
-
-      CustomDilogue.showSuccessDialog(
-        context,
-        'assets/animations/tick.json',
-        'Successfully Updated!',
-      );
 
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(
