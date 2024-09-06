@@ -1,14 +1,12 @@
 class UserProfileModel {
   final String name;
   final String email;
-  final String password;
   final String phoneNumber;
   final String? profilePic;
 
   UserProfileModel({
     required this.name,
     required this.email,
-    required this.password,
     required this.phoneNumber,
     this.profilePic,
   });
@@ -17,7 +15,6 @@ class UserProfileModel {
     return {
       'name': name,
       'email': email,
-      'password': password,
       'phoneNumber': phoneNumber,
       'profilePic': profilePic,
     };
@@ -27,7 +24,6 @@ class UserProfileModel {
     return UserProfileModel(
       name: json['name'],
       email: json['email'],
-      password: json['password'],
       phoneNumber: json['phoneNumber'],
       profilePic: json['profilePic'],
     );

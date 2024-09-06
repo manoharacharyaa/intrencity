@@ -5,12 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
-import 'package:intrencity_provider/model/user_profile_model.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
 import 'package:intrencity_provider/pages/user/profile_page.dart';
-import 'package:intrencity_provider/providers/user_provider.dart';
+import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -22,56 +20,10 @@ class MyBookingsPage extends StatefulWidget {
 }
 
 class _MyBookingsPageState extends State<MyBookingsPage> {
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   context.read<UserProvider>();
-  // }
-
-  UserProfileModel? currentUser;
-  String currentUserName = '';
-  String currentUserEmail = '';
-  String currentUserPhone = '';
-  String currentUserProfilePic = '';
-
-  Future<UserProfileModel?> getCurrentUser() async {
-    try {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      final docSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (docSnapshot.exists) {
-        return UserProfileModel.fromJson(docSnapshot.data()!);
-      } else {
-        return null;
-      }
-    } catch (e) {
-      print("Error fetching user profile: $e");
-      return null;
-    }
-  }
-
-  void currentUserInfo() async {
-    try {
-      currentUser = await getCurrentUser();
-      currentUserName = currentUser!.name;
-      currentUserEmail = currentUser!.email;
-      currentUserPhone = currentUser!.phoneNumber;
-      currentUserProfilePic = currentUser!.profilePic!;
-      setState(() {});
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    currentUserInfo();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final profilePic = currentUserProfilePic;
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    String profilePic = '';
 
     return DefaultTabController(
       length: 2,
@@ -82,41 +34,55 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           leading: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.gps_fixed),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            icon: const Icon(Icons.menu_rounded),
           ),
           actions: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 5, 5),
-              child: InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfilePage(),
-                  ),
-                ),
-                child: CircleAvatar(
-                  radius: 22,
-                  backgroundColor: textFieldGrey,
-                  child: profilePic.isNotEmpty
-                      ? Container(
-                          height: 45,
-                          width: 45,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: Image.network(
-                              profilePic,
-                              fit: BoxFit.cover,
-                            ),
+            StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  var userProfile =
+                      snapshot.data!.data() as Map<String, dynamic>;
+                  profilePic = userProfile['profilePic'] ?? '';
+                  if (profilePic.isNotEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: ProfilePicAvatar(
+                        height: 45,
+                        width: 45,
+                        profilePic: profilePic,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfilePage(),
                           ),
-                        )
-                      : const Icon(
-                          Icons.person,
-                          color: Colors.white,
                         ),
-                ),
-              ),
-            ),
+                      ),
+                    );
+                  }
+                }
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: ProfilePicAvatar(
+                    height: 45,
+                    width: 45,
+                    profilePic: profilePic,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfilePage(),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            )
           ],
         ),
         body: const Reservation(),

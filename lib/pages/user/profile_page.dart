@@ -8,6 +8,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/user_profile_model.dart';
+import 'package:intrencity_provider/pages/auth/auth_page.dart';
+import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
+import 'package:intrencity_provider/widgets/dilogue_widget.dart';
+import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -28,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final phoneController = TextEditingController();
   bool isEditing = false;
   String? profilePicUrl;
+  String uid = FirebaseAuth.instance.currentUser!.uid;
 
   void pickImage() async {
     XFile? image = await picker.pickImage(
@@ -90,20 +95,47 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<String> uploadProfilePic(String uid) async {
+    try {
+      final storageRef =
+          FirebaseStorage.instance.ref().child('profile_pics/$uid.jpg');
+      final uploadTask = await storageRef.putFile(_imgFile!);
+      String downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print("Error uploading profile picture: $e");
+      return '';
+    }
+  }
+
   Future<void> updateCurrentUser() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (emailController.text != email) {
+        await currentUser!.verifyBeforeUpdateEmail(emailController.text);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification email sent to update email.'),
+          ),
+        );
+      }
+
       Map<String, dynamic> updateData = {
         'name': nameController.text,
         'email': emailController.text,
         'phoneNumber': phoneController.text,
-        'profilePic': profilePicUrl,
+        if (_imgFile != null) 'profilePic': await uploadProfilePic(uid),
       };
 
       await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .update(updateData);
+
       setState(() {
         name = nameController.text;
         email = emailController.text;
@@ -111,14 +143,39 @@ class _ProfilePageState extends State<ProfilePage> {
         isEditing = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated sucessfully'),
-        ),
+      CustomDilogue.showSuccessDialog(
+        context,
+        'assets/animations/tick.json',
+        'Successfully Updated!',
       );
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(
+      //     content: Text('Profile updated successfully'),
+      //   ),
+      // );
     } catch (e) {
       print("Error updating profile: $e");
+
+      if (e is FirebaseAuthException && e.code == 'requires-recent-login') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please log in again to update your email.'),
+          ),
+        );
+      }
     }
+  }
+
+  void logOut() async {
+    await FirebaseAuth.instance.signOut().then((_) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuthPage(),
+        ),
+      );
+    });
   }
 
   @override
@@ -133,6 +190,18 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile Page'),
+        actions: [
+          TextButton(
+            onPressed: logOut,
+            child: Text(
+              'Logout',
+              style: GoogleFonts.poppins(
+                color: redAccent,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -151,28 +220,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           }
                         : null,
                     child: _imgFile == null
-                        ? profilePicUrl != null
-                            ? SizedBox(
+                        ? (profilePicUrl != null
+                            ? ProfilePicAvatar(
                                 height: size.height * 0.14,
                                 width: size.width * 0.3,
-                                child: CircleAvatar(
-                                  backgroundColor: textFieldGrey,
-                                  backgroundImage: NetworkImage(profilePicUrl!),
-                                  radius: 50,
-                                ),
+                                profilePic: profilePicUrl!,
                               )
-                            : SizedBox(
-                                height: size.height * 0.14,
-                                width: size.width * 0.3,
-                                child: const CircleAvatar(
-                                  backgroundColor: textFieldGrey,
-                                  child: Icon(
-                                    Icons.add_photo_alternate,
-                                    size: 32,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )
+                            : const SizedBox())
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(200),
                             child: SizedBox(
@@ -193,7 +247,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Text(
                   'User Details',
                   style: GoogleFonts.poppins(
-                    fontSize: 16,
+                    fontSize: 18,
                   ),
                 ),
               ),
@@ -214,18 +268,21 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             UserDetailsCardItem(
                               controller: nameController,
+                              keyboardType: TextInputType.text,
                               icon: Icons.person_rounded,
                               isEditing: isEditing,
                             ),
-                            const Divider(thickness: 0.1),
+                            const CustomDivider(),
                             UserDetailsCardItem(
                               controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
                               icon: Icons.email,
                               isEditing: isEditing,
                             ),
-                            const Divider(thickness: 0.1),
+                            const CustomDivider(),
                             UserDetailsCardItem(
                               controller: phoneController,
+                              keyboardType: TextInputType.phone,
                               icon: Icons.phone,
                               isEditing: isEditing,
                             ),
@@ -240,17 +297,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 alignment: Alignment.bottomLeft,
                 child: TextButton(
                   onPressed: () {
-                    setState(() {
-                      if (isEditing) {
-                        updateCurrentUser().then((_) {
-                          setState(() {
-                            isEditing = false;
-                          });
+                    if (isEditing) {
+                      updateCurrentUser().then((_) {
+                        setState(() {
+                          isEditing = false;
                         });
-                      } else {
+                      });
+                    } else {
+                      setState(() {
                         isEditing = true;
-                      }
-                    });
+                      });
+                    }
                   },
                   child: Text(
                     isEditing ? 'Save Profile' : 'Edit Profile',
@@ -260,7 +317,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -276,36 +333,36 @@ class UserDetailsCardItem extends StatelessWidget {
     this.isEditing = false,
     required this.icon,
     required this.controller,
+    this.keyboardType,
   });
 
   final IconData icon;
   final bool isEditing;
   final TextEditingController controller;
   final void Function()? edit;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: Icon(icon),
-          ),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              enabled: isEditing ? true : false,
-              style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
-              maxLines: 1,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-              ),
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Icon(icon),
+        ),
+        Expanded(
+          child: TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            enabled: isEditing ? true : false,
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+            maxLines: 1,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

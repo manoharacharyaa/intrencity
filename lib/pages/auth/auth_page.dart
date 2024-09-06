@@ -12,6 +12,7 @@ class AuthPage extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           bottom: TabBar(
             dividerHeight: 0,
             enableFeedback: false,

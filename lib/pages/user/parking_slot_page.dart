@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/pages/user/profile_page.dart';
 import 'package:intrencity_provider/widgets/booking_slot_container.dart';
 
 class ParkingSlotPage extends StatelessWidget {
@@ -22,24 +21,6 @@ class ParkingSlotPage extends StatelessWidget {
           'Parking Slots',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfilePage(),
-                  ),
-                );
-              },
-              child: const CircleAvatar(
-                backgroundColor: primaryBlue,
-              ),
-            ),
-          ),
-        ],
       ),
       body: SafeArea(
         child: Stack(

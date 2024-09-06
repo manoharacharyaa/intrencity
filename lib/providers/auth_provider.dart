@@ -32,7 +32,6 @@ class AuthenticationProvider extends ChangeNotifier {
     UserProfileModel userProfile = UserProfileModel(
       name: name,
       email: email,
-      password: password,
       phoneNumber: phoneNumber,
     );
     await FirebaseFirestore.instance

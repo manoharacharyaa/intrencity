@@ -11,7 +11,7 @@ import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
-import 'package:lottie/lottie.dart';
+import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 
 class SpacePostingPage extends StatefulWidget {
   const SpacePostingPage({super.key});
@@ -125,13 +125,16 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           isLoading = false;
         });
 
-        showSuccessDialog(
-            context, 'assets/animations/tick.json', 'Successfully Created!');
+        CustomDilogue.showSuccessDialog(
+          context,
+          'assets/animations/tick.json',
+          'Successfully Created!',
+        );
       } catch (e) {
         setState(() {
           isLoading = false;
         });
-        showSuccessDialog(
+        CustomDilogue.showSuccessDialog(
           context,
           'assets/animations/cross.json',
           'Failed To Create',
@@ -140,67 +143,6 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
         print("Error occurred while posting space: $e");
       }
     }
-  }
-
-  void showSuccessDialog(BuildContext context, String lottie, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ClipSmoothRect(
-          radius: SmoothBorderRadius(
-            cornerRadius: 5,
-            cornerSmoothing: 5,
-          ),
-          child: Dialog(
-            backgroundColor: Colors.grey[900],
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Lottie.asset(
-                    lottie,
-                    width: 120,
-                    height: 120,
-                    repeat: false,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    message,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  ClipSmoothRect(
-                    radius: SmoothBorderRadius(
-                      cornerRadius: 12,
-                      cornerSmoothing: 1,
-                    ),
-                    child: SizedBox(
-                      width: 70,
-                      height: 45,
-                      child: MaterialButton(
-                        padding: const EdgeInsets.all(8),
-                        color: primaryBlue,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(
-                          'OK',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   void pickImage() async {
@@ -503,7 +445,8 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                         hintText: 'description',
                         contentPadding: const EdgeInsets.all(20),
                         prefixIcon: Padding(
-                          padding: EdgeInsets.fromLTRB(15, 0, 10, height * 0.1),
+                          padding: EdgeInsets.only(
+                              bottom: height * 0.1, left: 10, right: 10),
                           child: const Icon(Icons.description),
                         ),
                         prefixIconConstraints: const BoxConstraints(
