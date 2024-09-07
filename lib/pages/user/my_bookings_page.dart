@@ -198,6 +198,17 @@ class _SpacesListPageState extends State<SpacesListPage> {
     }).toList();
   }
 
+  Future<void> _refreshData() async {
+    List<ParkingSpacePost> spaces = await fetchSpaces();
+    setState(() {
+      searchParkingSpace = spaces.where((space) {
+        return space.spaceLocation.toLowerCase().contains(
+              searchController.text.toLowerCase(),
+            );
+      }).toList();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -256,39 +267,37 @@ class _SpacesListPageState extends State<SpacesListPage> {
             ),
           ),
           Expanded(
-            child: RefreshIndicator(
-              onRefresh: () {
-                return fetchSpaces();
-              },
-              color: Colors.white,
-              child: StreamBuilder<QuerySnapshot>(
-                stream:
-                    FirebaseFirestore.instance.collection('spaces').snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SpacesListShimmer();
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error ${snapshot.error}'),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                      child: Text('No parking spaces found'),
-                    );
-                  } else {
-                    List<ParkingSpacePost> spaces = snapshot.data!.docs
-                        .map((doc) => ParkingSpacePost.fromJson(
-                            doc.data() as Map<String, dynamic>))
-                        .toList();
+            child: StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('spaces').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SpacesListShimmer();
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error ${snapshot.error}'),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text('No parking spaces found'),
+                  );
+                } else {
+                  List<ParkingSpacePost> spaces = snapshot.data!.docs
+                      .map((doc) => ParkingSpacePost.fromJson(
+                          doc.data() as Map<String, dynamic>))
+                      .toList();
 
-                    List<ParkingSpacePost> searchParkingSpace =
-                        spaces.where((space) {
-                      return space.spaceLocation.toLowerCase().contains(
-                            searchController.text.toLowerCase(),
-                          );
-                    }).toList();
+                  List<ParkingSpacePost> searchParkingSpace =
+                      spaces.where((space) {
+                    return space.spaceLocation.toLowerCase().contains(
+                          searchController.text.toLowerCase(),
+                        );
+                  }).toList();
 
-                    return ListView.builder(
+                  return RefreshIndicator(
+                    onRefresh: _refreshData,
+                    color: Colors.white,
+                    child: ListView.builder(
                       itemCount: searchController.text.isEmpty
                           ? spaces.length
                           : searchParkingSpace.length,
@@ -316,10 +325,10 @@ class _SpacesListPageState extends State<SpacesListPage> {
                           },
                         );
                       },
-                    );
-                  }
-                },
-              ),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
