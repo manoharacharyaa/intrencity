@@ -1,11 +1,21 @@
+import 'package:figma_squircle/figma_squircle.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/home_page.dart';
+import 'package:intrencity_provider/pages/auth/forgot_password_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
 import 'package:intrencity_provider/widgets/auth_button.dart';
+import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:intrencity_provider/widgets/dilogue_widget.dart';
+import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
+import 'package:intrencity_provider/widgets/smooth_container.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -19,6 +29,18 @@ class _LoginPageState extends State<LoginPage> {
   final loginEmailController = TextEditingController();
   final loginPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void _resetPassword(String email, BuildContext context) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      CustomDilogue.showSuccessDialog(context, 'assets/animations/tick.json',
+          'Sucessfully Send Password Reser Link');
+    } catch (e) {
+      CustomDilogue.showSuccessDialog(context, 'assets/animations/cross.json',
+          'Error While Sending Password Reser Link');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +118,6 @@ class _LoginPageState extends State<LoginPage> {
                       )
                           .then(
                         (value) {
-
                           Future.delayed(
                             const Duration(seconds: 2),
                             () {
@@ -146,6 +167,71 @@ class _LoginPageState extends State<LoginPage> {
                                     fontWeight: FontWeight.w800,
                                   ),
                         ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => ClipSmoothRect(
+                        child: Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: SmoothBorderRadius(
+                              cornerRadius: 20,
+                              cornerSmoothing: 1,
+                            ),
+                          ),
+                          backgroundColor:
+                              const Color.fromARGB(255, 26, 25, 25),
+                          child: SizedBox(
+                            height: size.height * 0.38,
+                            child: Padding(
+                              padding: const EdgeInsets.all(15),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: size.height * 0.06),
+                                  Lottie.asset('assets/animations/reset.json'),
+                                  SizedBox(height: size.height * 0.04),
+                                  CustomTextFormField(
+                                    controller:
+                                        loginEmailController.text.isEmpty
+                                            ? loginEmailController
+                                            : TextEditingController(
+                                                text: loginEmailController.text,
+                                              ),
+                                    hintText: 'Enter Email',
+                                    verticalPadding: 20,
+                                    maxLines: 1,
+                                    prefixIcon: Icons.email,
+                                  ),
+                                  SizedBox(height: size.height * 0.01),
+                                  AuthButton(
+                                    height: 55,
+                                    widget: const Text('Reset'),
+                                    onPressed: () {
+                                      validator.loading(true);
+                                      _resetPassword(
+                                        loginEmailController.text,
+                                        context,
+                                      );
+                                    },
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Forgot Password',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: primaryBlue,
+                    ),
+                  ),
                 ),
               ],
             ),

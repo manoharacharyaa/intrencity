@@ -44,11 +44,15 @@ class AuthenticationProvider extends ChangeNotifier {
 
   Future<dynamic> login(String email, String password) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
-    auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    notifyListeners();
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      print('User signed in: ${userCredential.user?.email}');
+    } catch (e) {
+      print('Login error: $e');
+    }
   }
 
   Future<dynamic> logout() async {

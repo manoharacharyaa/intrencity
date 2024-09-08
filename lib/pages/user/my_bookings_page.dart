@@ -7,7 +7,6 @@ import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
 import 'package:intrencity_provider/pages/user/profile_page.dart';
-import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
 import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:lottie/lottie.dart';
@@ -31,8 +30,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
     if (user != null) {
       uid = user.uid;
     } else {
-      CustomDilogue.showSuccessDialog(
-          context, 'assets/animations/cross.json', 'No user found');
+      print("No user found");
     }
 
     return DefaultTabController(

@@ -17,8 +17,8 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.keyboardType,
     this.obscureText = false,
-    this.verticalPadding = 0,
-    this.horizontalPadding = 0,
+    this.verticalPadding,
+    this.horizontalPadding,
   });
 
   final TextEditingController? controller;
@@ -30,17 +30,18 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool obscureText;
   final TextInputType? keyboardType;
-  final double verticalPadding;
-  final double horizontalPadding;
+  final double? verticalPadding;
+  final double? horizontalPadding;
   final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
     final error = context.watch<AuthValidationProvider>().error;
+
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: verticalPadding,
-        horizontal: horizontalPadding,
+        vertical: verticalPadding ?? 0,
+        horizontal: horizontalPadding ?? 0,
       ),
       child: ClipSmoothRect(
         radius: SmoothBorderRadius(
@@ -55,7 +56,8 @@ class CustomTextFormField extends StatelessWidget {
           keyboardType: keyboardType,
           style: Theme.of(context).textTheme.bodySmall,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.all(18),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 5, vertical: 20),
             filled: true,
             fillColor: textFieldGrey,
             prefix: prefix,
@@ -68,12 +70,17 @@ class CustomTextFormField extends StatelessWidget {
               color: error ? redAccent : Colors.white,
             ),
             suffixIcon: suffixIcon,
-            border: const OutlineInputBorder(
+            border: OutlineInputBorder(
               borderSide: BorderSide.none,
-            ),
-            errorBorder: OutlineInputBorder(
               borderRadius: SmoothBorderRadius(
                 cornerRadius: 16,
+                cornerSmoothing: 1,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: SmoothBorderRadius(
+                cornerRadius: 18,
                 cornerSmoothing: 1,
               ),
             ),
@@ -84,6 +91,7 @@ class CustomTextFormField extends StatelessWidget {
               ),
             ),
             errorStyle: const TextStyle(color: redAccent),
+            error: null,
           ),
           onChanged: onChanged,
           validator: validator,

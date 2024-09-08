@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -188,21 +189,11 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  Future<void> deleteSpaceByUid(String uid) async {
+  Future<void> deleteSpaceByDocId(String docId) async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('spaces')
-          .where('uid', isEqualTo: uid)
-          .get();
-
-      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        await FirebaseFirestore.instance
-            .collection('spaces')
-            .doc(doc.id)
-            .delete();
-      }
+      await FirebaseFirestore.instance.collection('spaces').doc(docId).delete();
     } catch (e) {
-      print('Error deleting documents: $e');
+      print('Error deleting space: $e');
     }
   }
 
@@ -356,46 +347,66 @@ class _ProfilePageState extends State<ProfilePage> {
                     isEditing ? 'Save Profile' : 'Edit Profile',
                     style: GoogleFonts.poppins(
                       color: Colors.blueAccent,
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                 ),
               ),
-              const CustomDivider(),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'My Postings',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
+              const SizedBox(height: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ClipSmoothRect(
+                    radius: expanded
+                        ? const SmoothBorderRadius.only(
+                            topLeft: SmoothRadius(
+                                cornerRadius: 14, cornerSmoothing: 1),
+                            topRight: SmoothRadius(
+                                cornerRadius: 14, cornerSmoothing: 1))
+                        : const SmoothBorderRadius.all(
+                            SmoothRadius(cornerRadius: 14, cornerSmoothing: 1)),
+                    child: Container(
+                      color: Colors.grey[900],
+                      padding: const EdgeInsets.fromLTRB(12, 2, 0, 2),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'My Postings',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            setState(() {
-                              expanded = !expanded;
-                            });
-                          },
-                          icon: Icon(
-                            size: 35,
-                            color: Colors.blue,
-                            expanded
-                                ? Icons.arrow_drop_down_circle_outlined
-                                : Icons.arrow_circle_right_outlined,
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                expanded = !expanded;
+                              });
+                            },
+                            icon: Icon(
+                              size: 35,
+                              color: Colors.blue,
+                              expanded
+                                  ? Icons.arrow_drop_down_circle_outlined
+                                  : Icons.arrow_circle_right_outlined,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    expanded
-                        ? SizedBox(
+                  ),
+                  expanded
+                      ? ClipSmoothRect(
+                          radius: const SmoothBorderRadius.only(
+                            bottomLeft: SmoothRadius(
+                                cornerRadius: 14, cornerSmoothing: 1),
+                            bottomRight: SmoothRadius(
+                                cornerRadius: 14, cornerSmoothing: 1),
+                          ),
+                          child: Container(
                             height: size.height * 0.35,
                             width: double.infinity,
+                            color: Colors.grey[900],
                             child: FutureBuilder(
                               future: FirebaseFirestore.instance
                                   .collection('spaces')
@@ -404,11 +415,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
-                                  return const CircularProgressIndicator();
+                                  return const Center(
+                                      child: CupertinoActivityIndicator(
+                                    radius: 20,
+                                  ));
                                 }
                                 if (!snapshot.hasData ||
                                     snapshot.data!.docs.isEmpty) {
-                                  return const Text('No Spaces Found');
+                                  return const Center(
+                                    child: Text('No Spaces Found'),
+                                  );
                                 }
 
                                 final spaces = snapshot.data!.docs
@@ -423,9 +439,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                     final ParkingSpacePostModel space =
                                         spaces[index];
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 0, 0, 10),
                                       child: InkWell(
                                         onTap: () => Navigator.push(
                                           context,
@@ -439,56 +454,103 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                         child: SmoothContainer(
                                           color: Colors.grey[900],
-                                          padding: const EdgeInsets.all(10),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              20, 0, 0, 0),
                                           cornerRadius: 20,
-                                          child: Row(
+                                          child: Column(
                                             children: [
-                                              SmoothContainer(
-                                                height: size.height * 0.08,
-                                                width: size.width * 0.18,
-                                                color: primaryBlue,
-                                                cornerRadius: 14,
-                                                child: Image.network(
-                                                  space.spaceThumbnail[0],
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 20),
-                                              Text(space.spaceName),
-                                              const Spacer(),
-                                              PopupMenuButton<Value>(
-                                                initialValue: selectedItem,
-                                                onSelected: (Value item) {
-                                                  setState(() {
-                                                    selectedItem = item;
-                                                  });
-                                                },
-                                                itemBuilder: (context) => [
-                                                  PopupMenuItem(
-                                                    value: Value.edit,
-                                                    child: const Text('Edit'),
-                                                    onTap: () {
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              EditPostPage(
-                                                            currentUserSpace:
-                                                                space,
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
+                                              Row(
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                      bottom: 5,
+                                                    ),
+                                                    child: SmoothContainer(
+                                                      height:
+                                                          size.height * 0.08,
+                                                      width: size.width * 0.18,
+                                                      color: primaryBlue,
+                                                      cornerRadius: 14,
+                                                      child: Image.network(
+                                                        space.spaceThumbnail[0],
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
                                                   ),
-                                                  PopupMenuItem(
-                                                    onTap: () {
-                                                      deleteSpaceByUid(uid);
+                                                  const SizedBox(width: 20),
+                                                  Text(space.spaceName),
+                                                  const Spacer(),
+                                                  PopupMenuButton<Value>(
+                                                    initialValue: selectedItem,
+                                                    onSelected: (Value item) {
+                                                      setState(() {
+                                                        selectedItem = item;
+                                                      });
                                                     },
-                                                    value: Value.delete,
-                                                    child: Text('Delete'),
+                                                    shape:
+                                                        SmoothRectangleBorder(
+                                                      borderRadius:
+                                                          SmoothBorderRadius(
+                                                        cornerRadius: 12,
+                                                        cornerSmoothing: 1,
+                                                      ),
+                                                    ),
+                                                    color: textFieldGrey,
+                                                    itemBuilder: (context) => [
+                                                      PopupMenuItem(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 40),
+                                                        value: Value.edit,
+                                                        labelTextStyle:
+                                                            WidgetStatePropertyAll(
+                                                                Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .bodySmall),
+                                                        child: const Center(
+                                                            child:
+                                                                Text('Edit')),
+                                                        onTap: () {
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  EditPostPage(
+                                                                currentUserSpace:
+                                                                    space,
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                      const PopupMenuDivider(),
+                                                      PopupMenuItem(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            deleteSpaceByDocId(
+                                                              space.docId!,
+                                                            );
+                                                          });
+                                                        },
+                                                        value: Value.delete,
+                                                        labelTextStyle:
+                                                            WidgetStatePropertyAll(
+                                                                Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .bodySmall),
+                                                        child: const Center(
+                                                            child:
+                                                                Text('Delete')),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
+                                              const CustomDivider(),
                                             ],
                                           ),
                                         ),
@@ -498,12 +560,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 );
                               },
                             ),
-                          )
-                        : const SizedBox(),
-                  ],
-                ),
+                          ),
+                        )
+                      : const SizedBox(),
+                ],
               ),
-              const CustomDivider(),
             ],
           ),
         ),

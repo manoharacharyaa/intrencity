@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ParkingSpacePostModel {
   final String uid;
-  final String docId;
+  final String? docId;
   final String spaceName;
   final String spaceLocation;
   final String spaceSlots;
@@ -16,7 +16,7 @@ class ParkingSpacePostModel {
 
   ParkingSpacePostModel({
     required this.uid,
-    required this.docId,
+    this.docId,
     required this.spaceName,
     required this.spaceLocation,
     required this.spaceSlots,

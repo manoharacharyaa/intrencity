@@ -13,7 +13,7 @@ class SpacesListShimmer extends StatelessWidget {
       body: ListView.builder(
         itemCount: 10,
         itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -23,7 +23,8 @@ class SpacesListShimmer extends StatelessWidget {
                     baseColor: const Color.fromARGB(255, 44, 44, 44),
                     highlightColor: const Color.fromARGB(255, 95, 95, 95),
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 10),
                       child: ClipSmoothRect(
                         radius: SmoothBorderRadius(
                           cornerRadius: 20,
@@ -52,8 +53,8 @@ class SpacesListShimmer extends StatelessWidget {
                             child: Align(
                               alignment: Alignment.topRight,
                               child: CustomShimmerContainer(
-                                height: 40,
-                                width: size.width * 0.2,
+                                height: 35,
+                                width: size.width * 0.15,
                               ),
                             ),
                           ),
@@ -62,17 +63,17 @@ class SpacesListShimmer extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               CustomShimmerContainer(
-                                height: 35,
+                                height: 28,
                                 width: size.width * 0.5,
                               ),
                               CustomShimmerContainer(
                                 height: 35,
-                                width: size.width * 0.1,
+                                width: size.width * 0.15,
                               ),
                             ],
                           ),
                           const CustomShimmerContainer(
-                            height: 25,
+                            height: 18,
                             width: double.infinity,
                           ),
                         ],

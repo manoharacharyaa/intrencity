@@ -30,6 +30,7 @@ class CustomDilogue {
                   const SizedBox(height: 20),
                   Text(
                     message,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -45,7 +46,7 @@ class CustomDilogue {
                       width: 70,
                       height: 45,
                       child: MaterialButton(
-                        padding: const EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(2),
                         color: primaryBlue,
                         onPressed: () {
                           Navigator.of(context).pop();

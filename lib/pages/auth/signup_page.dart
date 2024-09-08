@@ -182,30 +182,25 @@ class _SignUpPageState extends State<SignUpPage> {
                                 validator.country(country.phoneCode);
                               });
                         },
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            bottom: validator.error ? 30 : 0,
+                        child: ClipSmoothRect(
+                          radius: SmoothBorderRadius(
+                            cornerRadius: 18,
+                            cornerSmoothing: 1,
                           ),
-                          child: ClipSmoothRect(
-                            radius: SmoothBorderRadius(
-                              cornerRadius: 20,
-                              cornerSmoothing: 2,
+                          child: Container(
+                            height: 60,
+                            decoration: const BoxDecoration(
+                              color: textFieldGrey,
                             ),
-                            child: Container(
-                              height: 60,
-                              decoration: const BoxDecoration(
-                                color: textFieldGrey,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "+${validator.selectedCountry ?? '91'} ",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600,
-                                    color: validator.error
-                                        ? redAccent
-                                        : Colors.white,
-                                  ),
+                            child: Center(
+                              child: Text(
+                                "+${validator.selectedCountry ?? '91'} ",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color: validator.error
+                                      ? redAccent
+                                      : Colors.white,
                                 ),
                               ),
                             ),
@@ -216,18 +211,22 @@ class _SignUpPageState extends State<SignUpPage> {
                     SizedBox(width: size.width * 0.02),
                     Expanded(
                       flex: 4,
-                      child: CustomTextFormField(
-                        controller: phoneController,
-                        maxLines: 1,
-                        prefixIcon: Icons.phone,
-                        hintText: 'Phone Number',
-                        keyboardType: TextInputType.phone,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter email';
-                          }
-                          return null;
-                        },
+                      child: Padding(
+                        padding:
+                            EdgeInsets.only(bottom: validator.error ? 0 : 0),
+                        child: CustomTextFormField(
+                          controller: phoneController,
+                          maxLines: 1,
+                          prefixIcon: Icons.phone,
+                          hintText: 'Phone Number',
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter email';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                     ),
                   ],
