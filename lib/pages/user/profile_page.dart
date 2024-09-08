@@ -188,6 +188,24 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  Future<void> deleteSpaceByUid(String uid) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('spaces')
+          .where('uid', isEqualTo: uid)
+          .get();
+
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('spaces')
+            .doc(doc.id)
+            .delete();
+      }
+    } catch (e) {
+      print('Error deleting documents: $e');
+    }
+  }
+
   @override
   void initState() {
     currentUser();
@@ -462,7 +480,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       );
                                                     },
                                                   ),
-                                                  const PopupMenuItem(
+                                                  PopupMenuItem(
+                                                    onTap: () {
+                                                      deleteSpaceByUid(uid);
+                                                    },
                                                     value: Value.delete,
                                                     child: Text('Delete'),
                                                   ),

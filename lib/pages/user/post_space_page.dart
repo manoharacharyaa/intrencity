@@ -65,9 +65,11 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
       setState(() {
         isLoading = true;
       });
+
       List<String> imageUrls = [];
 
       try {
+        // Upload images and get URLs
         for (var imgFile in _imgFiles) {
           String fileName = DateTime.now().millisecondsSinceEpoch.toString();
           Reference storageReference =
@@ -78,8 +80,26 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           imageUrls.add(downloadUrl);
         }
 
+        // Create a new document in Firestore
+        DocumentReference docRef =
+            await FirebaseFirestore.instance.collection('spaces').add({
+          'uid': FirebaseAuth.instance.currentUser!.uid,
+          'spaceName': spaceNameController.text,
+          'spacePrice': '₹${spacePriceController.text}',
+          'spaceLocation': spaceLocationController.text,
+          'spaceSlots': spaceSlotsController.text,
+          'vehicleType': getSelectedVehicleTypes(),
+          'aminitiesType': getSelectedAmitiesType(),
+          'startDate': startDate,
+          'endDate': endDate,
+          'description': spaceDescController.text,
+          'spaceThumbnail': imageUrls,
+        });
+
+        // Update the ParkingSpacePostModel with the generated docId
         ParkingSpacePostModel parkingSlotPost = ParkingSpacePostModel(
           uid: FirebaseAuth.instance.currentUser!.uid,
+          docId: docRef.id, // Assign the generated docId
           spaceName: spaceNameController.text,
           spacePrice: '₹${spacePriceController.text}',
           spaceLocation: spaceLocationController.text,
@@ -92,42 +112,25 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           spaceThumbnail: imageUrls,
         );
 
-        await FirebaseFirestore.instance
-            .collection('spaces')
-            .add(parkingSlotPost.toJson())
-            .then((_) {
-          setState(() {
-            _imgFiles = [];
-            startDate = null;
-            endDate = null;
-            spaceNameController.clear();
-            spaceLocationController.clear();
-            spaceSlotsController.clear();
-            spacePriceController.clear();
-            spaceDescController.clear();
-            selectedVehicleType = [];
-            if (miniSelected || bikeSelected || suvSelected || sedanSelected) {
-              bikeSelected = false;
-              miniSelected = false;
-              sedanSelected = false;
-              suvSelected = false;
-            }
-            if (chargingSelected ||
-                cctvSelected ||
-                fireSelected ||
-                guardSelected) {
-              chargingSelected = false;
-              cctvSelected = false;
-              fireSelected = false;
-              guardSelected = false;
-            }
-          });
-        });
+        await docRef.update(parkingSlotPost.toJson());
 
         setState(() {
+          _imgFiles = [];
+          startDate = null;
+          endDate = null;
+          spaceNameController.clear();
+          spaceLocationController.clear();
+          spaceSlotsController.clear();
+          spacePriceController.clear();
+          spaceDescController.clear();
+          selectedVehicleType = [];
+          bikeSelected = miniSelected = sedanSelected = suvSelected = false;
+          chargingSelected =
+              cctvSelected = fireSelected = guardSelected = false;
           isLoading = false;
         });
 
+        // Show success dialog
         CustomDilogue.showSuccessDialog(
           context,
           'assets/animations/tick.json',
