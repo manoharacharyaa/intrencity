@@ -12,9 +12,11 @@ class ParkingSpaceDetailsPage extends StatefulWidget {
   const ParkingSpaceDetailsPage({
     super.key,
     required this.spaceDetails,
+    required this.viewedByCurrentUser,
   });
 
   final ParkingSpacePost spaceDetails;
+  final bool viewedByCurrentUser;
 
   @override
   State<ParkingSpaceDetailsPage> createState() =>
@@ -128,23 +130,26 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                 ),
               ],
             ),
-            CustomButton(
-              horizontalPadding: 10,
-              verticalPadding: 20,
-              onTap: () {
-                print(int.parse(widget.spaceDetails.spaceSlots));
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ParkingSlotPage(
-                      noOfSlots: int.parse(widget.spaceDetails.spaceSlots),
-                      startDate: widget.spaceDetails.startDate,
-                      endDate: widget.spaceDetails.endDate,
-                    ),
+            widget.viewedByCurrentUser
+                ? const SizedBox()
+                : CustomButton(
+                    horizontalPadding: 10,
+                    verticalPadding: 20,
+                    onTap: () {
+                      print(int.parse(widget.spaceDetails.spaceSlots));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ParkingSlotPage(
+                            noOfSlots:
+                                int.parse(widget.spaceDetails.spaceSlots),
+                            startDate: widget.spaceDetails.startDate,
+                            endDate: widget.spaceDetails.endDate,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ],
         ),
       ),

@@ -316,6 +316,7 @@ class _SpacesListPageState extends State<SpacesListPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ParkingSpaceDetailsPage(
+                                  viewedByCurrentUser: false,
                                   spaceDetails: searchController.text.isEmpty
                                       ? spaces[index]
                                       : searchParkingSpace[index],

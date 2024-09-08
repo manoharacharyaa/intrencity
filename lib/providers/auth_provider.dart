@@ -30,6 +30,7 @@ class AuthenticationProvider extends ChangeNotifier {
     );
     String uid = userCredentials.user!.uid;
     UserProfileModel userProfile = UserProfileModel(
+      uid: uid,
       name: name,
       email: email,
       phoneNumber: phoneNumber,

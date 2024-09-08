@@ -3,6 +3,7 @@ import 'package:another_dashed_container/another_dashed_container.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,6 +78,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
         }
 
         ParkingSpacePost parkingSlotPost = ParkingSpacePost(
+          uid: FirebaseAuth.instance.currentUser!.uid,
           spaceName: spaceNameController.text,
           spacePrice: '₹${spacePriceController.text}',
           spaceLocation: spaceLocationController.text,

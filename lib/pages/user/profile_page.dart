@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/model/user_profile_model.dart';
 import 'package:intrencity_provider/pages/auth/auth_page.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
+import 'package:intrencity_provider/widgets/smooth_container.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -31,6 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final emailController = TextEditingController();
   final phoneController = TextEditingController();
   bool isEditing = false;
+  bool expanded = false;
   String? profilePicUrl;
   String uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -219,13 +222,28 @@ class _ProfilePageState extends State<ProfilePage> {
                           }
                         : null,
                     child: _imgFile == null
-                        ? (profilePicUrl != null
-                            ? ProfilePicAvatar(
+                        ? profilePicUrl != null
+                            ? SizedBox(
                                 height: size.height * 0.14,
                                 width: size.width * 0.3,
-                                profilePic: profilePicUrl!,
+                                child: CircleAvatar(
+                                  backgroundColor: textFieldGrey,
+                                  backgroundImage: NetworkImage(profilePicUrl!),
+                                  radius: 50,
+                                ),
                               )
-                            : const SizedBox())
+                            : SizedBox(
+                                height: size.height * 0.14,
+                                width: size.width * 0.3,
+                                child: const CircleAvatar(
+                                  backgroundColor: textFieldGrey,
+                                  child: Icon(
+                                    Icons.add_photo_alternate,
+                                    size: 32,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(200),
                             child: SizedBox(
@@ -317,6 +335,122 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
+              const CustomDivider(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'My Postings',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            setState(() {
+                              expanded = !expanded;
+                            });
+                          },
+                          icon: Icon(
+                            size: 35,
+                            color: Colors.blue,
+                            expanded
+                                ? Icons.arrow_drop_down_circle_outlined
+                                : Icons.arrow_circle_right_outlined,
+                          ),
+                        ),
+                      ],
+                    ),
+                    expanded
+                        ? SizedBox(
+                            height: size.height * 0.35,
+                            width: double.infinity,
+                            child: FutureBuilder(
+                              future: FirebaseFirestore.instance
+                                  .collection('spaces')
+                                  .where('uid', isEqualTo: uid)
+                                  .get(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+                                if (!snapshot.hasData ||
+                                    snapshot.data!.docs.isEmpty) {
+                                  return const Text('No Spaces Found');
+                                }
+
+                                final spaces = snapshot.data!.docs
+                                    .map((space) =>
+                                        ParkingSpacePost.fromJson(space.data()))
+                                    .toList();
+
+                                return ListView.builder(
+                                  itemCount: spaces.length,
+                                  itemBuilder: (context, index) {
+                                    final ParkingSpacePost space =
+                                        spaces[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ParkingSpaceDetailsPage(
+                                              spaceDetails: space,
+                                              viewedByCurrentUser: true,
+                                            ),
+                                          ),
+                                        ),
+                                        child: SmoothContainer(
+                                          color: Colors.grey[900],
+                                          padding: const EdgeInsets.all(10),
+                                          cornerRadius: 20,
+                                          child: Row(
+                                            children: [
+                                              SmoothContainer(
+                                                height: size.height * 0.08,
+                                                width: size.width * 0.18,
+                                                color: primaryBlue,
+                                                cornerRadius: 14,
+                                                child: Image.network(
+                                                  space.spaceThumbnail[0],
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 20),
+                                              Text(space.spaceName),
+                                              const Spacer(),
+                                              IconButton(
+                                                onPressed: () {
+                                                  print(uid);
+                                                },
+                                                icon:
+                                                    const Icon(Icons.more_vert),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                ),
+              ),
+              const CustomDivider(),
             ],
           ),
         ),
