@@ -13,16 +13,19 @@ import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/custom_chip.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
+import 'package:intrencity_provider/widgets/img_display_container.dart';
 import 'package:intrencity_provider/widgets/img_picker_container.dart';
 
-class SpacePostingPage extends StatefulWidget {
-  const SpacePostingPage({super.key});
+class EditPostPage extends StatefulWidget {
+  const EditPostPage({super.key, this.currentUserSpace});
+
+  final ParkingSpacePostModel? currentUserSpace;
 
   @override
-  State<SpacePostingPage> createState() => _SpacePostingPageState();
+  State<EditPostPage> createState() => _EditPostPageState();
 }
 
-class _SpacePostingPageState extends State<SpacePostingPage> {
+class _EditPostPageState extends State<EditPostPage> {
   List<File> _imgFiles = [];
   List<String> selectedVehicleType = [];
   List<String> selectedAminitiesType = [];
@@ -43,110 +46,8 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
   bool guardSelected = false;
   DateTime? startDate;
   DateTime? endDate;
-
-  List<String> getSelectedVehicleTypes() {
-    if (suvSelected) selectedVehicleType.add('SUV');
-    if (sedanSelected) selectedVehicleType.add('Sedan');
-    if (miniSelected) selectedVehicleType.add('Mini');
-    if (bikeSelected) selectedVehicleType.add('Bike');
-    return selectedVehicleType;
-  }
-
-  List<String> getSelectedAmitiesType() {
-    if (chargingSelected) selectedAminitiesType.add('EV Charging');
-    if (cctvSelected) selectedAminitiesType.add('CCTV Surveillance');
-    if (fireSelected) selectedAminitiesType.add('Fire Extinguisher');
-    if (guardSelected) selectedAminitiesType.add('Security Guard');
-    return selectedAminitiesType;
-  }
-
-  Future<void> postSpace() async {
-    if (_imgFiles.isNotEmpty) {
-      setState(() {
-        isLoading = true;
-      });
-      List<String> imageUrls = [];
-
-      try {
-        for (var imgFile in _imgFiles) {
-          String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-          Reference storageReference =
-              FirebaseStorage.instance.ref().child('space_image/$fileName');
-          UploadTask uploadTask = storageReference.putFile(imgFile);
-          TaskSnapshot snapshot = await uploadTask.whenComplete(() => {});
-          String downloadUrl = await snapshot.ref.getDownloadURL();
-          imageUrls.add(downloadUrl);
-        }
-
-        ParkingSpacePostModel parkingSlotPost = ParkingSpacePostModel(
-          uid: FirebaseAuth.instance.currentUser!.uid,
-          spaceName: spaceNameController.text,
-          spacePrice: '₹${spacePriceController.text}',
-          spaceLocation: spaceLocationController.text,
-          spaceSlots: spaceSlotsController.text,
-          vehicleType: getSelectedVehicleTypes(),
-          aminitiesType: getSelectedAmitiesType(),
-          startDate: startDate,
-          endDate: endDate,
-          description: spaceDescController.text,
-          spaceThumbnail: imageUrls,
-        );
-
-        await FirebaseFirestore.instance
-            .collection('spaces')
-            .add(parkingSlotPost.toJson())
-            .then((_) {
-          setState(() {
-            _imgFiles = [];
-            startDate = null;
-            endDate = null;
-            spaceNameController.clear();
-            spaceLocationController.clear();
-            spaceSlotsController.clear();
-            spacePriceController.clear();
-            spaceDescController.clear();
-            selectedVehicleType = [];
-            if (miniSelected || bikeSelected || suvSelected || sedanSelected) {
-              bikeSelected = false;
-              miniSelected = false;
-              sedanSelected = false;
-              suvSelected = false;
-            }
-            if (chargingSelected ||
-                cctvSelected ||
-                fireSelected ||
-                guardSelected) {
-              chargingSelected = false;
-              cctvSelected = false;
-              fireSelected = false;
-              guardSelected = false;
-            }
-          });
-        });
-
-        setState(() {
-          isLoading = false;
-        });
-
-        CustomDilogue.showSuccessDialog(
-          context,
-          'assets/animations/tick.json',
-          'Successfully Created!',
-        );
-      } catch (e) {
-        setState(() {
-          isLoading = false;
-        });
-        CustomDilogue.showSuccessDialog(
-          context,
-          'assets/animations/cross.json',
-          'Failed To Create',
-        );
-
-        print("Error occurred while posting space: $e");
-      }
-    }
-  }
+  ParkingSpacePostModel? edit;
+  List<String> imgUrls = [];
 
   void pickImage() async {
     XFile? image = await picker.pickImage(
@@ -156,7 +57,6 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
       return;
     } else {
       setState(() {
-        // _imgFile = File(image.path);
         _imgFiles.add(File(image.path));
       });
     }
@@ -198,9 +98,65 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year.toString().substring(2)}';
   }
 
+  Future<List<String>> _fetchSelectedVehicleTypes() async {
+    return widget.currentUserSpace?.vehicleType ?? [];
+  }
+
+  Future<List<String>> _fetchSelectedAminitiesTypes() async {
+    return widget.currentUserSpace?.aminitiesType ?? [];
+  }
+
+  Future<void> loadChipSelection() async {
+    List<String> selectedVehicleTypes = await _fetchSelectedVehicleTypes();
+    List<String> selectedAminitiesTypes = await _fetchSelectedAminitiesTypes();
+
+    setState(() {
+      bikeSelected = selectedVehicleTypes.contains('Bike');
+      miniSelected = selectedVehicleTypes.contains('Mini');
+      sedanSelected = selectedVehicleTypes.contains('Sedan');
+      suvSelected = selectedVehicleTypes.contains('SUV');
+      chargingSelected = selectedAminitiesTypes.contains('EV Charging');
+      cctvSelected = selectedAminitiesTypes.contains('CCTV Surveillance');
+      fireSelected = selectedAminitiesTypes.contains('Fire Extinguisher');
+      guardSelected = selectedAminitiesTypes.contains('Security Guard');
+    });
+  }
+
+  Future<void> _fetchDatesFromFirestore() async {
+    if (widget.currentUserSpace!.startDate != null &&
+        widget.currentUserSpace!.endDate != null) {
+      setState(() {
+        startDate = widget.currentUserSpace!.startDate;
+        endDate = widget.currentUserSpace!.endDate;
+      });
+    }
+  }
+
+  Future<void> _fetchImageUrls() async {
+    try {
+      if (widget.currentUserSpace!.spaceThumbnail.isNotEmpty ||
+          widget.currentUserSpace!.spaceThumbnail != []) {
+        setState(() {
+          imgUrls = widget.currentUserSpace!.spaceThumbnail;
+        });
+      }
+    } catch (e) {
+      print('unable to fetch img');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadChipSelection();
+    _fetchImageUrls();
+    _fetchDatesFromFirestore();
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.sizeOf(context).height;
+    final edit = widget.currentUserSpace!;
 
     return Scaffold(
       appBar: AppBar(
@@ -222,12 +178,12 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                     autoPlay: false,
                     scrollDirection: Axis.horizontal,
                   ),
-                  items: _imgFiles.map((imgFile) {
+                  items: imgUrls.map((imgUrl) {
                     return Builder(
                       builder: (BuildContext context) {
-                        return ImagePickerContainer(
+                        return NetworkImageDisplayContainer(
                           height: height * 0.27,
-                          imgFile: imgFile,
+                          imgUrl: imgUrl,
                           onTap: null,
                         );
                       },
@@ -247,13 +203,13 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
               ),
               SizedBox(height: height * 0.02),
               CustomTextFormField(
-                controller: spaceNameController,
+                controller: TextEditingController(text: edit.spaceName),
                 verticalPadding: 10,
                 hintText: 'name',
                 prefixIcon: Icons.add_road,
               ),
               CustomTextFormField(
-                controller: spaceLocationController,
+                controller: TextEditingController(text: edit.spaceLocation),
                 verticalPadding: 10,
                 hintText: 'location',
                 prefixIcon: Icons.location_on_outlined,
@@ -262,7 +218,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                 children: [
                   Expanded(
                     child: CustomTextFormField(
-                      controller: spaceSlotsController,
+                      controller: TextEditingController(text: edit.spaceSlots),
                       keyboardType: TextInputType.number,
                       verticalPadding: 10,
                       hintText: 'no of slots',
@@ -272,7 +228,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: CustomTextFormField(
-                      controller: spacePriceController,
+                      controller: TextEditingController(text: edit.spacePrice),
                       keyboardType: TextInputType.number,
                       verticalPadding: 10,
                       hintText: 'price',
@@ -440,7 +396,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                       cornerSmoothing: 1,
                     ),
                     child: TextField(
-                      controller: spaceDescController,
+                      controller: TextEditingController(text: edit.description),
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 5,
                       cursorColor: Colors.white,
@@ -468,9 +424,9 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                 height: height * 0.029,
               ),
               CustomButton(
-                title: 'Book',
+                title: 'Update',
                 isLoading: isLoading,
-                onTap: postSpace,
+                onTap: () {},
               ),
             ],
           ),

@@ -96,10 +96,11 @@ class _LoginPageState extends State<LoginPage> {
                       )
                           .then(
                         (value) {
-                          validator.loading(false);
+
                           Future.delayed(
-                            const Duration(seconds: 1),
+                            const Duration(seconds: 2),
                             () {
+                              validator.loading(false);
                               loginEmailController.clear();
                               loginPasswordController.clear();
                               Navigator.pushReplacement(

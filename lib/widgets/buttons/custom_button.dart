@@ -10,12 +10,14 @@ class CustomButton extends StatelessWidget {
     this.isLoading = false,
     this.verticalPadding = 0,
     this.horizontalPadding = 0,
+    required this.title,
   });
 
   final void Function()? onTap;
   final bool isLoading;
   final double verticalPadding;
   final double horizontalPadding;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class CustomButton extends StatelessWidget {
                       color: Colors.white,
                     )
                   : Text(
-                      'Book',
+                      title,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
             ),

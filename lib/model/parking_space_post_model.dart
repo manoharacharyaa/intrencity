@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ParkingSpacePost {
+class ParkingSpacePostModel {
   final String uid;
   final String spaceName;
   final String spaceLocation;
@@ -13,7 +13,7 @@ class ParkingSpacePost {
   final String? description;
   final List<String> spaceThumbnail;
 
-  ParkingSpacePost({
+  ParkingSpacePostModel({
     required this.uid,
     required this.spaceName,
     required this.spaceLocation,
@@ -43,8 +43,8 @@ class ParkingSpacePost {
     };
   }
 
-  factory ParkingSpacePost.fromJson(Map<String, dynamic> json) {
-    return ParkingSpacePost(
+  factory ParkingSpacePostModel.fromJson(Map<String, dynamic> json) {
+    return ParkingSpacePostModel(
       uid: json['uid'],
       spaceName: json['spaceName'],
       spaceLocation: json['spaceLocation'],

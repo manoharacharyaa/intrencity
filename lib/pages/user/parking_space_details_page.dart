@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
+import 'package:intrencity_provider/pages/user/post_space_page.dart';
 import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
+import 'package:intrencity_provider/widgets/cutsom_divider.dart';
 
 class ParkingSpaceDetailsPage extends StatefulWidget {
   const ParkingSpaceDetailsPage({
@@ -15,7 +17,7 @@ class ParkingSpaceDetailsPage extends StatefulWidget {
     required this.viewedByCurrentUser,
   });
 
-  final ParkingSpacePost spaceDetails;
+  final ParkingSpacePostModel spaceDetails;
   final bool viewedByCurrentUser;
 
   @override
@@ -133,6 +135,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
             widget.viewedByCurrentUser
                 ? const SizedBox()
                 : CustomButton(
+                    title: 'Book',
                     horizontalPadding: 10,
                     verticalPadding: 20,
                     onTap: () {
@@ -189,23 +192,6 @@ class SpaceDetailInfo extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class CustomDivider extends StatelessWidget {
-  const CustomDivider({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
-      child: Container(
-        height: 0.2,
-        color: Colors.white,
-      ),
     );
   }
 }

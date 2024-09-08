@@ -135,7 +135,7 @@ class _SpacesListPageState extends State<SpacesListPage> {
   String _lastWords = '';
   final searchController = TextEditingController();
   List searchParkingSpace = [];
-  late Future<List<ParkingSpacePost>> _fetchSpaces;
+  late Future<List<ParkingSpacePostModel>> _fetchSpaces;
 
   bool _isListening = false;
   Timer? _timer;
@@ -182,24 +182,24 @@ class _SpacesListPageState extends State<SpacesListPage> {
 
   void voicesearchSpace() async {
     String searchTerm = _lastWords.toLowerCase();
-    List<ParkingSpacePost> spaces = await fetchSpaces();
+    List<ParkingSpacePostModel> spaces = await fetchSpaces();
     searchParkingSpace = spaces.where((space) {
       return space.spaceLocation.toLowerCase().contains(searchTerm);
     }).toList();
     setState(() {});
   }
 
-  Future<List<ParkingSpacePost>> fetchSpaces() async {
+  Future<List<ParkingSpacePostModel>> fetchSpaces() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('spaces').get();
 
     return querySnapshot.docs.map((doc) {
-      return ParkingSpacePost.fromJson(doc.data() as Map<String, dynamic>);
+      return ParkingSpacePostModel.fromJson(doc.data() as Map<String, dynamic>);
     }).toList();
   }
 
   Future<void> _refreshData() async {
-    List<ParkingSpacePost> spaces = await fetchSpaces();
+    List<ParkingSpacePostModel> spaces = await fetchSpaces();
     setState(() {
       searchParkingSpace = spaces.where((space) {
         return space.spaceLocation.toLowerCase().contains(
@@ -282,12 +282,12 @@ class _SpacesListPageState extends State<SpacesListPage> {
                     child: Text('No parking spaces found'),
                   );
                 } else {
-                  List<ParkingSpacePost> spaces = snapshot.data!.docs
-                      .map((doc) => ParkingSpacePost.fromJson(
+                  List<ParkingSpacePostModel> spaces = snapshot.data!.docs
+                      .map((doc) => ParkingSpacePostModel.fromJson(
                           doc.data() as Map<String, dynamic>))
                       .toList();
 
-                  List<ParkingSpacePost> searchParkingSpace =
+                  List<ParkingSpacePostModel> searchParkingSpace =
                       spaces.where((space) {
                     return space.spaceLocation.toLowerCase().contains(
                           searchController.text.toLowerCase(),

@@ -10,10 +10,17 @@ import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/model/user_profile_model.dart';
 import 'package:intrencity_provider/pages/auth/auth_page.dart';
+import 'package:intrencity_provider/pages/user/edit_post_page.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
+import 'package:intrencity_provider/pages/user/post_space_page.dart';
+import 'package:intrencity_provider/widgets/cutsom_divider.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
-import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
 import 'package:intrencity_provider/widgets/smooth_container.dart';
+
+enum Value {
+  edit,
+  delete,
+}
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -36,6 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool expanded = false;
   String? profilePicUrl;
   String uid = FirebaseAuth.instance.currentUser!.uid;
+  Value? selectedItem;
 
   void pickImage() async {
     XFile? image = await picker.pickImage(
@@ -387,13 +395,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
                                 final spaces = snapshot.data!.docs
                                     .map((space) =>
-                                        ParkingSpacePost.fromJson(space.data()))
+                                        ParkingSpacePostModel.fromJson(
+                                            space.data()))
                                     .toList();
 
                                 return ListView.builder(
                                   itemCount: spaces.length,
                                   itemBuilder: (context, index) {
-                                    final ParkingSpacePost space =
+                                    final ParkingSpacePostModel space =
                                         spaces[index];
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -429,13 +438,36 @@ class _ProfilePageState extends State<ProfilePage> {
                                               const SizedBox(width: 20),
                                               Text(space.spaceName),
                                               const Spacer(),
-                                              IconButton(
-                                                onPressed: () {
-                                                  print(uid);
+                                              PopupMenuButton<Value>(
+                                                initialValue: selectedItem,
+                                                onSelected: (Value item) {
+                                                  setState(() {
+                                                    selectedItem = item;
+                                                  });
                                                 },
-                                                icon:
-                                                    const Icon(Icons.more_vert),
-                                              )
+                                                itemBuilder: (context) => [
+                                                  PopupMenuItem(
+                                                    value: Value.edit,
+                                                    child: const Text('Edit'),
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              EditPostPage(
+                                                            currentUserSpace:
+                                                                space,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                  const PopupMenuItem(
+                                                    value: Value.delete,
+                                                    child: Text('Delete'),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ),
