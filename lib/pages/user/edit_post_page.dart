@@ -1,9 +1,6 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
@@ -12,9 +9,7 @@ import 'package:intrencity_provider/widgets/add_img_container.dart';
 import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/custom_chip.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
-import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/img_display_container.dart';
-import 'package:intrencity_provider/widgets/img_picker_container.dart';
 
 class EditPostPage extends StatefulWidget {
   const EditPostPage({super.key, this.currentUserSpace});

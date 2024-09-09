@@ -13,7 +13,6 @@ import 'package:intrencity_provider/model/user_profile_model.dart';
 import 'package:intrencity_provider/pages/auth/auth_page.dart';
 import 'package:intrencity_provider/pages/user/edit_post_page.dart';
 import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
-import 'package:intrencity_provider/pages/user/post_space_page.dart';
 import 'package:intrencity_provider/widgets/cutsom_divider.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/smooth_container.dart';

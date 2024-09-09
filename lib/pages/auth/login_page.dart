@@ -5,16 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/home_page.dart';
-import 'package:intrencity_provider/pages/auth/forgot_password_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
 import 'package:intrencity_provider/widgets/auth_button.dart';
-import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
-import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
-import 'package:intrencity_provider/widgets/smooth_container.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
