@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:currency_picker/currency_picker.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
@@ -9,7 +12,11 @@ import 'package:intrencity_provider/widgets/add_img_container.dart';
 import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/custom_chip.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
+import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/img_display_container.dart';
+import 'package:intrencity_provider/widgets/smooth_container.dart';
+
+enum Per { day, hr, month }
 
 class EditPostPage extends StatefulWidget {
   const EditPostPage({super.key, this.currentUserSpace});
@@ -25,12 +32,16 @@ class _EditPostPageState extends State<EditPostPage> {
   List<String> selectedVehicleType = [];
   List<String> selectedAminitiesType = [];
   bool isLoading = false;
+  String selectedPer = '';
+  String selectedCurrency = '';
+  bool isCurrencySelected = false;
   final ImagePicker picker = ImagePicker();
-  final spaceNameController = TextEditingController();
-  final spaceLocationController = TextEditingController();
-  final spaceSlotsController = TextEditingController();
-  final spacePriceController = TextEditingController();
-  final spaceDescController = TextEditingController();
+  TextEditingController spaceNameController = TextEditingController();
+  TextEditingController spaceLocationController = TextEditingController();
+  TextEditingController spaceSlotsController = TextEditingController();
+  TextEditingController spacePriceController = TextEditingController();
+  TextEditingController selectedCurrencyController = TextEditingController();
+  TextEditingController spaceDescController = TextEditingController();
   bool suvSelected = false;
   bool sedanSelected = false;
   bool miniSelected = false;
@@ -140,11 +151,92 @@ class _EditPostPageState extends State<EditPostPage> {
     }
   }
 
+  Future<void> populateFields() async {
+    final space = widget.currentUserSpace!;
+    spaceNameController = TextEditingController(text: space.spaceName);
+    spaceLocationController = TextEditingController(text: space.spaceLocation);
+    spacePriceController = TextEditingController(text: space.spacePrice);
+    selectedCurrencyController =
+        TextEditingController(text: space.selectedCurrency);
+    spaceSlotsController = TextEditingController(text: space.spaceSlots);
+    spaceDescController = TextEditingController(text: space.description);
+  }
+
+  Future<void> _updatePost() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      final currentSpace = widget.currentUserSpace!;
+
+      ParkingSpacePostModel updatePost = ParkingSpacePostModel(
+        uid: currentSpace.uid,
+        docId: currentSpace.docId,
+        spaceName: spaceNameController.text,
+        spaceLocation: spaceLocationController.text,
+        spaceSlots: spaceSlotsController.text,
+        spacePrice: spacePriceController.text,
+        selectedCurrency: selectedCurrencyController.text,
+        vehicleType: [
+          if (bikeSelected) 'Bike',
+          if (miniSelected) 'Mini',
+          if (sedanSelected) 'Sedan',
+          if (suvSelected) 'SUV',
+        ],
+        aminitiesType: [
+          if (chargingSelected) 'EV Charging',
+          if (cctvSelected) 'CCTV Surveillance',
+          if (fireSelected) 'Fire Extinguisher',
+          if (guardSelected) 'Security Guard',
+        ],
+        startDate: startDate,
+        endDate: endDate,
+        spaceThumbnail: currentSpace.spaceThumbnail,
+        description: spaceDescController.text,
+      );
+
+      Map<String, dynamic> updateDate = updatePost.toJson();
+
+      await FirebaseFirestore.instance
+          .collection('spaces')
+          .doc(updatePost.docId)
+          .update(updateDate);
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      // Handle errors, e.g., show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating post: $e')),
+      );
+    }
+  }
+
+  void showCountryCurrencyPicker() {
+    showCurrencyPicker(
+      context: context,
+      showFlag: true,
+      favorite: ['INR'],
+      showCurrencyName: true,
+      showCurrencyCode: true,
+      onSelect: (Currency currency) {
+        setState(() {
+          selectedCurrencyController.text = currency.symbol.toString();
+        });
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     loadChipSelection();
     _fetchImageUrls();
+    populateFields();
     _fetchDatesFromFirestore();
   }
 
@@ -155,7 +247,7 @@ class _EditPostPageState extends State<EditPostPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Post Space'),
+        title: const Text('Edit Post'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
@@ -198,13 +290,13 @@ class _EditPostPageState extends State<EditPostPage> {
               ),
               SizedBox(height: height * 0.02),
               CustomTextFormField(
-                controller: TextEditingController(text: edit.spaceName),
+                controller: spaceNameController,
                 verticalPadding: 10,
                 hintText: 'name',
                 prefixIcon: Icons.add_road,
               ),
               CustomTextFormField(
-                controller: TextEditingController(text: edit.spaceLocation),
+                controller: spaceLocationController,
                 verticalPadding: 10,
                 hintText: 'location',
                 prefixIcon: Icons.location_on_outlined,
@@ -213,7 +305,7 @@ class _EditPostPageState extends State<EditPostPage> {
                 children: [
                   Expanded(
                     child: CustomTextFormField(
-                      controller: TextEditingController(text: edit.spaceSlots),
+                      controller: spaceSlotsController,
                       keyboardType: TextInputType.number,
                       verticalPadding: 10,
                       hintText: 'no of slots',
@@ -222,12 +314,65 @@ class _EditPostPageState extends State<EditPostPage> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: CustomTextFormField(
-                      controller: TextEditingController(text: edit.spacePrice),
-                      keyboardType: TextInputType.number,
-                      verticalPadding: 10,
-                      hintText: 'price',
-                      prefixIcon: Icons.currency_rupee,
+                    child: Stack(
+                      children: [
+                        CustomTextFormField(
+                          controller: spacePriceController,
+                          keyboardType: TextInputType.text,
+                          verticalPadding: 10,
+                          hintText: 'price',
+                          prefixIcon: Icons.currency_rupee,
+                          suffixIcon: PopupMenuButton(
+                            onSelected: (value) {
+                              setState(() {
+                                selectedPer = value.name;
+                                spacePriceController.text =
+                                    '${spacePriceController.text.split('/').first}/$selectedPer';
+                              });
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(
+                                value: Per.hr,
+                                child: Text('hr'),
+                              ),
+                              PopupMenuItem(
+                                value: Per.day,
+                                child: Text('day'),
+                              ),
+                              PopupMenuItem(
+                                value: Per.month,
+                                child: Text('month'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 11, left: 5),
+                          child: SmoothContainer(
+                            cornerRadius: 16,
+                            height: 58,
+                            width: 35,
+                            color: textFieldGrey,
+                            child: InkWell(
+                              onTap: showCountryCurrencyPicker,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  child: TextField(
+                                    controller: selectedCurrencyController,
+                                    enabled: false,
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ],
@@ -391,7 +536,7 @@ class _EditPostPageState extends State<EditPostPage> {
                       cornerSmoothing: 1,
                     ),
                     child: TextField(
-                      controller: TextEditingController(text: edit.description),
+                      controller: spaceDescController,
                       style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 5,
                       cursorColor: Colors.white,
@@ -421,7 +566,15 @@ class _EditPostPageState extends State<EditPostPage> {
               CustomButton(
                 title: 'Update',
                 isLoading: isLoading,
-                onTap: () {},
+                onTap: () {
+                  _updatePost().then((_) {
+                    CustomDilogue.showSuccessDialog(
+                      context,
+                      'assets/animations/tick.json',
+                      'Edited Sucessfully!',
+                    );
+                  });
+                },
               ),
             ],
           ),

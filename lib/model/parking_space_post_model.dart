@@ -7,6 +7,7 @@ class ParkingSpacePostModel {
   final String spaceLocation;
   final String spaceSlots;
   final String spacePrice;
+  final String? selectedCurrency;
   final List<String> vehicleType;
   final List<String> aminitiesType;
   final DateTime? startDate;
@@ -21,6 +22,7 @@ class ParkingSpacePostModel {
     required this.spaceLocation,
     required this.spaceSlots,
     required this.spacePrice,
+    this.selectedCurrency,
     required this.vehicleType,
     required this.aminitiesType,
     this.startDate,
@@ -37,6 +39,7 @@ class ParkingSpacePostModel {
       'spaceLocation': spaceLocation,
       'spaceSlots': spaceSlots,
       'spacePrice': spacePrice,
+      'selectedCurrency': selectedCurrency,
       'vehicleType': vehicleType,
       'aminitiesType': aminitiesType,
       'spaceThumbnail': spaceThumbnail,
@@ -54,6 +57,7 @@ class ParkingSpacePostModel {
       spaceLocation: json['spaceLocation'],
       spaceSlots: json['spaceSlots'],
       spacePrice: json['spacePrice'],
+      selectedCurrency: json['selectedCurrency'],
       vehicleType: List<String>.from(
         json['vehicleType'].map((e) => e.toString()),
       ),

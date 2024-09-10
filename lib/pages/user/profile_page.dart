@@ -488,30 +488,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                                       });
                                                     },
                                                     shape:
-                                                        SmoothRectangleBorder(
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
-                                                          SmoothBorderRadius(
-                                                        cornerRadius: 12,
-                                                        cornerSmoothing: 1,
+                                                          BorderRadius.circular(
+                                                        10,
                                                       ),
                                                     ),
                                                     color: textFieldGrey,
                                                     itemBuilder: (context) => [
                                                       PopupMenuItem(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 40),
                                                         value: Value.edit,
-                                                        labelTextStyle:
-                                                            WidgetStatePropertyAll(
-                                                                Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodySmall),
                                                         child: const Center(
-                                                            child:
-                                                                Text('Edit')),
+                                                          child: Text('Edit'),
+                                                        ),
                                                         onTap: () {
                                                           Navigator.push(
                                                             context,
@@ -525,7 +514,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           );
                                                         },
                                                       ),
-                                                      const PopupMenuDivider(),
                                                       PopupMenuItem(
                                                         onTap: () {
                                                           setState(() {
@@ -535,15 +523,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           });
                                                         },
                                                         value: Value.delete,
-                                                        labelTextStyle:
-                                                            WidgetStatePropertyAll(
-                                                                Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodySmall),
                                                         child: const Center(
-                                                            child:
-                                                                Text('Delete')),
+                                                          child: Text('Delete'),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),

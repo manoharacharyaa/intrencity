@@ -24,7 +24,7 @@ class AuthPage extends StatelessWidget {
             ),
             tabs: const [
               Tab(
-                text: 'Signin',
+                text: 'Signup',
               ),
               Tab(
                 text: 'Login',

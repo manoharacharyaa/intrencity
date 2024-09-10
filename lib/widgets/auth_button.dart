@@ -25,7 +25,7 @@ class AuthButton extends StatelessWidget {
           cornerSmoothing: 1,
         ),
         child: MaterialButton(
-          padding: const EdgeInsets.symmetric(vertical: 17),
+          // padding: const EdgeInsets.symmetric(vertical: 5),
           onPressed: onPressed,
           height: 50,
           minWidth: double.infinity,

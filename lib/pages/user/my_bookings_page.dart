@@ -308,7 +308,8 @@ class _SpacesListPageState extends State<SpacesListPage> {
                           spaceName: space.spaceName,
                           spaceLocation: space.spaceLocation,
                           thumbnail: space.spaceThumbnail[0],
-                          spacePrice: space.spacePrice,
+                          spacePrice:
+                              '${space.selectedCurrency} ${space.spacePrice}',
                           navigateTo: () {
                             Navigator.push(
                               context,

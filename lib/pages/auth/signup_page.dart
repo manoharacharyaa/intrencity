@@ -35,12 +35,10 @@ class _SignUpPageState extends State<SignUpPage> {
     final auth = context.watch<AuthenticationProvider>();
 
     String getCountryPlusPhone() {
-      String phoneNumber = '';
-      setState(() {
-        phoneNumber = validator.selectedCountry == null
-            ? '${'+91'} ${phoneController.text}'
-            : '$selectedCountry ${phoneController.text}';
-      });
+      String phoneNumber = validator.selectedCountry == null
+          ? '+91 ${phoneController.text}'
+          : '+${validator.selectedCountry} ${phoneController.text}';
+
       return phoneNumber;
     }
 
@@ -289,13 +287,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     }
                   },
                   widget: validator.isLoading
-                      ? const CupertinoActivityIndicator()
+                      ? const CupertinoActivityIndicator(radius: 14)
                       : Text(
                           'Signup',
-                          style:
-                              Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                 ),
                 SizedBox(height: size.height * 0.02),

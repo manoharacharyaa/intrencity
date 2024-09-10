@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:currency_picker/currency_picker.dart';
 import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,6 +15,9 @@ import 'package:intrencity_provider/widgets/custom_chip.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/img_picker_container.dart';
+import 'package:intrencity_provider/widgets/smooth_container.dart';
+
+enum Per { day, hr, month }
 
 class SpacePostingPage extends StatefulWidget {
   const SpacePostingPage({super.key});
@@ -26,13 +30,15 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
   List<File> _imgFiles = [];
   List<String> selectedVehicleType = [];
   List<String> selectedAminitiesType = [];
+  String selectedPer = '';
   bool isLoading = false;
   final ImagePicker picker = ImagePicker();
-  final spaceNameController = TextEditingController();
-  final spaceLocationController = TextEditingController();
-  final spaceSlotsController = TextEditingController();
-  final spacePriceController = TextEditingController();
-  final spaceDescController = TextEditingController();
+  TextEditingController spaceNameController = TextEditingController();
+  TextEditingController spaceLocationController = TextEditingController();
+  TextEditingController spaceSlotsController = TextEditingController();
+  TextEditingController spacePriceController = TextEditingController();
+  TextEditingController selectedCurrencyController = TextEditingController();
+  TextEditingController spaceDescController = TextEditingController();
   bool suvSelected = false;
   bool sedanSelected = false;
   bool miniSelected = false;
@@ -85,7 +91,8 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
             await FirebaseFirestore.instance.collection('spaces').add({
           'uid': FirebaseAuth.instance.currentUser!.uid,
           'spaceName': spaceNameController.text,
-          'spacePrice': '₹${spacePriceController.text}',
+          'spacePrice': '${spacePriceController.text}/$selectedPer',
+          'selectedCurrency': selectedCurrencyController.text,
           'spaceLocation': spaceLocationController.text,
           'spaceSlots': spaceSlotsController.text,
           'vehicleType': getSelectedVehicleTypes(),
@@ -101,7 +108,8 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           uid: FirebaseAuth.instance.currentUser!.uid,
           docId: docRef.id, // Assign the generated docId
           spaceName: spaceNameController.text,
-          spacePrice: '₹${spacePriceController.text}',
+          spacePrice: '${spacePriceController.text}/$selectedPer',
+          selectedCurrency: selectedCurrencyController.text,
           spaceLocation: spaceLocationController.text,
           spaceSlots: spaceSlotsController.text,
           vehicleType: getSelectedVehicleTypes(),
@@ -122,6 +130,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           spaceLocationController.clear();
           spaceSlotsController.clear();
           spacePriceController.clear();
+          selectedCurrencyController.clear();
           spaceDescController.clear();
           selectedVehicleType = [];
           bikeSelected = miniSelected = sedanSelected = suvSelected = false;
@@ -201,6 +210,21 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year.toString().substring(2)}';
   }
 
+  void showCountryCurrencyPicker() {
+    showCurrencyPicker(
+      context: context,
+      showFlag: true,
+      showCurrencyName: true,
+      showCurrencyCode: true,
+      favorite: ['INR'],
+      onSelect: (Currency currency) {
+        setState(() {
+          selectedCurrencyController.text = currency.symbol.toString();
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.sizeOf(context).height;
@@ -274,12 +298,69 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: CustomTextFormField(
-                      controller: spacePriceController,
-                      keyboardType: TextInputType.number,
-                      verticalPadding: 10,
-                      hintText: 'price',
-                      prefixIcon: Icons.currency_rupee,
+                    child: Stack(
+                      children: [
+                        CustomTextFormField(
+                          controller: spacePriceController,
+                          keyboardType: TextInputType.number,
+                          verticalPadding: 10,
+                          hintText: 'price',
+                          prefixIcon: Icons.currency_rupee,
+                          suffixIcon: PopupMenuButton(
+                            onSelected: (value) {
+                              setState(() {
+                                selectedPer = value.name;
+                                spacePriceController.text =
+                                    '${spacePriceController.text.split('/').first}/$selectedPer';
+                              });
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(
+                                value: Per.hr,
+                                child: Text('hr'),
+                              ),
+                              PopupMenuItem(
+                                value: Per.day,
+                                child: Text('day'),
+                              ),
+                              PopupMenuItem(
+                                value: Per.month,
+                                child: Text('month'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 11, left: 5),
+                          child: SmoothContainer(
+                            cornerRadius: 16,
+                            height: 58,
+                            width: 35,
+                            color: textFieldGrey,
+                            child: InkWell(
+                              onTap: showCountryCurrencyPicker,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  child: selectedCurrencyController.text.isEmpty
+                                      ? const Text('₹')
+                                      : TextField(
+                                          controller:
+                                              selectedCurrencyController,
+                                          enabled: false,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                          decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                 ],

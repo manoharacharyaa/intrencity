@@ -65,6 +65,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
     final formatedStartDate = DateFormat('dd-MM-yy').format(startDate);
     final formatedEndDate = DateFormat('dd-MM-yy').format(endDate);
     final height = MediaQuery.sizeOf(context).height;
+    final width = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
       appBar: AppBar(
@@ -139,7 +140,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                           SpaceDetailInfo(
                             label: 'Slots & Price',
                             info:
-                                'No of slots (${widget.spaceDetails.spaceSlots}) & ${widget.spaceDetails.spacePrice}',
+                                'No of slots (${widget.spaceDetails.spaceSlots}) & ${widget.spaceDetails.selectedCurrency}${widget.spaceDetails.spacePrice}',
                           ),
                           const CustomDivider(),
                           SpaceDetailInfo(
@@ -161,11 +162,12 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                     ),
                   ),
                 ),
+                //Hosted Persons Card
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: SmoothContainer(
-                    padding: const EdgeInsets.fromLTRB(15, 10, 10, 0),
+                    padding: const EdgeInsets.fromLTRB(17, 10, 10, 0),
                     height: height * 0.155,
                     width: double.infinity,
                     cornerRadius: 14,
@@ -176,7 +178,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 7),
+                            padding: EdgeInsets.only(top: height * 0.008),
                             child: Column(
                               children: [
                                 Stack(
@@ -185,8 +187,8 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                                     Stack(
                                       children: [
                                         SmoothContainer(
-                                          height: 100,
-                                          width: 100,
+                                          height: height * 0.115,
+                                          width: width * 0.25,
                                           cornerRadius: 8,
                                           color: textFieldGrey,
                                           child: host == null
@@ -200,17 +202,17 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                                           radius: SmoothBorderRadius(
                                               cornerRadius: 8),
                                           child: Container(
-                                            height: 100,
-                                            width: 100,
+                                            height: height * 0.1155,
+                                            width: width * 0.25,
                                             decoration: const BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
                                                   Colors.transparent,
                                                   Colors.transparent,
-                                                  Color.fromARGB(118, 0, 0, 0),
-                                                  Color.fromARGB(175, 0, 0, 0),
-                                                  Color.fromARGB(190, 0, 0, 0),
-                                                  Color.fromARGB(255, 0, 0, 0),
+                                                  Color.fromARGB(60, 0, 0, 0),
+                                                  Color.fromARGB(120, 0, 0, 0),
+                                                  Color.fromARGB(180, 0, 0, 0),
+                                                  Color.fromARGB(240, 0, 0, 0),
                                                 ],
                                                 begin: Alignment.center,
                                                 end: Alignment.bottomCenter,
@@ -244,7 +246,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                           ),
                           const SizedBox(width: 14),
                           Padding(
-                            padding: const EdgeInsets.only(top: 6),
+                            padding: EdgeInsets.only(top: height * 0.0080),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

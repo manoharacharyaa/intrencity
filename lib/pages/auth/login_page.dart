@@ -23,13 +23,16 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final loginEmailController = TextEditingController();
+  final forgetPasswordEmailController = TextEditingController();
   final loginPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void _resetPassword(String email, BuildContext context) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await _auth.sendPasswordResetEmail(email: email).then((_) {
+        forgetPasswordEmailController.clear();
+      });
       CustomDilogue.showSuccessDialog(context, 'assets/animations/tick.json',
           'Sucessfully Send Password Reser Link');
     } catch (e) {
@@ -155,16 +158,13 @@ class _LoginPageState extends State<LoginPage> {
                     }
                   },
                   widget: validator.isLoading
-                      ? const CupertinoActivityIndicator()
+                      ? const CupertinoActivityIndicator(radius: 14)
                       : Text(
                           'Login',
-                          style:
-                              Theme.of(context).textTheme.bodySmall!.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 TextButton(
                   onPressed: () {
                     showDialog(
@@ -189,12 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                                   Lottie.asset('assets/animations/reset.json'),
                                   SizedBox(height: size.height * 0.04),
                                   CustomTextFormField(
-                                    controller:
-                                        loginEmailController.text.isEmpty
-                                            ? loginEmailController
-                                            : TextEditingController(
-                                                text: loginEmailController.text,
-                                              ),
+                                    controller: forgetPasswordEmailController,
                                     hintText: 'Enter Email',
                                     verticalPadding: 20,
                                     maxLines: 1,
@@ -203,15 +198,20 @@ class _LoginPageState extends State<LoginPage> {
                                   SizedBox(height: size.height * 0.01),
                                   AuthButton(
                                     height: 55,
-                                    widget: const Text('Reset'),
+                                    widget: Text(
+                                      'Reset',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                                     onPressed: () {
-                                      validator.loading(true);
                                       _resetPassword(
-                                        loginEmailController.text,
+                                        forgetPasswordEmailController.text,
                                         context,
                                       );
                                     },
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
@@ -221,9 +221,9 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   },
                   child: Text(
-                    'Forgot Password',
+                    'Forget Password',
                     style: GoogleFonts.poppins(
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w500,
                       color: primaryBlue,
                     ),
