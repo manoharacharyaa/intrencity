@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intrencity_provider/constants/colors.dart';
 
 var darkTheme = ThemeData(
   colorScheme: const ColorScheme.dark(),
@@ -28,4 +29,6 @@ var darkTheme = ThemeData(
   progressIndicatorTheme: const ProgressIndicatorThemeData(
     color: Colors.white,
   ),
+  floatingActionButtonTheme:
+      FloatingActionButtonThemeData(backgroundColor: primaryBlue),
 );

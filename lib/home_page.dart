@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/pages/user/my_bookings_page.dart';
+import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity_provider/pages/user/my_booking_page.dart';
+import 'package:intrencity_provider/pages/user/parking_list_page.dart';
 import 'package:intrencity_provider/pages/user/post_space_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,10 +15,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    // const AdminPannelPage(),
-    // const ParkingSlotPage(),
-    const MyBookingsPage(),
-    const SpacePostingPage(),
+    const ParkingListPage(),
+    const MyBookingPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -31,21 +31,13 @@ class _HomePageState extends State<HomePage> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const [
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.admin_panel_settings),
-          //   label: 'Admin Panel',
-          // ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.local_parking),
-          //   label: 'Parking Slots',
-          // ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_add_rounded),
-            label: 'My Booking',
+            icon: Icon(Icons.local_parking_rounded),
+            label: 'Parkings',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.post_add),
-            label: 'Posting',
+            icon: Icon(Icons.book),
+            label: 'Bookings',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -56,6 +48,26 @@ class _HomePageState extends State<HomePage> {
         ),
         onTap: _onItemTapped,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SpacePostingPage(),
+            ),
+          );
+        },
+        backgroundColor: primaryBlue,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
     );
   }
 }

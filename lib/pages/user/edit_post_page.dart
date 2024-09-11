@@ -1,10 +1,11 @@
 import 'dart:io';
+import 'package:another_dashed_container/another_dashed_container.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_picker/currency_picker.dart';
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
@@ -28,12 +29,12 @@ class EditPostPage extends StatefulWidget {
 }
 
 class _EditPostPageState extends State<EditPostPage> {
-  List<File> _imgFiles = [];
+  List<File?> _imgFiles = [];
   List<String> selectedVehicleType = [];
   List<String> selectedAminitiesType = [];
   bool isLoading = false;
   String selectedPer = '';
-  String selectedCurrency = '';
+  String selectedCurrency = '₹';
   bool isCurrencySelected = false;
   final ImagePicker picker = ImagePicker();
   TextEditingController spaceNameController = TextEditingController();
@@ -139,15 +140,35 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   Future<void> _fetchImageUrls() async {
-    try {
-      if (widget.currentUserSpace!.spaceThumbnail.isNotEmpty ||
-          widget.currentUserSpace!.spaceThumbnail != []) {
-        setState(() {
-          imgUrls = widget.currentUserSpace!.spaceThumbnail;
-        });
-      }
-    } catch (e) {
-      print('unable to fetch img');
+    if (widget.currentUserSpace != null) {
+      setState(() {
+        imgUrls = List<String>.from(widget.currentUserSpace!.spaceThumbnail);
+        // No need to create a fixed-length list. Just make sure the lengths are initially consistent.
+        _imgFiles = List<File?>.generate(imgUrls.length, (index) => null);
+      });
+    }
+  }
+
+  Future<void> _addImage() async {
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _imgFiles.add(File(image.path)); // Add a new image
+        imgUrls
+            .add(''); // Add a placeholder to imgUrls to keep lengths consistent
+      });
+    }
+  }
+
+  Future<void> _replaceImage(int index) async {
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _imgFiles[index] =
+            File(image.path); // Replace the image at the tapped index
+      });
     }
   }
 
@@ -162,12 +183,37 @@ class _EditPostPageState extends State<EditPostPage> {
     spaceDescController = TextEditingController(text: space.description);
   }
 
+  Future<String> _uploadImageToFirebase(File imageFile) async {
+    // Upload image to Firebase Storage and get the download URL
+    String fileName =
+        'editedImages/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
+
+    UploadTask uploadTask = storageRef.putFile(imageFile);
+    TaskSnapshot snapshot = await uploadTask;
+
+    return await snapshot.ref.getDownloadURL();
+  }
+
   Future<void> _updatePost() async {
     try {
       setState(() {
         isLoading = true;
       });
       final currentSpace = widget.currentUserSpace!;
+
+      List<String> updatedThumbnails = [];
+
+      for (int i = 0; i < _imgFiles.length; i++) {
+        // If an image file is new (i.e., not null), upload it
+        if (_imgFiles[i] != null) {
+          String downloadUrl = await _uploadImageToFirebase(_imgFiles[i]!);
+          updatedThumbnails.add(downloadUrl);
+        } else {
+          // Otherwise, keep the existing image URL from Firestore
+          updatedThumbnails.add(imgUrls[i]);
+        }
+      }
 
       ParkingSpacePostModel updatePost = ParkingSpacePostModel(
         uid: currentSpace.uid,
@@ -191,7 +237,7 @@ class _EditPostPageState extends State<EditPostPage> {
         ],
         startDate: startDate,
         endDate: endDate,
-        spaceThumbnail: currentSpace.spaceThumbnail,
+        spaceThumbnail: updatedThumbnails,
         description: spaceDescController.text,
       );
 
@@ -209,7 +255,7 @@ class _EditPostPageState extends State<EditPostPage> {
       setState(() {
         isLoading = false;
       });
-      // Handle errors, e.g., show an error message
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error updating post: $e')),
       );
@@ -225,7 +271,8 @@ class _EditPostPageState extends State<EditPostPage> {
       showCurrencyCode: true,
       onSelect: (Currency currency) {
         setState(() {
-          selectedCurrencyController.text = currency.symbol.toString();
+          selectedCurrencyController.text =
+              currency.symbol.isNotEmpty ? currency.symbol.toString() : '₹';
         });
       },
     );
@@ -255,38 +302,72 @@ class _EditPostPageState extends State<EditPostPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: height * 0.28,
-                child: CarouselSlider(
-                  options: CarouselOptions(
-                    height: height * 0.27,
-                    enableInfiniteScroll: false,
-                    enlargeCenterPage: true,
-                    autoPlay: false,
-                    scrollDirection: Axis.horizontal,
-                  ),
-                  items: imgUrls.map((imgUrl) {
-                    return Builder(
-                      builder: (BuildContext context) {
-                        return NetworkImageDisplayContainer(
-                          height: height * 0.27,
-                          imgUrl: imgUrl,
-                          onTap: null,
-                        );
-                      },
-                    );
-                  }).toList()
-                    ..add(
-                      Builder(
-                        builder: (BuildContext context) {
-                          return AddImageContainer(
-                            height: height * 0.27,
-                            onTap: pickImage,
-                          );
-                        },
+              Column(
+                children: [
+                  SizedBox(
+                    height: height * 0.28,
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: height * 0.27,
+                        enableInfiniteScroll: false,
+                        enlargeCenterPage: true,
+                        autoPlay: false,
+                        scrollDirection: Axis.horizontal,
                       ),
+                      items: [
+                        // Display prepopulated images and allow replacement
+                        ...imgUrls.asMap().entries.map((entry) {
+                          int index = entry.key;
+                          String imgUrl = entry.value;
+
+                          return Builder(
+                            builder: (BuildContext context) {
+                              return GestureDetector(
+                                onTap: () => _replaceImage(index),
+                                child: _imgFiles[index] != null
+                                    ? DashedContainer(
+                                        borderRadius: 20,
+                                        strokeWidth: 4,
+                                        dashColor: primaryBlue,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          child: SizedBox(
+                                            height: height * 0.28,
+                                            child: Image.file(
+                                              _imgFiles[index]!,
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : NetworkImageDisplayContainer(
+                                        height: height * 0.27,
+                                        imgUrl: imgUrl,
+                                        onTap: null,
+                                      ),
+                              );
+                            },
+                          );
+                        }),
+
+                        // Dashed Container for Adding Image as the last item
+                        Builder(
+                          builder: (BuildContext context) {
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: _addImage,
+                              child: DashedAddImageContainer(
+                                height: height * 0.27,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                ),
+                  ),
+                ],
               ),
               SizedBox(height: height * 0.02),
               CustomTextFormField(
@@ -308,6 +389,7 @@ class _EditPostPageState extends State<EditPostPage> {
                       controller: spaceSlotsController,
                       keyboardType: TextInputType.number,
                       verticalPadding: 10,
+                      maxLines: 1,
                       hintText: 'no of slots',
                       prefixIcon: Icons.square_rounded,
                     ),
@@ -320,14 +402,17 @@ class _EditPostPageState extends State<EditPostPage> {
                           controller: spacePriceController,
                           keyboardType: TextInputType.text,
                           verticalPadding: 10,
+                          maxLines: 1,
                           hintText: 'price',
                           prefixIcon: Icons.currency_rupee,
                           suffixIcon: PopupMenuButton(
                             onSelected: (value) {
                               setState(() {
                                 selectedPer = value.name;
+                                final priceWithoutPer =
+                                    spacePriceController.text.split('/').first;
                                 spacePriceController.text =
-                                    '${spacePriceController.text.split('/').first}/$selectedPer';
+                                    '$priceWithoutPer/$selectedPer';
                               });
                             },
                             itemBuilder: (context) => const [
@@ -577,6 +662,74 @@ class _EditPostPageState extends State<EditPostPage> {
                 },
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DashedAddImageContainer extends StatelessWidget {
+  final double height;
+
+  const DashedAddImageContainer({super.key, required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: double.infinity,
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
+        child: DashedContainer(
+          dashColor: primaryBlue,
+          strokeWidth: 2,
+          borderRadius: 20,
+          child: const Center(
+            child: Icon(
+              Icons.add_photo_alternate,
+              size: 50,
+              color: primaryBlue,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// You can use this widget for displaying network images
+class NetworkImageDisplayContainer extends StatelessWidget {
+  final String imgUrl;
+  final double height;
+  final VoidCallback? onTap;
+
+  const NetworkImageDisplayContainer({
+    super.key,
+    required this.imgUrl,
+    required this.height,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: DashedContainer(
+        dashColor: primaryBlue,
+        strokeWidth: imgUrl.isNotEmpty ? 4 : 2,
+        borderRadius: 20,
+        child: SizedBox(
+          height: height * 0.27,
+          width: double.infinity,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.network(
+              imgUrl,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),

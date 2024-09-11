@@ -13,14 +13,14 @@ import 'package:lottie/lottie.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class MyBookingsPage extends StatefulWidget {
-  const MyBookingsPage({super.key});
+class ParkingListPage extends StatefulWidget {
+  const ParkingListPage({super.key});
 
   @override
-  State<MyBookingsPage> createState() => _MyBookingsPageState();
+  State<ParkingListPage> createState() => _ParkingListPageState();
 }
 
-class _MyBookingsPageState extends State<MyBookingsPage> {
+class _ParkingListPageState extends State<ParkingListPage> {
   @override
   Widget build(BuildContext context) {
     String profilePic = '';

@@ -108,7 +108,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           uid: FirebaseAuth.instance.currentUser!.uid,
           docId: docRef.id, // Assign the generated docId
           spaceName: spaceNameController.text,
-          spacePrice: '${spacePriceController.text}/$selectedPer',
+          spacePrice: spacePriceController.text,
           selectedCurrency: selectedCurrencyController.text,
           spaceLocation: spaceLocationController.text,
           spaceSlots: spaceSlotsController.text,
@@ -292,6 +292,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                       controller: spaceSlotsController,
                       keyboardType: TextInputType.number,
                       verticalPadding: 10,
+                      maxLines: 1,
                       hintText: 'no of slots',
                       prefixIcon: Icons.square_rounded,
                     ),
@@ -305,13 +306,16 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                           keyboardType: TextInputType.number,
                           verticalPadding: 10,
                           hintText: 'price',
+                          maxLines: 1,
                           prefixIcon: Icons.currency_rupee,
                           suffixIcon: PopupMenuButton(
                             onSelected: (value) {
                               setState(() {
                                 selectedPer = value.name;
+                                final priceWithoutPer =
+                                    spacePriceController.text.split('/').first;
                                 spacePriceController.text =
-                                    '${spacePriceController.text.split('/').first}/$selectedPer';
+                                    '$priceWithoutPer/$selectedPer';
                               });
                             },
                             itemBuilder: (context) => const [
