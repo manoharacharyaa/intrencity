@@ -345,7 +345,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Text(
                     isEditing ? 'Save Profile' : 'Edit Profile',
                     style: GoogleFonts.poppins(
-                      color: Colors.blueAccent,
+                      color: primaryBlue,
                       fontSize: 14,
                     ),
                   ),
@@ -384,7 +384,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             },
                             icon: Icon(
                               size: 35,
-                              color: Colors.blue,
+                              color: primaryBlue,
                               expanded
                                   ? Icons.arrow_drop_down_circle_outlined
                                   : Icons.arrow_circle_right_outlined,

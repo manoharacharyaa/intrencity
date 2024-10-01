@@ -10,7 +10,6 @@ import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/booking_provider.dart';
 import 'package:intrencity_provider/providers/user_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
-import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:provider/provider.dart';
 import 'package:intrencity_provider/firebase_options.dart';
 

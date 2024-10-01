@@ -186,7 +186,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             cornerSmoothing: 1,
                           ),
                           child: Container(
-                            height: 60,
+                            height: 65,
                             decoration: const BoxDecoration(
                               color: textFieldGrey,
                             ),
@@ -336,23 +336,27 @@ class _SignUpPageState extends State<SignUpPage> {
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Padding(
                       padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: [
-                          SizedBox(width: size.width * 0.15),
-                          Image.asset(
-                            'assets/images/google_gradient.png',
-                            height: 29,
-                          ),
-                          SizedBox(width: size.width * 0.05),
-                          Text(
-                            'Signin with Google',
-                            style:
-                                Theme.of(context).textTheme.bodySmall!.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                          )
-                        ],
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/google_gradient.png',
+                              height: 29,
+                            ),
+                            SizedBox(width: size.width * 0.03),
+                            Text(
+                              'Signin with Google',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall!
+                                  .copyWith(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
