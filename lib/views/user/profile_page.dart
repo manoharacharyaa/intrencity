@@ -10,9 +10,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/model/user_profile_model.dart';
-import 'package:intrencity_provider/pages/auth/auth_page.dart';
-import 'package:intrencity_provider/pages/user/edit_post_page.dart';
-import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
+import 'package:intrencity_provider/views/auth/auth_page.dart';
+import 'package:intrencity_provider/views/user/edit_post_page.dart';
+import 'package:intrencity_provider/views/user/parking_space_details_page.dart';
 import 'package:intrencity_provider/widgets/cutsom_divider.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
 import 'package:intrencity_provider/widgets/smooth_container.dart';
@@ -583,7 +583,10 @@ class UserDetailsCardItem extends StatelessWidget {
             controller: controller,
             keyboardType: keyboardType,
             enabled: isEditing ? true : false,
-            style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isEditing ? Colors.amber : Colors.white,
+            ),
             maxLines: 1,
             decoration: const InputDecoration(
               border: InputBorder.none,

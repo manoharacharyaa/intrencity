@@ -1,7 +1,7 @@
 import 'package:another_dashed_container/another_dashed_container.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/pages/user/booking_page.dart';
+import 'package:intrencity_provider/views/user/booking_page.dart';
 import 'package:intrencity_provider/providers/booking_provider.dart';
 import 'package:provider/provider.dart';
 

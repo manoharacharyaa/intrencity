@@ -5,6 +5,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intrencity_provider/model/user_profile_model.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
+  bool isGuest = false;
+
+  void toggleGuest() {
+    isGuest = true;
+    notifyListeners();
+  }
+
   Future<dynamic> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();

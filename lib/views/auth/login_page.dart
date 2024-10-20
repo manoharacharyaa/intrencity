@@ -7,10 +7,12 @@ import 'package:intrencity_provider/constants/colors.dart';
 import 'package:intrencity_provider/home_page.dart';
 import 'package:intrencity_provider/providers/auth_provider.dart';
 import 'package:intrencity_provider/providers/validator_provider.dart';
+import 'package:intrencity_provider/views/user/parking_list_page.dart';
 import 'package:intrencity_provider/widgets/auth_button.dart';
 import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intrencity_provider/widgets/dilogue_widget.dart';
+import 'package:intrencity_provider/widgets/smooth_container.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -226,6 +228,53 @@ class _LoginPageState extends State<LoginPage> {
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                       color: primaryBlue,
+                    ),
+                  ),
+                ),
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(15),
+                        child: Divider(
+                          thickness: 0.2,
+                        ),
+                      ),
+                    ),
+                    Text('or'),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(15),
+                        child: Divider(
+                          thickness: 0.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: size.height * 0.3),
+                GestureDetector(
+                  onTap: () {
+                    auth.toggleGuest();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ParkingListPage(),
+                      ),
+                    );
+                  },
+                  child: const SmoothContainer(
+                    height: 60,
+                    width: double.infinity,
+                    cornerRadius: 15,
+                    child: Center(
+                      child: Text(
+                        "Continue As Guest",
+                        style: TextStyle(
+                          color: Colors.amber,
+                          fontSize: 18,
+                        ),
+                      ),
                     ),
                   ),
                 ),

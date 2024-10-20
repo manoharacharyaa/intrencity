@@ -4,12 +4,16 @@ import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity_provider/main.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
-import 'package:intrencity_provider/pages/user/parking_space_details_page.dart';
-import 'package:intrencity_provider/pages/user/profile_page.dart';
+import 'package:intrencity_provider/providers/auth_provider.dart';
+import 'package:intrencity_provider/views/auth/auth_page.dart';
+import 'package:intrencity_provider/views/user/parking_space_details_page.dart';
+import 'package:intrencity_provider/views/user/profile_page.dart';
 import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
 import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -26,6 +30,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
     String profilePic = '';
     String? uid;
     User? user = FirebaseAuth.instance.currentUser;
+    bool isGuest = context.read<AuthenticationProvider>().isGuest;
 
     if (user != null) {
       uid = user.uid;
@@ -33,89 +38,86 @@ class _ParkingListPageState extends State<ParkingListPage> {
       print("No user found");
     }
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Parkings',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          leading: IconButton(
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-            icon: const Icon(Icons.menu_rounded),
-          ),
-          actions: [
-            StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(uid)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting ||
-                    uid!.isEmpty) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Parkings',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Scaffold.of(context).openDrawer();
+          },
+          icon: const Icon(Icons.menu_rounded),
+        ),
+        actions: [
+          StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  uid == null) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            isGuest ? const AuthPage() : const ProfilePage(),
+                      ),
+                    ),
+                    child: const CircleAvatar(
+                      backgroundColor: textFieldGrey,
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              if (snapshot.hasData && !isGuest) {
+                var userProfile = snapshot.data!.data() as Map<String, dynamic>;
+                profilePic = userProfile['profilePic'] ?? '';
+                if (profilePic.isNotEmpty) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: InkWell(
+                    child: ProfilePicAvatar(
+                      height: 45,
+                      width: 45,
+                      profilePic: profilePic,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const ProfilePage(),
                         ),
                       ),
-                      child: const CircleAvatar(
-                        backgroundColor: textFieldGrey,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                        ),
-                      ),
                     ),
                   );
                 }
-                if (snapshot.hasData) {
-                  var userProfile =
-                      snapshot.data!.data() as Map<String, dynamic>;
-                  profilePic = userProfile['profilePic'] ?? '';
-                  if (profilePic.isNotEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: ProfilePicAvatar(
-                        height: 45,
-                        width: 45,
-                        profilePic: profilePic,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfilePage(),
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: ProfilePicAvatar(
-                    height: 45,
-                    width: 45,
-                    profilePic: profilePic,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProfilePage(),
-                      ),
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ProfilePicAvatar(
+                  height: 45,
+                  width: 45,
+                  profilePic: profilePic,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfilePage(),
                     ),
                   ),
-                );
-              },
-            )
-          ],
-        ),
-        body: const SpacesListPage(),
+                ),
+              );
+            },
+          )
+        ],
       ),
+      body: const SpacesListPage(),
     );
   }
 }

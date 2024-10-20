@@ -1,16 +1,20 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:figma_squircle/figma_squircle.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity_provider/main.dart';
 import 'package:intrencity_provider/model/parking_space_post_model.dart';
 import 'package:intrencity_provider/model/user_profile_model.dart';
-import 'package:intrencity_provider/pages/user/parking_slot_page.dart';
+import 'package:intrencity_provider/providers/auth_provider.dart';
+import 'package:intrencity_provider/views/user/parking_slot_page.dart';
 import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
 import 'package:intrencity_provider/widgets/cutsom_divider.dart';
 import 'package:intrencity_provider/widgets/smooth_container.dart';
+import 'package:provider/provider.dart';
 
 class ParkingSpaceDetailsPage extends StatefulWidget {
   const ParkingSpaceDetailsPage({
@@ -30,11 +34,24 @@ class ParkingSpaceDetailsPage extends StatefulWidget {
 class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
   UserProfileModel? host;
   String profilePic = '';
+  bool currentUser = false;
 
   @override
   void initState() {
     super.initState();
     fetchHostUser();
+    isCurrentUser();
+  }
+
+  void isCurrentUser() {
+    bool isGuest = context.read<AuthenticationProvider>().isGuest;
+    if (!isGuest) {
+      if (widget.spaceDetails.uid == FirebaseAuth.instance.currentUser!.uid) {
+        setState(() {
+          currentUser = true;
+        });
+      }
+    }
   }
 
   Future<void> fetchHostUser() async {
@@ -66,6 +83,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
     final formatedEndDate = DateFormat('dd-MM-yy').format(endDate);
     final height = MediaQuery.sizeOf(context).height;
     final width = MediaQuery.sizeOf(context).width;
+    bool isGuest = context.watch<AuthenticationProvider>().isGuest;
 
     return Scaffold(
       appBar: AppBar(
@@ -303,27 +321,31 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                 ),
               ],
             ),
-            widget.viewedByCurrentUser
+            currentUser || isGuest
                 ? const SizedBox()
-                : CustomButton(
-                    title: 'Book',
-                    horizontalPadding: 10,
-                    verticalPadding: 20,
-                    onTap: () {
-                      // print(int.parse(widget.spaceDetails.spaceSlots));
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ParkingSlotPage(
-                            noOfSlots:
-                                int.parse(widget.spaceDetails.spaceSlots),
-                            startDate: widget.spaceDetails.startDate,
-                            endDate: widget.spaceDetails.endDate,
+                : widget.viewedByCurrentUser
+                    ? const SizedBox()
+                    : widget.viewedByCurrentUser
+                        ? const SizedBox()
+                        : CustomButton(
+                            title: 'Book',
+                            horizontalPadding: 10,
+                            verticalPadding: 20,
+                            onTap: () {
+                              // print(int.parse(widget.spaceDetails.spaceSlots));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ParkingSlotPage(
+                                    noOfSlots: int.parse(
+                                        widget.spaceDetails.spaceSlots),
+                                    startDate: widget.spaceDetails.startDate,
+                                    endDate: widget.spaceDetails.endDate,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        ),
-                      );
-                    },
-                  ),
           ],
         ),
       ),

@@ -109,7 +109,9 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           docId: docRef.id, // Assign the generated docId
           spaceName: spaceNameController.text,
           spacePrice: spacePriceController.text,
-          selectedCurrency: selectedCurrencyController.text,
+          selectedCurrency: selectedCurrencyController.text.isEmpty
+              ? '₹'
+              : selectedCurrencyController.text,
           spaceLocation: spaceLocationController.text,
           spaceSlots: spaceSlotsController.text,
           vehicleType: getSelectedVehicleTypes(),
@@ -556,7 +558,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                 height: height * 0.029,
               ),
               CustomButton(
-                title: 'Book',
+                title: 'Post',
                 isLoading: isLoading,
                 onTap: postSpace,
               ),
