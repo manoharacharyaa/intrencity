@@ -1,7 +1,12 @@
-import 'package:figma_squircle/figma_squircle.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/providers/booking_provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/providers/unuse/booking_provider.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -9,11 +14,13 @@ class BookingPage extends StatefulWidget {
   const BookingPage({
     super.key,
     required this.slotNumber,
+    required this.spaceId,
     required this.startDate,
     required this.endDate,
   });
 
   final int slotNumber;
+  final String spaceId;
   final DateTime startDate;
   final DateTime endDate;
 
@@ -191,35 +198,84 @@ class _BookingPageState extends State<BookingPage> {
                     height: 60,
                     color: primaryBlue,
                     child: MaterialButton(
-                      onPressed: (startDateTime == null || endDateTime == null)
-                          ? null
-                          : () {
-                              if (endDateTime!.isBefore(startDateTime!)) {
-                                _showAlertDialog(
-                                  context,
-                                  "End time cannot be before start time.",
-                                );
-                                return;
-                              }
+                      onPressed: () {
+                        if (startDateTime == null || endDateTime == null) {
+                          _showAlertDialog(
+                            context,
+                            "Start & End Date Cant Be Null",
+                          );
+                        } else if (endDateTime!.isBefore(startDateTime!)) {
+                          _showAlertDialog(
+                            context,
+                            "End time cannot be before start time.",
+                          );
+                          return;
+                        } else if (startDateTime!.isBefore(DateTime.now())) {
+                          _showAlertDialog(
+                            context,
+                            "The time selected has already passed.",
+                          );
+                          return;
+                        } else {
+                          FirebaseFirestore.instance
+                              .collection('spaces')
+                              .doc(widget.spaceId)
+                              .update({
+                            'bookings': FieldValue.arrayUnion([
+                              Booking(
+                                isApproved: false,
+                                uid: FirebaseAuth.instance.currentUser!.uid,
+                                spaceId: widget.spaceId,
+                                slotNumber: widget.slotNumber,
+                                startDateTime:
+                                    widget.startDate.toIso8601String(),
+                                endDateTime: widget.endDate.toIso8601String(),
+                              ).toJson(),
+                            ])
+                          }).then(
+                            (_) => Navigator.pop(context),
+                          );
+                        }
+                      },
+                      // onPressed: (startDateTime == null || endDateTime == null)
+                      //     ? () {
+                      //         Fluttertoast.showToast(
+                      //           msg: 'Start or End date can\nt be null',
+                      //         );
+                      //       }
+                      //     : () {
+                      //         if (endDateTime!.isBefore(startDateTime!)) {
+                      //           _showAlertDialog(
+                      //             context,
+                      //             "End time cannot be before start time.",
+                      //           );
+                      //           return;
+                      //         } else if (startDateTime!
+                      //             .isBefore(DateTime.now())) {
+                      //           _showAlertDialog(
+                      //             context,
+                      //             "The time selected has already passed.",
+                      //           );
+                      //           return;
+                      //         } else {
+                      //           FirebaseFirestore.instance
+                      //               .collection('spaces')
+                      //               .doc(widget.spaceId)
+                      //               .update({
+                      //             'uid': FirebaseAuth.instance.currentUser!.uid,
+                      //           });
+                      //         }
 
-                              if (startDateTime!.isBefore(DateTime.now())) {
-                                _showAlertDialog(
-                                  context,
-                                  "The time selected has already passed.",
-                                );
-                                return;
-                              }
+                      //         // final duration =
+                      //         //     endDateTime!.difference(startDateTime!);
 
-                              final duration =
-                                  endDateTime!.difference(startDateTime!);
-
-                              context.read<BookingProvider>().bookSlot(
-                                    widget.slotNumber,
-                                    startDateTime!,
-                                    duration,
-                                  );
-                              Navigator.pop(context);
-                            },
+                      //         // context.read<BookingProvider>().bookSlot(
+                      //         //       widget.slotNumber,
+                      //         //       startDateTime!,
+                      //         //       duration,
+                      //         //     );
+                      //         // Navigator.pop(context);
+                      //       },
                       height: 50,
                       minWidth: double.infinity,
                       child: Text(

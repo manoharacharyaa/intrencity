@@ -1,3 +1,3 @@
-# intrencity_provider
+# intrencity
 
 A new Flutter project.

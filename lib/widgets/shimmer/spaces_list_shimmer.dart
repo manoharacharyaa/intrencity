@@ -1,6 +1,7 @@
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SpacesListShimmer extends StatelessWidget {

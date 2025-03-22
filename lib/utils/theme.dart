@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity/utils/colors.dart';
 
 var darkTheme = ThemeData(
   colorScheme: const ColorScheme.dark(),

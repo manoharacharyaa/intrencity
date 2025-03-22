@@ -1,6 +1,7 @@
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 
 class AuthButton extends StatelessWidget {
   const AuthButton({
@@ -18,7 +19,7 @@ class AuthButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // final height = MediaQuery.of(context).size.height;
     return SizedBox(
-      height: height,
+      height: 55,
       child: ClipSmoothRect(
         radius: SmoothBorderRadius(
           cornerRadius: 15,

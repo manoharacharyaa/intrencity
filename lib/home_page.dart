@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/views/user/my_booking_page.dart';
-import 'package:intrencity_provider/views/user/parking_list_page.dart';
-import 'package:intrencity_provider/views/user/post_space_page.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/views/user/my_booking_page.dart';
+import 'package:intrencity/views/user/parking_list_page.dart';
+import 'package:intrencity/views/user/post_space_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

@@ -2,16 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/theme.dart';
-import 'package:intrencity_provider/home_page.dart';
-import 'package:intrencity_provider/views/auth/auth_page.dart';
-import 'package:intrencity_provider/providers/admin_provider.dart';
-import 'package:intrencity_provider/providers/auth_provider.dart';
-import 'package:intrencity_provider/providers/booking_provider.dart';
-import 'package:intrencity_provider/providers/user_provider.dart';
-import 'package:intrencity_provider/providers/validator_provider.dart';
+import 'package:intrencity/utils/theme.dart';
+import 'package:intrencity/home_page.dart';
+import 'package:intrencity/views/auth/auth_page.dart';
+import 'package:intrencity/providers/unuse/admin_provider.dart';
+import 'package:intrencity/providers/auth_provider.dart';
+import 'package:intrencity/providers/unuse/booking_provider.dart';
+import 'package:intrencity/providers/unuse/user_provider.dart';
+import 'package:intrencity/providers/validator_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:intrencity_provider/firebase_options.dart';
+import 'package:intrencity/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

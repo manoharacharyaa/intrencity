@@ -1,4 +1,4 @@
-package com.example.intrencity_provider
+package com.example.intrencity
 
 import io.flutter.embedding.android.FlutterActivity
 

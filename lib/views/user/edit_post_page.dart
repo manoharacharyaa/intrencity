@@ -3,19 +3,18 @@ import 'package:another_dashed_container/another_dashed_container.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_picker/currency_picker.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/model/parking_space_post_model.dart';
-import 'package:intrencity_provider/widgets/add_img_container.dart';
-import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
-import 'package:intrencity_provider/widgets/custom_chip.dart';
-import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
-import 'package:intrencity_provider/widgets/dilogue_widget.dart';
-import 'package:intrencity_provider/widgets/img_display_container.dart';
-import 'package:intrencity_provider/widgets/smooth_container.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/widgets/buttons/custom_button.dart';
+import 'package:intrencity/widgets/custom_chip.dart';
+import 'package:intrencity/widgets/custom_text_form_field.dart';
+import 'package:intrencity/widgets/dilogue_widget.dart';
+import 'package:intrencity/widgets/smooth_container.dart';
 
 enum Per { day, hr, month }
 

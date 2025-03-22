@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/model/user_profile_model.dart';
+import 'package:intrencity/models/user_profile_model.dart';
 
 class UserProvider extends ChangeNotifier {
   UserProfileModel? currentUser;

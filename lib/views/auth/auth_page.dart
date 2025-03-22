@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/views/auth/login_page.dart';
-import 'package:intrencity_provider/views/auth/signup_page.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/views/auth/login_page.dart';
+import 'package:intrencity/views/auth/signup_page.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});

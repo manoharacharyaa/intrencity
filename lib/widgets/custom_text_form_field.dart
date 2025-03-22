@@ -1,7 +1,8 @@
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/providers/validator_provider.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/providers/validator_provider.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:provider/provider.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -57,7 +58,7 @@ class CustomTextFormField extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
           decoration: InputDecoration(
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 5, vertical: 20),
+                const EdgeInsets.symmetric(horizontal: 5, vertical: 19),
             filled: true,
             fillColor: textFieldGrey,
             prefix: prefix,

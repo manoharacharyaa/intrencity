@@ -1,17 +1,18 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/main.dart';
-import 'package:intrencity_provider/model/parking_space_post_model.dart';
-import 'package:intrencity_provider/providers/auth_provider.dart';
-import 'package:intrencity_provider/views/auth/auth_page.dart';
-import 'package:intrencity_provider/views/user/parking_space_details_page.dart';
-import 'package:intrencity_provider/views/user/profile_page.dart';
-import 'package:intrencity_provider/widgets/profilepic_avatar.dart';
-import 'package:intrencity_provider/widgets/shimmer/spaces_list_shimmer.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/providers/auth_provider.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
+import 'package:intrencity/views/auth/auth_page.dart';
+import 'package:intrencity/views/user/parking_space_details_page.dart';
+import 'package:intrencity/views/user/profile_page.dart';
+import 'package:intrencity/widgets/profilepic_avatar.dart';
+import 'package:intrencity/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -149,6 +150,12 @@ class _SpacesListPageState extends State<SpacesListPage> {
     setState(() {});
   }
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   void _startListening() async {
     setState(() {
       _isListening = true;
@@ -256,12 +263,19 @@ class _SpacesListPageState extends State<SpacesListPage> {
                           height: 50,
                           fit: BoxFit.fill,
                         )
-                      : IconButton(
-                          onPressed: _speechToText.isNotListening
-                              ? _startListening
-                              : _stopListening,
-                          icon: const Icon(Icons.mic),
-                        ),
+                      : searchController.text.isEmpty
+                          ? IconButton(
+                              onPressed: _speechToText.isNotListening
+                                  ? _startListening
+                                  : _stopListening,
+                              icon: const Icon(Icons.mic),
+                            )
+                          : IconButton(
+                              onPressed: () {
+                                searchController.clear();
+                              },
+                              icon: const Icon(Icons.clear_rounded),
+                            ),
                 ),
               ),
             ),

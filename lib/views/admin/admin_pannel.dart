@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/views/auth/auth_page.dart';
-import 'package:intrencity_provider/providers/auth_provider.dart';
-import 'package:intrencity_provider/widgets/admin_slot_container.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/views/auth/auth_page.dart';
+import 'package:intrencity/providers/auth_provider.dart';
+import 'package:intrencity/widgets/admin_slot_container.dart';
 import 'package:provider/provider.dart';
 
 class AdminPannelPage extends StatelessWidget {

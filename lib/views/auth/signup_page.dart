@@ -1,15 +1,16 @@
 import 'package:country_picker/country_picker.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/home_page.dart';
-import 'package:intrencity_provider/providers/auth_provider.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/home_page.dart';
+import 'package:intrencity/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:intrencity_provider/providers/validator_provider.dart';
-import 'package:intrencity_provider/widgets/auth_button.dart';
-import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
+import 'package:intrencity/providers/validator_provider.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/widgets/auth_button.dart';
+import 'package:intrencity/widgets/custom_text_form_field.dart';
 import 'package:provider/provider.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -27,6 +28,16 @@ class _SignUpPageState extends State<SignUpPage> {
   final confirmPasswordController = TextEditingController();
   var selectedCountry = '';
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +197,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             cornerSmoothing: 1,
                           ),
                           child: Container(
-                            height: 65,
+                            height: 58,
                             decoration: const BoxDecoration(
                               color: textFieldGrey,
                             ),
@@ -349,9 +360,10 @@ class _SignUpPageState extends State<SignUpPage> {
                               'Signin with Google',
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodySmall!
+                                  .bodyMedium!
                                   .copyWith(
                                     color: Colors.black,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                   ),
                             )

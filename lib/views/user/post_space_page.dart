@@ -2,20 +2,22 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:currency_picker/currency_picker.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/model/parking_space_post_model.dart';
-import 'package:intrencity_provider/widgets/add_img_container.dart';
-import 'package:intrencity_provider/widgets/buttons/custom_button.dart';
-import 'package:intrencity_provider/widgets/custom_chip.dart';
-import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
-import 'package:intrencity_provider/widgets/dilogue_widget.dart';
-import 'package:intrencity_provider/widgets/img_picker_container.dart';
-import 'package:intrencity_provider/widgets/smooth_container.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/widgets/add_img_container.dart';
+import 'package:intrencity/widgets/buttons/custom_button.dart';
+import 'package:intrencity/widgets/custom_chip.dart';
+import 'package:intrencity/widgets/custom_text_form_field.dart';
+import 'package:intrencity/widgets/dilogue_widget.dart';
+import 'package:intrencity/widgets/img_picker_container.dart';
+import 'package:intrencity/widgets/smooth_container.dart';
+import 'package:uuid/uuid.dart';
 
 enum Per { day, hr, month }
 
@@ -49,6 +51,17 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
   bool guardSelected = false;
   DateTime? startDate;
   DateTime? endDate;
+
+  @override
+  void dispose() {
+    spaceNameController.dispose();
+    spaceLocationController.dispose();
+    spaceSlotsController.dispose();
+    spacePriceController.dispose();
+    selectedCurrencyController.dispose();
+    spaceDescController.dispose();
+    super.dispose();
+  }
 
   List<String> getSelectedVehicleTypes() {
     if (suvSelected) selectedVehicleType.add('SUV');
@@ -86,27 +99,10 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           imageUrls.add(downloadUrl);
         }
 
-        // Create a new document in Firestore
-        DocumentReference docRef =
-            await FirebaseFirestore.instance.collection('spaces').add({
-          'uid': FirebaseAuth.instance.currentUser!.uid,
-          'spaceName': spaceNameController.text,
-          'spacePrice': '${spacePriceController.text}/$selectedPer',
-          'selectedCurrency': selectedCurrencyController.text,
-          'spaceLocation': spaceLocationController.text,
-          'spaceSlots': spaceSlotsController.text,
-          'vehicleType': getSelectedVehicleTypes(),
-          'aminitiesType': getSelectedAmitiesType(),
-          'startDate': startDate,
-          'endDate': endDate,
-          'description': spaceDescController.text,
-          'spaceThumbnail': imageUrls,
-        });
-
-        // Update the ParkingSpacePostModel with the generated docId
+        final docId = const Uuid().v1();
         ParkingSpacePostModel parkingSlotPost = ParkingSpacePostModel(
           uid: FirebaseAuth.instance.currentUser!.uid,
-          docId: docRef.id, // Assign the generated docId
+          docId: docId,
           spaceName: spaceNameController.text,
           spacePrice: spacePriceController.text,
           selectedCurrency: selectedCurrencyController.text.isEmpty
@@ -122,7 +118,16 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           spaceThumbnail: imageUrls,
         );
 
-        await docRef.update(parkingSlotPost.toJson());
+        await FirebaseFirestore.instance
+            .collection('spaces')
+            .doc(docId)
+            .set(parkingSlotPost.toJson())
+            .then(
+              (value) => Future.delayed(
+                const Duration(seconds: 2),
+                () => Navigator.pop,
+              ),
+            );
 
         setState(() {
           _imgFiles = [];
@@ -141,7 +146,6 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           isLoading = false;
         });
 
-        // Show success dialog
         CustomDilogue.showSuccessDialog(
           context,
           'assets/animations/tick.json',
@@ -156,7 +160,6 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
           'assets/animations/cross.json',
           'Failed To Create',
         );
-
         print("Error occurred while posting space: $e");
       }
     }
@@ -170,7 +173,6 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
       return;
     } else {
       setState(() {
-        // _imgFile = File(image.path);
         _imgFiles.add(File(image.path));
       });
     }
@@ -560,7 +562,12 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
               CustomButton(
                 title: 'Post',
                 isLoading: isLoading,
-                onTap: postSpace,
+                onTap: () async {
+                  await postSpace();
+                  await Future.delayed(const Duration(seconds: 2));
+                  Navigator.pop;
+                  Navigator.pop;
+                },
               ),
             ],
           ),

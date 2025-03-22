@@ -1,18 +1,20 @@
-import 'package:figma_squircle/figma_squircle.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:smooth_corners/smooth_corners.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/home_page.dart';
-import 'package:intrencity_provider/providers/auth_provider.dart';
-import 'package:intrencity_provider/providers/validator_provider.dart';
-import 'package:intrencity_provider/views/user/parking_list_page.dart';
-import 'package:intrencity_provider/widgets/auth_button.dart';
-import 'package:intrencity_provider/widgets/custom_text_form_field.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/home_page.dart';
+import 'package:intrencity/providers/auth_provider.dart';
+import 'package:intrencity/providers/validator_provider.dart';
+import 'package:intrencity/views/user/parking_list_page.dart';
+import 'package:intrencity/widgets/auth_button.dart';
+import 'package:intrencity/widgets/custom_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:intrencity_provider/widgets/dilogue_widget.dart';
-import 'package:intrencity_provider/widgets/smooth_container.dart';
+import 'package:intrencity/widgets/dilogue_widget.dart';
+import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -41,6 +43,14 @@ class _LoginPageState extends State<LoginPage> {
       CustomDilogue.showSuccessDialog(context, 'assets/animations/cross.json',
           'Error While Sending Password Reser Link');
     }
+  }
+
+  @override
+  void dispose() {
+    loginEmailController.dispose();
+    loginPasswordController.dispose();
+    forgetPasswordEmailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -106,6 +116,24 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.05),
+                // TextButton(
+                //   onPressed: () {
+                //     FirebaseAuth.instance
+                //         .signInWithEmailAndPassword(
+                //       email: loginEmailController.text.toString(),
+                //       password: loginPasswordController.text.toString(),
+                //     )
+                //         .then((_) {
+                //       Navigator.pushReplacement(
+                //         context,
+                //         MaterialPageRoute(
+                //           builder: (context) => const HomePage(),
+                //         ),
+                //       );
+                //     });
+                //   },
+                //   child: Text('Login'),
+                // ),
                 AuthButton(
                   onPressed: () {
                     try {

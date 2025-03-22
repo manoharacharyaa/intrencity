@@ -1,21 +1,23 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:figma_squircle/figma_squircle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intrencity_provider/constants/colors.dart';
-import 'package:intrencity_provider/model/parking_space_post_model.dart';
-import 'package:intrencity_provider/model/user_profile_model.dart';
-import 'package:intrencity_provider/views/auth/auth_page.dart';
-import 'package:intrencity_provider/views/user/edit_post_page.dart';
-import 'package:intrencity_provider/views/user/parking_space_details_page.dart';
-import 'package:intrencity_provider/widgets/cutsom_divider.dart';
-import 'package:intrencity_provider/widgets/dilogue_widget.dart';
-import 'package:intrencity_provider/widgets/smooth_container.dart';
+import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/models/user_profile_model.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
+import 'package:intrencity/views/auth/auth_page.dart';
+import 'package:intrencity/views/user/edit_post_page.dart';
+import 'package:intrencity/views/user/parking_space_details_page.dart';
+import 'package:intrencity/widgets/cutsom_divider.dart';
+import 'package:intrencity/widgets/dilogue_widget.dart';
+import 'package:intrencity/widgets/smooth_container.dart';
 
 enum Value {
   edit,
@@ -254,7 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: const CircleAvatar(
                                   backgroundColor: textFieldGrey,
                                   child: Icon(
-                                    Icons.add_photo_alternate,
+                                    CupertinoIcons.photo,
                                     size: 32,
                                     color: Colors.white,
                                   ),
