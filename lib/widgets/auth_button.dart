@@ -7,23 +7,26 @@ class AuthButton extends StatelessWidget {
   const AuthButton({
     super.key,
     required this.widget,
-    this.height = 60,
+    this.height,
+    this.margin,
     required this.onPressed,
   });
 
   final Widget widget;
-  final double height;
+  final double? height;
+  final EdgeInsetsGeometry? margin;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     // final height = MediaQuery.of(context).size.height;
-    return SizedBox(
-      height: 55,
+    return Container(
+      margin: margin,
+      height: height ?? 50,
       child: ClipSmoothRect(
         radius: SmoothBorderRadius(
-          cornerRadius: 15,
-          cornerSmoothing: 1,
+          cornerRadius: 12,
+          cornerSmoothing: 0.8,
         ),
         child: MaterialButton(
           // padding: const EdgeInsets.symmetric(vertical: 5),

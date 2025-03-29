@@ -112,7 +112,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                   .map((image) => ClipSmoothRect(
                         radius: SmoothBorderRadius(
                           cornerRadius: 10,
-                          cornerSmoothing: 1,
+                          cornerSmoothing: 0.8,
                         ),
                         child: Image.network(
                           image,
@@ -135,7 +135,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                   child: ClipSmoothRect(
                     radius: SmoothBorderRadius(
                       cornerRadius: 15,
-                      cornerSmoothing: 1,
+                      cornerSmoothing: 0.8,
                     ),
                     child: Container(
                       color: Colors.grey[900],
@@ -211,7 +211,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                                         SmoothContainer(
                                           height: height * 0.115,
                                           width: width * 0.25,
-                                          cornerRadius: 8,
+                                          cornerRadius: 10,
                                           color: textFieldGrey,
                                           child: host == null
                                               ? const SizedBox()
@@ -332,17 +332,11 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                     horizontalPadding: 10,
                     verticalPadding: 20,
                     onTap: () {
-                      // print(int.parse(widget.spaceDetails.spaceSlots));
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ParkingSlotPage(
-                            noOfSlots: int.parse(
-                              widget.spaceDetails.spaceSlots,
-                            ),
-                            spaceId: widget.spaceDetails.docId,
-                            startDate: widget.spaceDetails.startDate,
-                            endDate: widget.spaceDetails.endDate,
+                            space: widget.spaceDetails,
                           ),
                         ),
                       );

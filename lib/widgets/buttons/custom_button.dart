@@ -33,8 +33,8 @@ class CustomButton extends StatelessWidget {
         onTap: onTap,
         child: ClipSmoothRect(
           radius: SmoothBorderRadius(
-            cornerRadius: 16,
-            cornerSmoothing: 1,
+            cornerRadius: 12,
+            cornerSmoothing: 0.8,
           ),
           child: Container(
             width: double.infinity,
@@ -43,13 +43,13 @@ class CustomButton extends StatelessWidget {
             child: Center(
               child: isLoading
                   ? const CupertinoActivityIndicator(
-                      radius: 13,
+                      radius: 12,
                       animating: true,
                       color: Colors.white,
                     )
                   : Text(
                       title,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
             ),
           ),

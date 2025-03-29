@@ -27,7 +27,7 @@ class SmoothContainer extends StatelessWidget {
     return ClipSmoothRect(
       radius: SmoothBorderRadius(
         cornerRadius: cornerRadius!,
-        cornerSmoothing: 1,
+        cornerSmoothing: 0.8,
       ),
       child: Container(
         padding: padding,

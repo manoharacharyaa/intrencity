@@ -18,6 +18,10 @@ var darkTheme = ThemeData(
       fontSize: 25,
       fontWeight: FontWeight.w500,
     ),
+    titleSmall: GoogleFonts.poppins(
+      fontSize: 17,
+      fontWeight: FontWeight.w500,
+    ),
   ),
   appBarTheme: AppBarTheme(
     centerTitle: true,
@@ -29,6 +33,7 @@ var darkTheme = ThemeData(
   progressIndicatorTheme: const ProgressIndicatorThemeData(
     color: Colors.white,
   ),
-  floatingActionButtonTheme:
-      FloatingActionButtonThemeData(backgroundColor: primaryBlue),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: primaryBlue,
+  ),
 );

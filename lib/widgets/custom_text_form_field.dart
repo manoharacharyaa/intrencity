@@ -38,64 +38,68 @@ class CustomTextFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final error = context.watch<AuthValidationProvider>().error;
+    final provider = context.watch<AuthValidationProvider>();
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: verticalPadding ?? 0,
-        horizontal: horizontalPadding ?? 0,
-      ),
-      child: ClipSmoothRect(
-        radius: SmoothBorderRadius(
-          cornerRadius: 16,
-          cornerSmoothing: 1,
+    return GestureDetector(
+      onTap: () => error == true ? provider.setError(false) : null,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: verticalPadding ?? 0,
+          horizontal: horizontalPadding ?? 0,
         ),
-        child: TextFormField(
-          controller: controller,
-          maxLines: maxLines,
-          cursorColor: Colors.white,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          style: Theme.of(context).textTheme.bodySmall,
-          decoration: InputDecoration(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 5, vertical: 19),
-            filled: true,
-            fillColor: textFieldGrey,
-            prefix: prefix,
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: error ? redAccent : Colors.grey,
-            ),
-            prefixIcon: Icon(
-              prefixIcon,
-              color: error ? redAccent : Colors.white,
-            ),
-            suffixIcon: suffixIcon,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: SmoothBorderRadius(
-                cornerRadius: 16,
-                cornerSmoothing: 1,
-              ),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: SmoothBorderRadius(
-                cornerRadius: 18,
-                cornerSmoothing: 1,
-              ),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: SmoothBorderRadius(
-                cornerRadius: 16,
-                cornerSmoothing: 1,
-              ),
-            ),
-            errorStyle: const TextStyle(color: redAccent),
-            error: null,
+        child: ClipSmoothRect(
+          radius: SmoothBorderRadius(
+            cornerRadius: 12,
+            cornerSmoothing: 0.8,
           ),
-          onChanged: onChanged,
-          validator: validator,
+          child: TextFormField(
+            controller: controller,
+            maxLines: maxLines,
+            cursorColor: Colors.white,
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  fontSize: 14,
+                ),
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 5,
+                vertical: 17,
+              ),
+              filled: true,
+              fillColor: textFieldGrey,
+              prefix: prefix,
+              hintText: hintText,
+              hintStyle: TextStyle(
+                color: error ? redAccent : Colors.grey,
+                fontSize: 14,
+              ),
+              prefixIcon: Icon(
+                prefixIcon,
+                color: error ? redAccent : Colors.white,
+              ),
+              suffixIcon: suffixIcon,
+              border: InputBorder.none,
+              errorBorder: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: SmoothBorderRadius(
+                  cornerRadius: 12,
+                  cornerSmoothing: 0.8,
+                ),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: SmoothBorderRadius(
+                  cornerRadius: 12,
+                  cornerSmoothing: 0.8,
+                ),
+              ),
+              errorStyle: const TextStyle(color: redAccent),
+              error: null,
+            ),
+            onChanged: onChanged,
+            validator: validator,
+          ),
         ),
       ),
     );

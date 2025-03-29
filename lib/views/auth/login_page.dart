@@ -1,15 +1,14 @@
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
-import 'package:smooth_corners/smooth_corners.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/home_page.dart';
 import 'package:intrencity/providers/auth_provider.dart';
 import 'package:intrencity/providers/validator_provider.dart';
-import 'package:intrencity/views/user/parking_list_page.dart';
 import 'package:intrencity/widgets/auth_button.dart';
 import 'package:intrencity/widgets/custom_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
@@ -116,24 +115,6 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 ),
                 SizedBox(height: size.height * 0.05),
-                // TextButton(
-                //   onPressed: () {
-                //     FirebaseAuth.instance
-                //         .signInWithEmailAndPassword(
-                //       email: loginEmailController.text.toString(),
-                //       password: loginPasswordController.text.toString(),
-                //     )
-                //         .then((_) {
-                //       Navigator.pushReplacement(
-                //         context,
-                //         MaterialPageRoute(
-                //           builder: (context) => const HomePage(),
-                //         ),
-                //       );
-                //     });
-                //   },
-                //   child: Text('Login'),
-                // ),
                 AuthButton(
                   onPressed: () {
                     try {
@@ -153,12 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                               validator.loading(false);
                               loginEmailController.clear();
                               loginPasswordController.clear();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomePage(),
-                                ),
-                              );
+                              context.pushReplacement('/home-page');
                             },
                           );
                         },
@@ -170,28 +146,18 @@ class _LoginPageState extends State<LoginPage> {
                     } catch (e) {
                       validator.loading(false);
                       validator.isLoading = false;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Container(
-                            height: size.height * 0.2,
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(55, 255, 255, 255),
-                            ),
-                            child: const Text('Enter a valid email'),
-                          ),
-                        ),
-                      );
+                      Fluttertoast.showToast(msg: 'Enter a valid email');
                     }
                     if (_formKey.currentState!.validate()) {
                     } else {
-                      validator.errorCheck();
+                      validator.setError(true);
                     }
                   },
                   widget: validator.isLoading
-                      ? const CupertinoActivityIndicator(radius: 14)
+                      ? const CupertinoActivityIndicator(radius: 12)
                       : Text(
                           'Login',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                 ),
                 const SizedBox(height: 15),
@@ -284,12 +250,7 @@ class _LoginPageState extends State<LoginPage> {
                 GestureDetector(
                   onTap: () {
                     auth.toggleGuest();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ParkingListPage(),
-                      ),
-                    );
+                    context.push('/parking-list');
                   },
                   child: const SmoothContainer(
                     height: 60,

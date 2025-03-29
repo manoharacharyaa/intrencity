@@ -1,24 +1,20 @@
 import 'package:another_dashed_container/another_dashed_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/views/user/booking_page.dart';
 
 class ParkingSlotPage extends StatefulWidget {
   const ParkingSlotPage({
     super.key,
-    this.noOfSlots,
-    this.spaceId,
-    this.startDate,
-    this.endDate,
+    required this.space,
   });
-  final int? noOfSlots;
-  final String? spaceId;
-  final DateTime? startDate;
-  final DateTime? endDate;
+
+  final ParkingSpacePostModel space;
 
   @override
   State<ParkingSlotPage> createState() => _ParkingSlotPageState();
@@ -33,7 +29,7 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
 
     DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
         .collection('spaces')
-        .doc(widget.spaceId)
+        .doc(widget.space.docId)
         .get();
 
     if (docSnapshot.exists) {
@@ -93,16 +89,16 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
                   crossAxisCount: 2,
                   childAspectRatio: 5 / 5,
                 ),
-                itemCount: widget.noOfSlots,
+                itemCount: int.tryParse(widget.space.spaceSlots),
                 itemBuilder: (context, index) {
                   int slotNumber = index + 1;
                   bool isBooked = bookedSlotNumber.contains(slotNumber);
                   return BookingSlotContainer(
                     slotNumber: slotNumber,
                     isBooked: isBooked,
-                    spaceId: widget.spaceId ?? '',
-                    startDate: widget.startDate,
-                    endDate: widget.endDate,
+                    spaceId: widget.space.docId ?? '',
+                    startDate: widget.space.startDate,
+                    endDate: widget.space.endDate,
                   );
                 },
               ),
@@ -186,8 +182,11 @@ class _BookingSlotContainerState extends State<BookingSlotContainer> {
                             },
                       minWidth: double.infinity,
                       color: widget.isBooked ? Colors.grey : primaryBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 10,
+                          cornerSmoothing: 1,
+                        ),
                       ),
                       child: Text(
                         widget.isBooked ? 'Booked' : 'Book',

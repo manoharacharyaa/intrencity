@@ -42,8 +42,8 @@ class AuthValidationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void errorCheck() {
-    error = true;
+  void setError(bool isError) {
+    error = isError;
     notifyListeners();
   }
 

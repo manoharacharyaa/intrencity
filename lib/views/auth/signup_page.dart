@@ -1,9 +1,10 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/home_page.dart';
 import 'package:intrencity/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:intrencity/providers/validator_provider.dart';
@@ -193,11 +194,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         },
                         child: ClipSmoothRect(
                           radius: SmoothBorderRadius(
-                            cornerRadius: 18,
-                            cornerSmoothing: 1,
+                            cornerRadius: 12,
+                            cornerSmoothing: 0.8,
                           ),
                           child: Container(
-                            height: 58,
+                            height: 54,
                             decoration: const BoxDecoration(
                               color: textFieldGrey,
                             ),
@@ -221,8 +222,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     Expanded(
                       flex: 4,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: validator.error ? 0 : 0),
+                        padding: EdgeInsets.only(top: validator.error ? 0 : 0),
                         child: CustomTextFormField(
                           controller: phoneController,
                           maxLines: 1,
@@ -262,13 +262,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               nameController.clear();
                               emailController.clear();
                               phoneController.clear();
-
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const HomePage(),
-                                ),
-                              );
+                              context.pushReplacement('/home-page');
                             },
                           );
                         },
@@ -280,28 +274,18 @@ class _SignUpPageState extends State<SignUpPage> {
                     } catch (e) {
                       validator.loading(false);
                       validator.isLoading = false;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Container(
-                            height: size.height * 0.2,
-                            decoration: const BoxDecoration(
-                              color: Color.fromARGB(55, 255, 255, 255),
-                            ),
-                            child: const Text('Enter a valid email'),
-                          ),
-                        ),
-                      );
+                      Fluttertoast.showToast(msg: 'Enter a valid email');
                     }
                     if (_formKey.currentState!.validate()) {
                     } else {
-                      validator.errorCheck();
+                      validator.setError(true);
                     }
                   },
                   widget: validator.isLoading
-                      ? const CupertinoActivityIndicator(radius: 14)
+                      ? const CupertinoActivityIndicator(radius: 12)
                       : Text(
                           'Signup',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.titleSmall,
                         ),
                 ),
                 SizedBox(height: size.height * 0.02),
@@ -335,12 +319,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: MaterialButton(
                     onPressed: () async {
                       await auth.signInWithGoogle().then(
-                            (_) => Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomePage(),
-                              ),
-                            ),
+                            (_) => context.push('/home-page'),
                           );
                     },
                     color: Colors.white,

@@ -1,14 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/providers/unuse/booking_provider.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
+import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({
@@ -33,37 +35,107 @@ class _BookingPageState extends State<BookingPage> {
   DateTime? endDateTime;
 
   Future<void> _selectDateTime(BuildContext context, bool isStart) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      // initialDate: DateTime.now(),
-      firstDate: widget.startDate,
-      lastDate: widget.endDate,
-    );
+    DateTime? selectedDateTime = isStart ? startDateTime : endDateTime;
 
-    if (pickedDate != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
+    DateTime effectiveMinimumDate = isStart
+        ? (DateTime.now().isAfter(widget.startDate)
+            ? DateTime.now()
+            : widget.startDate)
+        : (startDateTime != null
+            ? startDateTime!.add(const Duration(minutes: 30))
+            : widget.startDate);
 
-      if (pickedTime != null) {
-        setState(() {
-          final selectedDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-
-          if (isStart) {
-            startDateTime = selectedDateTime;
-          } else {
-            endDateTime = selectedDateTime;
-          }
-        });
-      }
+    if (!isStart && effectiveMinimumDate.isBefore(widget.startDate)) {
+      effectiveMinimumDate = widget.startDate;
     }
+
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return ClipSmoothRect(
+          radius: SmoothBorderRadius(cornerRadius: 15, cornerSmoothing: 0.8),
+          child: Container(
+            height: 300,
+            color: const Color.fromARGB(255, 26, 26, 26),
+            child: Column(
+              children: [
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.dateAndTime,
+                    initialDateTime: selectedDateTime ?? effectiveMinimumDate,
+                    minimumDate: effectiveMinimumDate,
+                    maximumDate: widget.endDate,
+                    backgroundColor: const Color.fromARGB(255, 26, 26, 26),
+                    onDateTimeChanged: (DateTime newDateTime) {
+                      selectedDateTime = newDateTime;
+                    },
+                    use24hFormat: true,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MaterialButton(
+                      onPressed: () => Navigator.pop(context),
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 8,
+                          cornerSmoothing: 0.8,
+                        ),
+                      ),
+                      color: redAccent,
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    MaterialButton(
+                      color: greenAccent,
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 8,
+                          cornerSmoothing: 0.8,
+                        ),
+                      ),
+                      onPressed: () {
+                        if (selectedDateTime != null) {
+                          if (!isStart &&
+                              startDateTime != null &&
+                              selectedDateTime!.isBefore(startDateTime!
+                                  .add(const Duration(minutes: 30)))) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'End time must be at least 30 minutes after start time'),
+                              ),
+                            );
+                            return;
+                          }
+                          setState(() {
+                            if (isStart) {
+                              startDateTime = selectedDateTime!;
+                            } else {
+                              endDateTime = selectedDateTime!;
+                            }
+                          });
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Confirm',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showAlertDialog(BuildContext context, String message) {
@@ -120,11 +192,11 @@ class _BookingPageState extends State<BookingPage> {
                       onTap: () => _selectDateTime(context, true),
                       child: ClipSmoothRect(
                         radius: SmoothBorderRadius(
-                          cornerRadius: 16,
-                          cornerSmoothing: 2,
+                          cornerRadius: 14,
+                          cornerSmoothing: 0.8,
                         ),
                         child: Container(
-                          height: 60,
+                          height: 55,
                           color: textFieldGrey,
                           padding: const EdgeInsets.symmetric(
                             vertical: 12,
@@ -150,14 +222,22 @@ class _BookingPageState extends State<BookingPage> {
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
-                      onTap: () => _selectDateTime(context, false),
+                      onTap: () {
+                        if (startDateTime == null) {
+                          Fluttertoast.showToast(
+                            msg: 'Select Start Date & Time',
+                          );
+                          return;
+                        }
+                        _selectDateTime(context, false);
+                      },
                       child: ClipSmoothRect(
                         radius: SmoothBorderRadius(
-                          cornerRadius: 16,
-                          cornerSmoothing: 2,
+                          cornerRadius: 14,
+                          cornerSmoothing: 0.8,
                         ),
                         child: Container(
-                          height: 60,
+                          height: 55,
                           color: textFieldGrey,
                           padding: const EdgeInsets.symmetric(
                             vertical: 12,
@@ -184,110 +264,47 @@ class _BookingPageState extends State<BookingPage> {
                 ),
               ),
               const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 4,
-                  horizontal: 10,
-                ),
-                child: ClipSmoothRect(
-                  radius: SmoothBorderRadius(
-                    cornerRadius: 16,
-                    cornerSmoothing: 1,
-                  ),
-                  child: Container(
-                    height: 60,
-                    color: primaryBlue,
-                    child: MaterialButton(
-                      onPressed: () {
-                        if (startDateTime == null || endDateTime == null) {
-                          _showAlertDialog(
-                            context,
-                            "Start & End Date Cant Be Null",
-                          );
-                        } else if (endDateTime!.isBefore(startDateTime!)) {
-                          _showAlertDialog(
-                            context,
-                            "End time cannot be before start time.",
-                          );
-                          return;
-                        } else if (startDateTime!.isBefore(DateTime.now())) {
-                          _showAlertDialog(
-                            context,
-                            "The time selected has already passed.",
-                          );
-                          return;
-                        } else {
-                          FirebaseFirestore.instance
-                              .collection('spaces')
-                              .doc(widget.spaceId)
-                              .update({
-                            'bookings': FieldValue.arrayUnion([
-                              Booking(
-                                isApproved: false,
-                                uid: FirebaseAuth.instance.currentUser!.uid,
-                                spaceId: widget.spaceId,
-                                slotNumber: widget.slotNumber,
-                                startDateTime:
-                                    widget.startDate.toIso8601String(),
-                                endDateTime: widget.endDate.toIso8601String(),
-                              ).toJson(),
-                            ])
-                          }).then(
-                            (_) => Navigator.pop(context),
-                          );
-                        }
-                      },
-                      // onPressed: (startDateTime == null || endDateTime == null)
-                      //     ? () {
-                      //         Fluttertoast.showToast(
-                      //           msg: 'Start or End date can\nt be null',
-                      //         );
-                      //       }
-                      //     : () {
-                      //         if (endDateTime!.isBefore(startDateTime!)) {
-                      //           _showAlertDialog(
-                      //             context,
-                      //             "End time cannot be before start time.",
-                      //           );
-                      //           return;
-                      //         } else if (startDateTime!
-                      //             .isBefore(DateTime.now())) {
-                      //           _showAlertDialog(
-                      //             context,
-                      //             "The time selected has already passed.",
-                      //           );
-                      //           return;
-                      //         } else {
-                      //           FirebaseFirestore.instance
-                      //               .collection('spaces')
-                      //               .doc(widget.spaceId)
-                      //               .update({
-                      //             'uid': FirebaseAuth.instance.currentUser!.uid,
-                      //           });
-                      //         }
-
-                      //         // final duration =
-                      //         //     endDateTime!.difference(startDateTime!);
-
-                      //         // context.read<BookingProvider>().bookSlot(
-                      //         //       widget.slotNumber,
-                      //         //       startDateTime!,
-                      //         //       duration,
-                      //         //     );
-                      //         // Navigator.pop(context);
-                      //       },
-                      height: 50,
-                      minWidth: double.infinity,
-                      child: Text(
-                        'Book',
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                      ),
-                    ),
-                  ),
-                ),
+              CustomButton(
+                horizontalPadding: 10,
+                title: 'Book',
+                onTap: () {
+                  if (startDateTime == null || endDateTime == null) {
+                    _showAlertDialog(
+                      context,
+                      "Start & End Date Cant Be Null",
+                    );
+                  } else if (endDateTime!.isBefore(startDateTime!)) {
+                    _showAlertDialog(
+                      context,
+                      "End time cannot be before start time.",
+                    );
+                    return;
+                  } else if (startDateTime!.isBefore(DateTime.now())) {
+                    _showAlertDialog(
+                      context,
+                      "The time selected has already passed.",
+                    );
+                    return;
+                  } else {
+                    FirebaseFirestore.instance
+                        .collection('spaces')
+                        .doc(widget.spaceId)
+                        .update({
+                      'bookings': FieldValue.arrayUnion([
+                        Booking(
+                          isApproved: false,
+                          uid: FirebaseAuth.instance.currentUser!.uid,
+                          spaceId: widget.spaceId,
+                          slotNumber: widget.slotNumber,
+                          startDateTime: startDateTime!.toIso8601String(),
+                          endDateTime: endDateTime!.toIso8601String(),
+                        ).toJson(),
+                      ])
+                    }).then(
+                      (_) => Navigator.pop(context),
+                    );
+                  }
+                },
               ),
             ],
           ),

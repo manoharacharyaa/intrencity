@@ -1,43 +1,25 @@
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intrencity/providers/parking_list_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/providers/auth_provider.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
-import 'package:intrencity/views/auth/auth_page.dart';
-import 'package:intrencity/views/user/parking_space_details_page.dart';
-import 'package:intrencity/views/user/profile_page.dart';
 import 'package:intrencity/widgets/profilepic_avatar.dart';
 import 'package:intrencity/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 
-class ParkingListPage extends StatefulWidget {
+class ParkingListPage extends StatelessWidget {
   const ParkingListPage({super.key});
 
   @override
-  State<ParkingListPage> createState() => _ParkingListPageState();
-}
-
-class _ParkingListPageState extends State<ParkingListPage> {
-  @override
   Widget build(BuildContext context) {
-    String profilePic = '';
-    String? uid;
-    User? user = FirebaseAuth.instance.currentUser;
-    bool isGuest = context.read<AuthenticationProvider>().isGuest;
-
-    if (user != null) {
-      uid = user.uid;
-    } else {
-      print("No user found");
-    }
+    final parkingProvider = Provider.of<ParkingListProvider>(context);
+    final authProvider = Provider.of<AuthenticationProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -53,67 +35,20 @@ class _ParkingListPageState extends State<ParkingListPage> {
         ),
         actions: [
           StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc(uid)
-                .snapshots(),
+            stream: parkingProvider.getUserStream(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting ||
-                  uid == null) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            isGuest ? const AuthPage() : const ProfilePage(),
-                      ),
-                    ),
-                    child: const CircleAvatar(
-                      backgroundColor: textFieldGrey,
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                );
+                  !parkingProvider.isUserLoggedIn) {
+                return _buildGuestAvatar(context, authProvider.isGuest);
               }
-              if (snapshot.hasData && !isGuest) {
+              if (snapshot.hasData && !authProvider.isGuest) {
                 var userProfile = snapshot.data!.data() as Map<String, dynamic>;
-                profilePic = userProfile['profilePic'] ?? '';
+                String profilePic = userProfile['profilePic'] ?? '';
                 if (profilePic.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: ProfilePicAvatar(
-                      height: 45,
-                      width: 45,
-                      profilePic: profilePic,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
-                        ),
-                      ),
-                    ),
-                  );
+                  return _buildProfileAvatar(context, profilePic);
                 }
               }
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ProfilePicAvatar(
-                  height: 45,
-                  width: 45,
-                  profilePic: profilePic,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfilePage(),
-                    ),
-                  ),
-                ),
-              );
+              return _buildProfileAvatar(context, '');
             },
           )
         ],
@@ -121,233 +56,173 @@ class _ParkingListPageState extends State<ParkingListPage> {
       body: const SpacesListPage(),
     );
   }
+
+  Widget _buildGuestAvatar(BuildContext context, bool isGuest) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: InkWell(
+        onTap: () => isGuest
+            ? context.push('/auth-page')
+            : context.push('/profile-page'),
+        child: const CircleAvatar(
+          backgroundColor: textFieldGrey,
+          child: Icon(Icons.person, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileAvatar(BuildContext context, String profilePic) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: ProfilePicAvatar(
+        height: 45,
+        width: 45,
+        profilePic: profilePic,
+        onTap: () => context.push('/profile-page'),
+      ),
+    );
+  }
 }
 
-class SpacesListPage extends StatefulWidget {
+class SpacesListPage extends StatelessWidget {
   const SpacesListPage({super.key});
 
   @override
-  State<SpacesListPage> createState() => _SpacesListPageState();
-}
-
-class _SpacesListPageState extends State<SpacesListPage> {
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
-  final searchController = TextEditingController();
-  List searchParkingSpace = [];
-  late Future<List<ParkingSpacePostModel>> _fetchSpaces;
-
-  bool _isListening = false;
-  Timer? _timer;
-
-  void _initSpeech() async {
-    try {
-      _speechEnabled = await _speechToText.initialize();
-    } catch (e) {
-      return null;
-    }
-    setState(() {});
-  }
-
-  @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
-
-  void _startListening() async {
-    setState(() {
-      _isListening = true;
-    });
-    await _speechToText.listen(onResult: _onSpeechResult);
-
-    // Start a timer to stop listening after 10 seconds
-    _timer = Timer(const Duration(seconds: 5), () {
-      if (_isListening) {
-        _stopListening();
-      }
-    });
-  }
-
-  void _stopListening() async {
-    _timer?.cancel(); // Cancel the timer if it’s still active
-    await _speechToText.stop();
-    setState(() {
-      _isListening = false;
-    });
-  }
-
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-      searchController.text = _lastWords;
-      voicesearchSpace();
-    });
-    _stopListening();
-  }
-
-  void voicesearchSpace() async {
-    String searchTerm = _lastWords.toLowerCase();
-    List<ParkingSpacePostModel> spaces = await fetchSpaces();
-    searchParkingSpace = spaces.where((space) {
-      return space.spaceLocation.toLowerCase().contains(searchTerm);
-    }).toList();
-    setState(() {});
-  }
-
-  Future<List<ParkingSpacePostModel>> fetchSpaces() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('spaces').get();
-
-    return querySnapshot.docs.map((doc) {
-      return ParkingSpacePostModel.fromJson(doc.data() as Map<String, dynamic>);
-    }).toList();
-  }
-
-  Future<void> _refreshData() async {
-    List<ParkingSpacePostModel> spaces = await fetchSpaces();
-    setState(() {
-      searchParkingSpace = spaces.where((space) {
-        return space.spaceLocation.toLowerCase().contains(
-              searchController.text.toLowerCase(),
-            );
-      }).toList();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initSpeech();
-
-    searchController.addListener(() {
-      _lastWords = searchController.text;
-      voicesearchSpace();
-    });
-    _fetchSpaces = fetchSpaces();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ParkingListProvider>(context);
     final size = MediaQuery.sizeOf(context);
 
-    return Scaffold(
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            child: ClipSmoothRect(
-              radius: const SmoothBorderRadius.all(
-                SmoothRadius(
-                  cornerRadius: 14,
-                  cornerSmoothing: 1,
-                ),
-              ),
-              child: TextField(
-                controller: searchController,
-                cursorColor: Colors.white,
-                style: Theme.of(context).textTheme.bodySmall,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.all(15),
-                  border: InputBorder.none,
-                  filled: true,
-                  fillColor: textFieldGrey,
-                  hintText: 'Search places',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: _isListening
-                      ? Lottie.asset(
-                          'assets/animations/voice_search.json',
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.fill,
-                        )
-                      : searchController.text.isEmpty
-                          ? IconButton(
-                              onPressed: _speechToText.isNotListening
-                                  ? _startListening
-                                  : _stopListening,
-                              icon: const Icon(Icons.mic),
-                            )
-                          : IconButton(
-                              onPressed: () {
-                                searchController.clear();
-                              },
-                              icon: const Icon(Icons.clear_rounded),
-                            ),
-                ),
-              ),
-            ),
+    return Column(
+      children: [
+        _buildSearchBar(context, provider),
+        Expanded(
+          child: _buildSpacesList(context, provider, size),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context, ParkingListProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      child: ClipSmoothRect(
+        radius: const SmoothBorderRadius.all(
+          SmoothRadius(cornerRadius: 14, cornerSmoothing: 1),
+        ),
+        child: TextField(
+          controller: provider.searchController,
+          cursorColor: Colors.white,
+          style: Theme.of(context).textTheme.bodySmall,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.all(15),
+            border: InputBorder.none,
+            filled: true,
+            fillColor: textFieldGrey,
+            hintText: 'Search places',
+            prefixIcon: const Icon(Icons.search_rounded),
+            suffixIcon: _buildSuffixIcon(provider),
           ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance.collection('spaces').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SpacesListShimmer();
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error ${snapshot.error}'),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text('No parking spaces found'),
-                  );
-                } else {
-                  List<ParkingSpacePostModel> spaces = snapshot.data!.docs
-                      .map((doc) => ParkingSpacePostModel.fromJson(
-                          doc.data() as Map<String, dynamic>))
-                      .toList();
+        ),
+      ),
+    );
+  }
 
-                  List<ParkingSpacePostModel> searchParkingSpace =
-                      spaces.where((space) {
-                    return space.spaceLocation.toLowerCase().contains(
-                          searchController.text.toLowerCase(),
-                        );
-                  }).toList();
+  Widget _buildSuffixIcon(ParkingListProvider provider) {
+    if (provider.isListening) {
+      return Lottie.asset(
+        'assets/animations/voice_search.json',
+        width: 50,
+        height: 50,
+        fit: BoxFit.fill,
+      );
+    }
+    return provider.searchController.text.isEmpty
+        ? IconButton(
+            onPressed: provider.startListening,
+            icon: const Icon(Icons.mic),
+          )
+        : IconButton(
+            onPressed: provider.clearSearch,
+            icon: const Icon(Icons.clear_rounded),
+          );
+  }
 
-                  return RefreshIndicator(
-                    onRefresh: _refreshData,
-                    color: Colors.white,
-                    child: ListView.builder(
-                      itemCount: searchController.text.isEmpty
-                          ? spaces.length
-                          : searchParkingSpace.length,
-                      itemBuilder: (context, index) {
-                        final space = searchController.text.isEmpty
-                            ? spaces[index]
-                            : searchParkingSpace[index];
-                        return ParkingSpace(
-                          size: size,
-                          spaceName: space.spaceName,
-                          spaceLocation: space.spaceLocation,
-                          thumbnail: space.spaceThumbnail[0],
-                          spacePrice:
-                              '${space.selectedCurrency} ${space.spacePrice}',
-                          navigateTo: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ParkingSpaceDetailsPage(
-                                  viewedByCurrentUser: false,
-                                  spaceDetails: searchController.text.isEmpty
-                                      ? spaces[index]
-                                      : searchParkingSpace[index],
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
+  Widget _buildSpacesList(
+    BuildContext context,
+    ParkingListProvider provider,
+    Size size,
+  ) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: provider.getSpacesStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SpacesListShimmer();
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error ${snapshot.error}'));
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No parking spaces found'));
+        }
+
+        List<ParkingSpacePostModel> spaces = snapshot.data!.docs
+            .map((doc) => ParkingSpacePostModel.fromJson(
+                doc.data() as Map<String, dynamic>))
+            .toList();
+
+        List<ParkingSpacePostModel> filteredSpaces = spaces.where((space) {
+          return space.spaceLocation
+              .toLowerCase()
+              .contains(provider.searchController.text.toLowerCase());
+        }).toList();
+
+        return _buildSpacesListView(
+          context,
+          provider,
+          size,
+          spaces,
+          filteredSpaces,
+        );
+      },
+    );
+  }
+
+  Widget _buildSpacesListView(
+    BuildContext context,
+    ParkingListProvider provider,
+    Size size,
+    List<ParkingSpacePostModel> spaces,
+    List<ParkingSpacePostModel> filteredSpaces,
+  ) {
+    return RefreshIndicator(
+      onRefresh: () async {},
+      color: Colors.white,
+      child: ListView.builder(
+        itemCount: provider.searchController.text.isEmpty
+            ? spaces.length
+            : filteredSpaces.length,
+        itemBuilder: (context, index) {
+          final space = provider.searchController.text.isEmpty
+              ? spaces[index]
+              : filteredSpaces[index];
+          return ParkingSpace(
+            size: size,
+            spaceName: space.spaceName,
+            spaceLocation: space.spaceLocation,
+            thumbnail: space.spaceThumbnail[0],
+            spacePrice: '${space.selectedCurrency} ${space.spacePrice}',
+            navigateTo: () => context.push(
+              '/parking-space-details',
+              extra: {
+                'spaceDetails': provider.searchController.text.isEmpty
+                    ? spaces[index]
+                    : filteredSpaces[index],
+                'viewedByCurrentUser': false,
               },
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -377,8 +252,8 @@ class ParkingSpace extends StatelessWidget {
       padding: const EdgeInsets.all(15),
       child: ClipSmoothRect(
         radius: SmoothBorderRadius(
-          cornerRadius: 20,
-          cornerSmoothing: 1,
+          cornerRadius: 15,
+          cornerSmoothing: 0.8,
         ),
         child: GestureDetector(
           onTap: navigateTo,

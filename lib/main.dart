@@ -2,13 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intrencity/providers/parking_list_provider.dart';
+import 'package:intrencity/providers/profile_provider.dart';
+import 'package:intrencity/routes/app_routes.dart';
 import 'package:intrencity/utils/theme.dart';
 import 'package:intrencity/home_page.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
-import 'package:intrencity/providers/unuse/admin_provider.dart';
 import 'package:intrencity/providers/auth_provider.dart';
-import 'package:intrencity/providers/unuse/booking_provider.dart';
-import 'package:intrencity/providers/unuse/user_provider.dart';
 import 'package:intrencity/providers/validator_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intrencity/firebase_options.dart';
@@ -31,16 +31,19 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => BookingProvider()),
+        // ChangeNotifierProvider(create: (context) => BookingProvider()),
         ChangeNotifierProvider(create: (context) => AuthValidationProvider()),
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
-        ChangeNotifierProvider(create: (context) => AdminProvide()),
-        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => ParkingListProvider()),
+        ChangeNotifierProvider(create: (context) => ProfileProvider()),
+        // ChangeNotifierProvider(create: (context) => AdminProvide()),
+        // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         theme: darkTheme,
-        home: const AuthChecker(),
+        routerConfig: AppRoutes().router,
+        // home: const AuthChecker(),
       ),
     );
   }
