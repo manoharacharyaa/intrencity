@@ -339,10 +339,10 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 11, left: 5),
+                          padding: const EdgeInsets.only(top: 15, left: 5),
                           child: SmoothContainer(
                             cornerRadius: 16,
-                            height: 58,
+                            height: 45,
                             width: 35,
                             color: textFieldGrey,
                             child: InkWell(
@@ -352,15 +352,19 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
                                   padding: const EdgeInsets.only(left: 5),
                                   child: selectedCurrencyController.text.isEmpty
                                       ? const Text('₹')
-                                      : TextField(
-                                          controller:
-                                              selectedCurrencyController,
-                                          enabled: false,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                          decoration: const InputDecoration(
-                                            border: InputBorder.none,
+                                      : Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 8),
+                                          child: TextField(
+                                            controller:
+                                                selectedCurrencyController,
+                                            enabled: false,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium,
+                                            decoration: const InputDecoration(
+                                              border: InputBorder.none,
+                                            ),
                                           ),
                                         ),
                                 ),

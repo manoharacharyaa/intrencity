@@ -4,6 +4,7 @@ class UserProfileModel {
   final String email;
   final String phoneNumber;
   final String? profilePic;
+  final bool? isApproved;
 
   UserProfileModel({
     required this.uid,
@@ -11,6 +12,7 @@ class UserProfileModel {
     required this.email,
     required this.phoneNumber,
     this.profilePic,
+    this.isApproved = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +22,7 @@ class UserProfileModel {
       'email': email,
       'phoneNumber': phoneNumber,
       'profilePic': profilePic,
+      'is_approved': isApproved,
     };
   }
 
@@ -30,6 +33,7 @@ class UserProfileModel {
       email: json['email'],
       phoneNumber: json['phoneNumber'],
       profilePic: json['profilePic'],
+      isApproved: json['is_approved'],
     );
   }
 }

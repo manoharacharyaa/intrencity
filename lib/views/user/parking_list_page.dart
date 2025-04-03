@@ -29,7 +29,7 @@ class ParkingListPage extends StatelessWidget {
         ),
         leading: IconButton(
           onPressed: () {
-            Scaffold.of(context).openDrawer();
+            Drawer();
           },
           icon: const Icon(Icons.menu_rounded),
         ),
@@ -232,18 +232,18 @@ class ParkingSpace extends StatelessWidget {
   const ParkingSpace({
     super.key,
     required this.size,
-    required this.spaceName,
-    required this.spaceLocation,
-    required this.thumbnail,
-    required this.spacePrice,
+    this.spaceName,
+    this.thumbnail,
+    this.spaceLocation,
+    this.spacePrice,
     this.navigateTo,
   });
 
   final Size size;
-  final String spaceName;
-  final String spaceLocation;
-  final String spacePrice;
-  final String thumbnail;
+  final String? spaceName;
+  final String? spaceLocation;
+  final String? spacePrice;
+  final String? thumbnail;
   final void Function()? navigateTo;
 
   @override
@@ -263,7 +263,7 @@ class ParkingSpace extends StatelessWidget {
                 height: size.height * 0.27,
                 width: double.infinity,
                 child: Image.network(
-                  thumbnail,
+                  thumbnail ?? '',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -295,7 +295,7 @@ class ParkingSpace extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(spaceName),
+                        Text(spaceName ?? ''),
                         const Spacer(),
                         const Padding(
                           padding: EdgeInsets.only(bottom: 3),
@@ -313,7 +313,7 @@ class ParkingSpace extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      spaceLocation,
+                      spaceLocation ?? '',
                       style: const TextStyle(
                         fontSize: 13,
                       ),
@@ -341,7 +341,7 @@ class ParkingSpace extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.topRight,
                   child: Text(
-                    spacePrice,
+                    spacePrice ?? '',
                     style: const TextStyle(
                       fontSize: 20,
                     ),

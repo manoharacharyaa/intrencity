@@ -38,7 +38,7 @@ class CustomButton extends StatelessWidget {
           ),
           child: Container(
             width: double.infinity,
-            height: height * 0.062,
+            height: 50,
             color: primaryBlue,
             child: Center(
               child: isLoading

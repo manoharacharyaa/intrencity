@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/providers/parking_list_provider.dart';
 import 'package:intrencity/providers/profile_provider.dart';
+import 'package:intrencity/providers/users_provider.dart';
 import 'package:intrencity/routes/app_routes.dart';
 import 'package:intrencity/utils/theme.dart';
 import 'package:intrencity/home_page.dart';
@@ -31,11 +33,12 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        // ChangeNotifierProvider(create: (context) => BookingProvider()),
+        ChangeNotifierProvider(create: (context) => BookingProvider()),
         ChangeNotifierProvider(create: (context) => AuthValidationProvider()),
         ChangeNotifierProvider(create: (context) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (context) => ParkingListProvider()),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
+        ChangeNotifierProvider(create: (context) => UsersProvider()),
         // ChangeNotifierProvider(create: (context) => AdminProvide()),
         // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],

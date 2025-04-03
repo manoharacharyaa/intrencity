@@ -107,7 +107,7 @@ class ProfilePage extends StatelessWidget {
                       child: Container(
                         color: Colors.grey[900],
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

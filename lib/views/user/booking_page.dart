@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({
@@ -138,35 +140,10 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
-  void _showAlertDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Invalid Time Selection",
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          content: Text(
-            message,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
+    final provider = context.watch<BookingProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -176,138 +153,151 @@ class _BookingPageState extends State<BookingPage> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Lottie.asset(
-                'assets/animations/car_animation.json',
-                height: height * 0.4,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () => _selectDateTime(context, true),
-                      child: ClipSmoothRect(
-                        radius: SmoothBorderRadius(
-                          cornerRadius: 14,
-                          cornerSmoothing: 0.8,
+        child: FutureBuilder(
+          future: provider.doesBookingExist(widget.spaceId, widget.slotNumber),
+          builder: (context, snapshot) {
+            final bookingExists = snapshot.data ?? false;
+            return bookingExists
+                ? const Center(
+                    child: Text('You Are On The Wait List'),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Lottie.asset(
+                          'assets/animations/car_animation.json',
+                          height: height * 0.4,
                         ),
-                        child: Container(
-                          height: 55,
-                          color: textFieldGrey,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
                             children: [
-                              Text(
-                                startDateTime == null
-                                    ? 'Select start date & time'
-                                    : '${startDateTime!.toLocal()}'
-                                        .split('.')[0],
-                                style: const TextStyle(
-                                  fontSize: 17,
+                              GestureDetector(
+                                onTap: () => _selectDateTime(context, true),
+                                child: ClipSmoothRect(
+                                  radius: SmoothBorderRadius(
+                                    cornerRadius: 14,
+                                    cornerSmoothing: 0.8,
+                                  ),
+                                  child: Container(
+                                    height: 55,
+                                    color: textFieldGrey,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 16,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          startDateTime == null
+                                              ? 'Select start date & time'
+                                              : '${startDateTime!.toLocal()}'
+                                                  .split('.')[0],
+                                          style: const TextStyle(
+                                            fontSize: 17,
+                                          ),
+                                        ),
+                                        const Icon(Icons.calendar_today),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                              const Icon(Icons.calendar_today),
+                              const SizedBox(height: 20),
+                              GestureDetector(
+                                onTap: () {
+                                  if (startDateTime == null) {
+                                    Fluttertoast.showToast(
+                                      msg: 'Select Start Date & Time',
+                                    );
+                                    return;
+                                  }
+                                  _selectDateTime(context, false);
+                                },
+                                child: ClipSmoothRect(
+                                  radius: SmoothBorderRadius(
+                                    cornerRadius: 14,
+                                    cornerSmoothing: 0.8,
+                                  ),
+                                  child: Container(
+                                    height: 55,
+                                    color: textFieldGrey,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 16,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          endDateTime == null
+                                              ? 'Select end date & time'
+                                              : '${endDateTime!.toLocal()}'
+                                                  .split('.')[0],
+                                          style: const TextStyle(
+                                            fontSize: 17,
+                                          ),
+                                        ),
+                                        const Icon(Icons.calendar_today),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {
-                        if (startDateTime == null) {
-                          Fluttertoast.showToast(
-                            msg: 'Select Start Date & Time',
-                          );
-                          return;
-                        }
-                        _selectDateTime(context, false);
-                      },
-                      child: ClipSmoothRect(
-                        radius: SmoothBorderRadius(
-                          cornerRadius: 14,
-                          cornerSmoothing: 0.8,
+                        const SizedBox(height: 30),
+                        CustomButton(
+                          horizontalPadding: 10,
+                          title: 'Book',
+                          onTap: () {
+                            if (startDateTime == null || endDateTime == null) {
+                              Fluttertoast.showToast(
+                                msg: "Start & End Date Cant Be Null",
+                              );
+                              return;
+                            } else if (endDateTime!.isBefore(startDateTime!)) {
+                              Fluttertoast.showToast(
+                                msg: "End time cannot be before start time.",
+                              );
+                              return;
+                            } else if (startDateTime!
+                                .isBefore(DateTime.now())) {
+                              Fluttertoast.showToast(
+                                msg: "The time selected has already passed.",
+                              );
+                              return;
+                            } else {
+                              FirebaseFirestore.instance
+                                  .collection('spaces')
+                                  .doc(widget.spaceId)
+                                  .update({
+                                'bookings': FieldValue.arrayUnion([
+                                  Booking(
+                                    isApproved: false,
+                                    uid: FirebaseAuth.instance.currentUser!.uid,
+                                    spaceId: widget.spaceId,
+                                    slotNumber: widget.slotNumber,
+                                    startDateTime: startDateTime!,
+                                    endDateTime: endDateTime!,
+                                    bookingTime: DateTime.now(),
+                                  ).toJson(),
+                                ])
+                              }).then(
+                                (_) => Navigator.pop(context),
+                              );
+                            }
+                          },
                         ),
-                        child: Container(
-                          height: 55,
-                          color: textFieldGrey,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                endDateTime == null
-                                    ? 'Select end date & time'
-                                    : '${endDateTime!.toLocal()}'.split('.')[0],
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                ),
-                              ),
-                              const Icon(Icons.calendar_today),
-                            ],
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              CustomButton(
-                horizontalPadding: 10,
-                title: 'Book',
-                onTap: () {
-                  if (startDateTime == null || endDateTime == null) {
-                    _showAlertDialog(
-                      context,
-                      "Start & End Date Cant Be Null",
-                    );
-                  } else if (endDateTime!.isBefore(startDateTime!)) {
-                    _showAlertDialog(
-                      context,
-                      "End time cannot be before start time.",
-                    );
-                    return;
-                  } else if (startDateTime!.isBefore(DateTime.now())) {
-                    _showAlertDialog(
-                      context,
-                      "The time selected has already passed.",
-                    );
-                    return;
-                  } else {
-                    FirebaseFirestore.instance
-                        .collection('spaces')
-                        .doc(widget.spaceId)
-                        .update({
-                      'bookings': FieldValue.arrayUnion([
-                        Booking(
-                          isApproved: false,
-                          uid: FirebaseAuth.instance.currentUser!.uid,
-                          spaceId: widget.spaceId,
-                          slotNumber: widget.slotNumber,
-                          startDateTime: startDateTime!.toIso8601String(),
-                          endDateTime: endDateTime!.toIso8601String(),
-                        ).toJson(),
-                      ])
-                    }).then(
-                      (_) => Navigator.pop(context),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
+                  );
+          },
         ),
       ),
     );

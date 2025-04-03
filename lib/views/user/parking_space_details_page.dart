@@ -189,7 +189,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: SmoothContainer(
-                    padding: const EdgeInsets.fromLTRB(17, 10, 10, 0),
+                    // padding: const EdgeInsets.fromLTRB(17, 10, 10, 0),
                     height: height * 0.155,
                     width: double.infinity,
                     cornerRadius: 14,
@@ -198,125 +198,117 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: height * 0.008),
-                            child: Column(
-                              children: [
-                                Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        SmoothContainer(
-                                          height: height * 0.115,
-                                          width: width * 0.25,
-                                          cornerRadius: 10,
-                                          color: textFieldGrey,
-                                          child: host == null
-                                              ? const SizedBox()
-                                              : Image.network(
-                                                  profilePic,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                        ),
-                                        ClipSmoothRect(
-                                          radius: SmoothBorderRadius(
-                                              cornerRadius: 8),
-                                          child: Container(
-                                            height: height * 0.1155,
-                                            width: width * 0.25,
-                                            decoration: const BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  Colors.transparent,
-                                                  Colors.transparent,
-                                                  Color.fromARGB(60, 0, 0, 0),
-                                                  Color.fromARGB(120, 0, 0, 0),
-                                                  Color.fromARGB(180, 0, 0, 0),
-                                                  Color.fromARGB(240, 0, 0, 0),
-                                                ],
-                                                begin: Alignment.center,
-                                                end: Alignment.bottomCenter,
-                                              ),
-                                            ),
+                          const SizedBox(width: 15),
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Stack(
+                                children: [
+                                  SmoothContainer(
+                                    height: height * 0.120,
+                                    width: width * 0.25,
+                                    cornerRadius: 8,
+                                    color: textFieldGrey,
+                                    child: host == null
+                                        ? const SizedBox()
+                                        : Image.network(
+                                            profilePic,
+                                            fit: BoxFit.cover,
                                           ),
-                                        ),
-                                      ],
+                                  ),
+                                  ClipSmoothRect(
+                                    radius: SmoothBorderRadius(
+                                      cornerRadius: 8,
                                     ),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.verified,
-                                          size: 18,
-                                          color:
-                                              Color.fromARGB(255, 12, 225, 19),
+                                    child: Container(
+                                      height: height * 0.120,
+                                      width: width * 0.25,
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.transparent,
+                                            Colors.transparent,
+                                            Color.fromARGB(60, 0, 0, 0),
+                                            Color.fromARGB(120, 0, 0, 0),
+                                            Color.fromARGB(180, 0, 0, 0),
+                                            Color.fromARGB(240, 0, 0, 0),
+                                          ],
+                                          begin: Alignment.center,
+                                          end: Alignment.bottomCenter,
                                         ),
-                                        const SizedBox(width: 2),
-                                        Text(
-                                          'Verified',
-                                          style:
-                                              GoogleFonts.poppins(fontSize: 12),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                              ],
-                            ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.verified,
+                                    size: 18,
+                                    color: Color.fromARGB(255, 12, 225, 19),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    'Verified',
+                                    style: GoogleFonts.poppins(fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 4),
                           const SizedBox(width: 14),
-                          Padding(
-                            padding: EdgeInsets.only(top: height * 0.0080),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Hosted By',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                          color: primaryBlue, fontSize: 18),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Icon(Icons.person, size: 18),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      host == null ? '' : host!.name,
-                                      style: GoogleFonts.poppins(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Icon(Icons.email, size: 18),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      host == null ? '' : host!.email,
-                                      style: GoogleFonts.poppins(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Icon(Icons.phone, size: 18),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      host == null ? '' : host!.phoneNumber,
-                                      style: GoogleFonts.poppins(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Hosted By',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(color: primaryBlue, fontSize: 18),
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  const Icon(Icons.person, size: 18),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    host == null ? '' : host!.name,
+                                    style: GoogleFonts.poppins(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  const Icon(Icons.email, size: 18),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    host == null ? '' : host!.email,
+                                    style: GoogleFonts.poppins(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  const Icon(Icons.phone, size: 18),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    host == null ? '' : host!.phoneNumber,
+                                    style: GoogleFonts.poppins(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                            ],
                           ),
                         ],
                       ),

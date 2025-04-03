@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ParkingSpacePostModel {
   final String uid;
@@ -48,34 +49,43 @@ class ParkingSpacePostModel {
       'startDate': startDate,
       'endDate': endDate,
       'description': description,
-      'bookings': bookings,
+      'bookings': bookings?.map((booking) => booking.toJson()).toList(),
     };
   }
 
   factory ParkingSpacePostModel.fromJson(Map<String, dynamic> json) {
     return ParkingSpacePostModel(
-      uid: json['uid'],
+      uid: json['uid'] ?? '',
       docId: json['docId'],
-      spaceName: json['spaceName'],
-      spaceLocation: json['spaceLocation'],
-      spaceSlots: json['spaceSlots'],
-      spacePrice: json['spacePrice'],
+      spaceName: json['spaceName'] ?? '',
+      spaceLocation: json['spaceLocation'] ?? '',
+      spaceSlots: json['spaceSlots']?.toString() ?? '',
+      spacePrice: json['spacePrice']?.toString() ?? '',
       selectedCurrency: json['selectedCurrency'],
-      vehicleType: List<String>.from(
-        json['vehicleType'].map((e) => e.toString()),
-      ),
-      aminitiesType: List<String>.from(
-        json['aminitiesType'].map((e) => e.toString()),
-      ),
-      startDate: (json['startDate'] as Timestamp).toDate(),
-      endDate: (json['endDate'] as Timestamp).toDate(),
+      vehicleType: json['vehicleType'] != null
+          ? List<String>.from(json['vehicleType'].map((e) => e.toString()))
+          : [],
+      aminitiesType: json['aminitiesType'] != null
+          ? List<String>.from(json['aminitiesType'].map((e) => e.toString()))
+          : [],
+      startDate: json['startDate'] != null
+          ? (json['startDate'] is Timestamp
+              ? (json['startDate'] as Timestamp).toDate()
+              : DateTime.parse(json['startDate']))
+          : null,
+      endDate: json['endDate'] != null
+          ? (json['endDate'] is Timestamp
+              ? (json['endDate'] as Timestamp).toDate()
+              : DateTime.parse(json['endDate']))
+          : null,
       description: json['description'],
-      spaceThumbnail: List<String>.from(json['spaceThumbnail']),
-      bookings: json['bookings'] == null
-          ? []
-          : List<Booking>.from(
-              json['bookings'].map((e) => Booking.fromJson(e)),
-            ),
+      spaceThumbnail: json['spaceThumbnail'] != null
+          ? List<String>.from(json['spaceThumbnail'])
+          : [],
+      bookings: json['bookings'] != null
+          ? List<Booking>.from(
+              (json['bookings'] as List).map((e) => Booking.fromJson(e)))
+          : [],
     );
   }
 }
@@ -85,8 +95,9 @@ class Booking {
   final String uid;
   final String spaceId;
   final int slotNumber;
-  final String startDateTime;
-  final String endDateTime;
+  final DateTime startDateTime;
+  final DateTime endDateTime;
+  final DateTime bookingTime;
 
   Booking({
     this.isApproved = false,
@@ -95,16 +106,18 @@ class Booking {
     required this.slotNumber,
     required this.startDateTime,
     required this.endDateTime,
+    required this.bookingTime,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      isApproved: json['is_approved'],
-      uid: json['uid'],
-      spaceId: json['space_id'],
-      slotNumber: json['slot_number'],
-      startDateTime: json['start_time'].toString(),
-      endDateTime: json['end_time'].toString(),
+      isApproved: json['is_approved'] ?? false,
+      uid: json['uid'] ?? '',
+      spaceId: json['space_id'] ?? '',
+      slotNumber: json['slot_number'] ?? 0,
+      startDateTime: (json['start_time'] as Timestamp).toDate(),
+      endDateTime: (json['end_time'] as Timestamp).toDate(),
+      bookingTime: (json['booking_time'] as Timestamp).toDate(),
     );
   }
 
@@ -114,8 +127,9 @@ class Booking {
       'uid': uid,
       'space_id': spaceId,
       'slot_number': slotNumber,
-      'start_time': startDateTime,
-      'end_time': endDateTime,
+      'start_time': Timestamp.fromDate(startDateTime),
+      'end_time': Timestamp.fromDate(endDateTime),
+      'booking_time': Timestamp.fromDate(bookingTime),
     };
   }
 }
