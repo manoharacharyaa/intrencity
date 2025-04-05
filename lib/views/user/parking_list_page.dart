@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intrencity/providers/parking_list_provider.dart';
+import 'package:intrencity/providers/users_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/providers/auth_provider.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/profilepic_avatar.dart';
 import 'package:intrencity/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:lottie/lottie.dart';
@@ -20,18 +22,13 @@ class ParkingListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final parkingProvider = Provider.of<ParkingListProvider>(context);
     final authProvider = Provider.of<AuthenticationProvider>(context);
+    final userProvider = context.watch<UsersProvider>();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Parkings',
           style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        leading: IconButton(
-          onPressed: () {
-            Drawer();
-          },
-          icon: const Icon(Icons.menu_rounded),
         ),
         actions: [
           StreamBuilder(
@@ -53,7 +50,44 @@ class ParkingListPage extends StatelessWidget {
           )
         ],
       ),
-      body: const SpacesListPage(),
+      drawer: Drawer(
+        shape: const SmoothRectangleBorder(
+          borderRadius: SmoothBorderRadius.all(
+            SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+          ),
+        ),
+        child: Column(
+          children: [
+            Image.network(
+              userProvider.user?.profilePic ?? '',
+              fit: BoxFit.cover,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              child: ListTile(
+                onTap: () => context.push('/admin-page'),
+                tileColor: Colors.amber,
+                shape: const SmoothRectangleBorder(
+                  borderRadius: SmoothBorderRadius.all(
+                    SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+                  ),
+                ),
+                leading: const Icon(
+                  Icons.admin_panel_settings,
+                  size: 30,
+                ),
+                title: Text(
+                  'Admin Pannel',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: userProvider.user == null
+          ? const SpacesListShimmer()
+          : const SpacesListPage(),
     );
   }
 

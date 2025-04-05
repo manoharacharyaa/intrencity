@@ -1,5 +1,6 @@
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intrencity/providers/unuse/user_provider.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -129,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                           .then(
                         (value) {
                           Future.delayed(
-                            const Duration(seconds: 2),
+                            const Duration(seconds: 1),
                             () {
                               validator.loading(false);
                               loginEmailController.clear();

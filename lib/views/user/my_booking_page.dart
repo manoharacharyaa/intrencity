@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/views/user/parking_list_page.dart';
-import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
 class MyBookingPage extends StatefulWidget {

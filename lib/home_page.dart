@@ -52,7 +52,18 @@ class _HomePageState extends State<HomePage> {
         onTap: _onItemTapped,
       ),
       floatingActionButton: !approved
-          ? null
+          ? TextButton(
+              style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                  primaryBlue,
+                ),
+              ),
+              onPressed: () => context.push('/verification-page'),
+              child: Text(
+                'Verify',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            )
           : FloatingActionButton(
               onPressed: () => context.push('/space-posting-page'),
               backgroundColor: primaryBlue,

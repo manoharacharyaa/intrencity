@@ -2,12 +2,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intrencity/home_page.dart';
 import 'package:intrencity/main.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/views/admin/admin_page.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
 import 'package:intrencity/views/user/edit_post_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
 import 'package:intrencity/views/user/parking_space_details_page.dart';
 import 'package:intrencity/views/user/post_space_page.dart';
 import 'package:intrencity/views/user/profile_page.dart';
+import 'package:intrencity/views/verification_page.dart';
 
 class AppRoutes {
   GoRouter get router => _router;
@@ -58,6 +60,14 @@ class AppRoutes {
             currentUserSpace: currentUserSpace,
           );
         },
+      ),
+      GoRoute(
+        path: '/verification-page',
+        builder: (context, state) => const VerificationPage(),
+      ),
+      GoRoute(
+        path: '/admin-page',
+        builder: (context, state) => const AdminPage(),
       ),
     ],
   );

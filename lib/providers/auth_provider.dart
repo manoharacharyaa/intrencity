@@ -41,6 +41,8 @@ class AuthenticationProvider extends ChangeNotifier {
       name: name,
       email: email,
       phoneNumber: phoneNumber,
+      isApproved: false,
+      isVerificationPending: false,
     );
     await FirebaseFirestore.instance
         .collection('users')

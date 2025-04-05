@@ -6,6 +6,7 @@ import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/providers/parking_list_provider.dart';
 import 'package:intrencity/providers/profile_provider.dart';
 import 'package:intrencity/providers/users_provider.dart';
+import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/routes/app_routes.dart';
 import 'package:intrencity/utils/theme.dart';
 import 'package:intrencity/home_page.dart';
@@ -39,6 +40,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ParkingListProvider()),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (context) => UsersProvider()),
+        ChangeNotifierProvider(create: (context) => VerificationProvider()),
         // ChangeNotifierProvider(create: (context) => AdminProvide()),
         // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],

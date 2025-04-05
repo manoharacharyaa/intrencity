@@ -7,10 +7,12 @@ class AddImageContainer extends StatelessWidget {
     super.key,
     required this.onTap,
     this.height = 0,
+    this.child,
   });
 
   final void Function()? onTap;
   final double height;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +26,16 @@ class AddImageContainer extends StatelessWidget {
           dashColor: primaryBlue,
           strokeWidth: 2,
           borderRadius: 20,
-          child: const Center(
-            child: Icon(
-              Icons.add_photo_alternate,
-              size: 50,
-              color: primaryBlue,
-            ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: child ??
+                const Center(
+                  child: Icon(
+                    Icons.add_photo_alternate,
+                    size: 50,
+                    color: primaryBlue,
+                  ),
+                ),
           ),
         ),
       ),

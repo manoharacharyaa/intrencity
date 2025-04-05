@@ -8,11 +8,11 @@ class UsersProvider extends ChangeNotifier {
     _getCurrentUser();
   }
   final String _uid = FirebaseAuth.instance.currentUser!.uid;
-  late UserProfileModel _user;
+  UserProfileModel? _user;
   bool _approved = false;
 
   String get uid => _uid;
-  UserProfileModel get user => _user;
+  UserProfileModel? get user => _user;
   bool get approved => _approved;
 
   void _setApproved(bool status) {
@@ -28,7 +28,7 @@ class UsersProvider extends ChangeNotifier {
       final userData = snapshot.data();
       _user = UserProfileModel.fromJson(userData!);
       notifyListeners();
-      if (_user.isApproved == true) {
+      if (_user!.isApproved == true) {
         _setApproved(true);
       } else {
         _setApproved(false);

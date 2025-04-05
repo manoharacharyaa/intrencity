@@ -12,6 +12,8 @@ class CustomButton extends StatelessWidget {
     this.verticalPadding = 0,
     this.horizontalPadding = 0,
     required this.title,
+    this.icon,
+    this.enableIcon = false,
   });
 
   final void Function()? onTap;
@@ -19,6 +21,8 @@ class CustomButton extends StatelessWidget {
   final double verticalPadding;
   final double horizontalPadding;
   final String title;
+  final IconData? icon;
+  final bool? enableIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +51,21 @@ class CustomButton extends StatelessWidget {
                       animating: true,
                       color: Colors.white,
                     )
-                  : Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
+                  : enableIcon == false
+                      ? Text(
+                          title,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(icon),
+                            Text(
+                              ' $title',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ],
+                        ),
             ),
           ),
         ),
