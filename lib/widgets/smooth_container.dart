@@ -14,6 +14,7 @@ class SmoothContainer extends StatelessWidget {
     this.padding,
     this.horizontalPadding,
     this.verticalPadding,
+    this.onTap,
   });
 
   final double? cornerRadius;
@@ -25,6 +26,7 @@ class SmoothContainer extends StatelessWidget {
   final EdgeInsets? padding;
   final double? horizontalPadding;
   final double? verticalPadding;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +41,15 @@ class SmoothContainer extends StatelessWidget {
           cornerRadius: cornerRadius ?? 18,
           cornerSmoothing: 0.8,
         ),
-        child: Container(
-          height: height,
-          width: width,
-          color: color,
-          decoration: decoration,
-          child: child,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: height,
+            width: width,
+            color: color,
+            decoration: decoration,
+            child: child,
+          ),
         ),
       ),
     );

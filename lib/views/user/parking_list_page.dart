@@ -52,8 +52,9 @@ class ParkingListPage extends StatelessWidget {
       ),
       drawer: Drawer(
         shape: const SmoothRectangleBorder(
-          borderRadius: SmoothBorderRadius.all(
-            SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+          borderRadius: SmoothBorderRadius.only(
+            topRight: SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+            bottomRight: SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
           ),
         ),
         child: Column(
@@ -66,7 +67,7 @@ class ParkingListPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: ListTile(
                 onTap: () => context.push('/admin-page'),
-                tileColor: Colors.amber,
+                tileColor: textFieldGrey,
                 shape: const SmoothRectangleBorder(
                   borderRadius: SmoothBorderRadius.all(
                     SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),

@@ -29,11 +29,13 @@ class DocumentState {
 }
 
 class VerificationProvider extends ChangeNotifier {
-  VerificationProvider() {
-    listOfDocsSubmitted();
-  }
+  // VerificationProvider() {
+  //   listOfDocsSubmitted();
+  // }
   final Map<String, DocumentState> documents = {};
   List<UserProfileModel> docSubmittedUsers = [];
+  List<UserProfileModel> approvedUsers = [];
+  List<UserProfileModel> rejectedUsers = [];
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -189,7 +191,7 @@ class VerificationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> listOfDocsSubmitted() async {
+  Future<void> listOfApplicationsSubmitted() async {
     try {
       QuerySnapshot snapshots =
           await FirebaseFirestore.instance.collection('users').get();
@@ -200,12 +202,61 @@ class VerificationProvider extends ChangeNotifier {
         List<UserProfileModel> users = docs
             .where((doc) => (doc.data() as Map<String, dynamic>)
                 .containsKey('verificationSubmittedAt'))
+            .where((doc) =>
+                doc.data()['is_approved'] == false &&
+                doc.data()['is_rejected'] == false)
             .map(
               (doc) => UserProfileModel.fromJson(doc.data()),
             )
             .toList();
 
         docSubmittedUsers = users;
+        notifyListeners();
+      } else {
+        debugPrint('No users Docs Found');
+      }
+    } catch (e) {
+      debugPrint('No User Doc Found: $e');
+    }
+  }
+
+  Future<void> getApprovedUsers() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('users').get();
+
+      if (snapshot.docs.isNotEmpty) {
+        List docs = snapshot.docs;
+        List<UserProfileModel> users = docs
+            .where((doc) => (doc.data()['is_approved']) == true)
+            .map(
+              (doc) => UserProfileModel.fromJson(doc.data()),
+            )
+            .toList();
+        approvedUsers = users;
+        notifyListeners();
+      } else {
+        debugPrint('No users Docs Found');
+      }
+    } catch (e) {
+      debugPrint('No User Doc Found: $e');
+    }
+  }
+
+  Future<void> getRejectedUsers() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance.collection('users').get();
+
+      if (snapshot.docs.isNotEmpty) {
+        List docs = snapshot.docs;
+        List<UserProfileModel> users = docs
+            .where((doc) => (doc.data()['is_rejected']) == true)
+            .map(
+              (doc) => UserProfileModel.fromJson(doc.data()),
+            )
+            .toList();
+        rejectedUsers = users;
         notifyListeners();
       } else {
         debugPrint('No users Docs Found');
@@ -228,6 +279,46 @@ class VerificationProvider extends ChangeNotifier {
       openPDF('temp', file.path);
     } catch (e) {
       debugPrint('Error in fetching PDF $e');
+    }
+  }
+
+  Future<void> fetchAndOpenImage(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      final bytes = response.bodyBytes;
+      final dir = await getTemporaryDirectory();
+      final fileType =
+          imageUrl.split('?').first.split('%2f').last.split('.').last;
+
+      final file = File('${dir.path}/temp.$fileType');
+      await file.writeAsBytes(bytes);
+
+      final result = await OpenFilex.open(file.path);
+    } catch (e) {
+      debugPrint('Error in fetching image: $e');
+    }
+  }
+
+  Future<void> confirmApproval(String uid) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'is_approved': true,
+        'is_rejected': false,
+      });
+    } catch (e) {
+      debugPrint('Error in confirmApproval()');
+    }
+  }
+
+  Future<void> rejectApproval(String rejectionReason, String uid) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'is_rejected': true,
+        'is_approved': false,
+        'rejection_reason': rejectionReason,
+      });
+    } catch (e) {
+      debugPrint('Error in rejectApproval(String rejectionReason)');
     }
   }
 }

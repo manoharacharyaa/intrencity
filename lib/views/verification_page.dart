@@ -4,6 +4,7 @@ import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity/widgets/add_img_container.dart';
+import 'package:intrencity/widgets/custom_icon_button.dart';
 import 'package:intrencity/widgets/dilogue_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -183,49 +184,6 @@ class DocumentUploader extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class CustomIconButton extends StatelessWidget {
-  const CustomIconButton({
-    super.key,
-    required this.documentId,
-    required this.state,
-    this.label,
-    this.onPressed,
-    this.icon,
-    this.color,
-  });
-
-  final String documentId;
-  final DocumentState state;
-  final String? label;
-  final void Function()? onPressed;
-  final IconData? icon;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Transform.scale(
-      scale: 0.85,
-      child: Center(
-        child: TextButton.icon(
-          style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(color),
-          ),
-          onPressed: onPressed,
-          label: Text(
-            label ?? '',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          icon: Icon(
-            icon,
-            size: 30,
-            color: Colors.white,
-          ),
-        ),
-      ),
     );
   }
 }
