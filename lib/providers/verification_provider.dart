@@ -29,13 +29,7 @@ class DocumentState {
 }
 
 class VerificationProvider extends ChangeNotifier {
-  // VerificationProvider() {
-  //   listOfDocsSubmitted();
-  // }
   final Map<String, DocumentState> documents = {};
-  List<UserProfileModel> docSubmittedUsers = [];
-  List<UserProfileModel> approvedUsers = [];
-  List<UserProfileModel> rejectedUsers = [];
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -191,79 +185,42 @@ class VerificationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> listOfApplicationsSubmitted() async {
-    try {
-      QuerySnapshot snapshots =
-          await FirebaseFirestore.instance.collection('users').get();
-
-      if (snapshots.docs.isNotEmpty) {
-        List docs = snapshots.docs;
-
-        List<UserProfileModel> users = docs
-            .where((doc) => (doc.data() as Map<String, dynamic>)
-                .containsKey('verificationSubmittedAt'))
-            .where((doc) =>
-                doc.data()['is_approved'] == false &&
-                doc.data()['is_rejected'] == false)
-            .map(
-              (doc) => UserProfileModel.fromJson(doc.data()),
-            )
-            .toList();
-
-        docSubmittedUsers = users;
-        notifyListeners();
-      } else {
-        debugPrint('No users Docs Found');
-      }
-    } catch (e) {
-      debugPrint('No User Doc Found: $e');
-    }
+  Stream<List<UserProfileModel>> getPendingApplicationsStream() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('is_approved', isEqualTo: false)
+        .where('is_rejected', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .where((doc) => doc.data().containsKey('verificationSubmittedAt'))
+          .map((doc) => UserProfileModel.fromJson(doc.data()))
+          .toList();
+    });
   }
 
-  Future<void> getApprovedUsers() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('users').get();
-
-      if (snapshot.docs.isNotEmpty) {
-        List docs = snapshot.docs;
-        List<UserProfileModel> users = docs
-            .where((doc) => (doc.data()['is_approved']) == true)
-            .map(
-              (doc) => UserProfileModel.fromJson(doc.data()),
-            )
-            .toList();
-        approvedUsers = users;
-        notifyListeners();
-      } else {
-        debugPrint('No users Docs Found');
-      }
-    } catch (e) {
-      debugPrint('No User Doc Found: $e');
-    }
+  Stream<List<UserProfileModel>> getApprovedUsersStream() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('is_approved', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => UserProfileModel.fromJson(doc.data()))
+          .toList();
+    });
   }
 
-  Future<void> getRejectedUsers() async {
-    try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('users').get();
-
-      if (snapshot.docs.isNotEmpty) {
-        List docs = snapshot.docs;
-        List<UserProfileModel> users = docs
-            .where((doc) => (doc.data()['is_rejected']) == true)
-            .map(
-              (doc) => UserProfileModel.fromJson(doc.data()),
-            )
-            .toList();
-        rejectedUsers = users;
-        notifyListeners();
-      } else {
-        debugPrint('No users Docs Found');
-      }
-    } catch (e) {
-      debugPrint('No User Doc Found: $e');
-    }
+  Stream<List<UserProfileModel>> getRejectedUsersStream() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('is_rejected', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => UserProfileModel.fromJson(doc.data()))
+          .toList();
+    });
   }
 
   Future<void> fetchAndOpenPDf(String documentUrl) async {
@@ -293,7 +250,7 @@ class VerificationProvider extends ChangeNotifier {
       final file = File('${dir.path}/temp.$fileType');
       await file.writeAsBytes(bytes);
 
-      final result = await OpenFilex.open(file.path);
+      await OpenFilex.open(file.path);
     } catch (e) {
       debugPrint('Error in fetching image: $e');
     }

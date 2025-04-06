@@ -6,4 +6,4 @@ const secondaryBlue = Color.fromARGB(255, 33, 126, 255);
 const primaryBlueTransparent = Color(0xff0066f1);
 const textFieldGrey = Color.fromARGB(255, 40, 40, 40);
 const greenAccent = Color.fromARGB(255, 0, 255, 60);
-const redAccent = Colors.redAccent;
+const redAccent = Color.fromARGB(255, 255, 54, 54);

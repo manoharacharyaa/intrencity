@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
@@ -56,13 +55,14 @@ class VerificationPage extends StatelessWidget {
             ),
             CustomButton(
               onTap: () {
-                String uid = FirebaseAuth.instance.currentUser!.uid;
                 provider.submmitDocuments().then((_) {
-                  return CustomDilogue.showSuccessDialog(
-                    context,
-                    'assets/animations/tick.json',
-                    ' Uploaded Successfully!',
-                  );
+                  if (context.mounted) {
+                    return CustomDilogue.showSuccessDialog(
+                      context,
+                      'assets/animations/tick.json',
+                      ' Uploaded Successfully!',
+                    );
+                  }
                 });
               },
               isLoading: provider.isLoading,

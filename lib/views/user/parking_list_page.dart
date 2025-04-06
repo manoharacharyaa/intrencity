@@ -12,6 +12,7 @@ import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/profilepic_avatar.dart';
 import 'package:intrencity/widgets/shimmer/spaces_list_shimmer.dart';
+import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
@@ -59,10 +60,25 @@ class ParkingListPage extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Image.network(
-              userProvider.user?.profilePic ?? '',
-              fit: BoxFit.cover,
-            ),
+            userProvider.user!.profilePic == null
+                ? const SmoothContainer(
+                    width: double.infinity,
+                    height: 300,
+                    color: primaryBlue,
+                    child: Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  )
+                : SmoothContainer(
+                    width: double.infinity,
+                    height: 300,
+                    child: Image.network(
+                      userProvider.user?.profilePic ?? '',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: ListTile(
