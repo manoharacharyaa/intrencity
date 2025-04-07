@@ -79,25 +79,21 @@ class ParkingListPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              child: ListTile(
-                onTap: () => context.push('/admin-page'),
-                tileColor: textFieldGrey,
-                shape: const SmoothRectangleBorder(
-                  borderRadius: SmoothBorderRadius.all(
-                    SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
-                  ),
+            Column(
+              children: [
+                const SizedBox(height: 8),
+                CustomDrawerTile(
+                  onTap: () => context.push('/admin-page'),
+                  label: 'Admin Pannel',
+                  icon: Icons.admin_panel_settings_rounded,
                 ),
-                leading: const Icon(
-                  Icons.admin_panel_settings,
-                  size: 30,
+                CustomDrawerTile(
+                  onTap: () => context.push('/verification-page'),
+                  label: 'Verification',
+                  iconSize: 25,
+                  icon: Icons.verified,
                 ),
-                title: Text(
-                  'Admin Pannel',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-              ),
+              ],
             ),
           ],
         ),
@@ -131,6 +127,45 @@ class ParkingListPage extends StatelessWidget {
         width: 45,
         profilePic: profilePic,
         onTap: () => context.push('/profile-page'),
+      ),
+    );
+  }
+}
+
+class CustomDrawerTile extends StatelessWidget {
+  const CustomDrawerTile({
+    super.key,
+    this.onTap,
+    this.label,
+    this.icon,
+    this.iconSize,
+  });
+
+  final void Function()? onTap;
+  final String? label;
+  final IconData? icon;
+  final double? iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: ListTile(
+        onTap: onTap,
+        tileColor: textFieldGrey,
+        shape: const SmoothRectangleBorder(
+          borderRadius: SmoothBorderRadius.all(
+            SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+          ),
+        ),
+        leading: Icon(
+          icon,
+          size: iconSize ?? 30,
+        ),
+        title: Text(
+          label ?? '',
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
       ),
     );
   }

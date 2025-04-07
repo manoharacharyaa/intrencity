@@ -37,3 +37,43 @@ var darkTheme = ThemeData(
     backgroundColor: primaryBlue,
   ),
 );
+
+var lightTheme = ThemeData(
+  colorScheme: const ColorScheme.light(),
+  useMaterial3: true,
+  textTheme: TextTheme(
+    bodySmall: GoogleFonts.poppins(
+      color: Colors.white,
+      fontSize: 15,
+      fontWeight: FontWeight.w500,
+    ),
+    bodyMedium: GoogleFonts.poppins(
+      color: Colors.white,
+      fontSize: 20,
+      fontWeight: FontWeight.w500,
+    ),
+    bodyLarge: GoogleFonts.poppins(
+      color: Colors.white,
+      fontSize: 25,
+      fontWeight: FontWeight.w500,
+    ),
+    titleSmall: GoogleFonts.poppins(
+      color: Colors.white,
+      fontSize: 17,
+      fontWeight: FontWeight.w500,
+    ),
+  ),
+  appBarTheme: AppBarTheme(
+    centerTitle: true,
+    titleTextStyle: GoogleFonts.poppins(
+      fontWeight: FontWeight.w500,
+      fontSize: 20,
+    ),
+  ),
+  progressIndicatorTheme: const ProgressIndicatorThemeData(
+    color: Colors.black,
+  ),
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: primaryBlue,
+  ),
+);

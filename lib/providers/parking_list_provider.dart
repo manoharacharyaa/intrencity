@@ -94,7 +94,7 @@ class ParkingListProvider with ChangeNotifier {
   }
 
   Stream<DocumentSnapshot> getUserStream() {
-    return _firestore.collection('users').doc(uid).snapshots();
+    return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
   }
 
   Stream<QuerySnapshot> getSpacesStream() {

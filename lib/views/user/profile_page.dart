@@ -12,12 +12,18 @@ import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/widgets/cutsom_divider.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum Value { edit, delete }
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -157,6 +163,30 @@ class ProfilePage extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        SmoothContainer(
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(15, 0, 8, 0),
+                          cornerRadius: 14,
+                          color: textFieldGrey,
+                          height: 53,
+                          width: double.infinity,
+                          child: Row(
+                            children: [
+                              Text(
+                                provider.lightTheme ? 'Light' : 'Dark',
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const Spacer(),
+                              CupertinoSwitch(
+                                value: provider.lightTheme,
+                                onChanged: (value) {
+                                  provider.setTheme(value);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         ClipSmoothRect(
                           radius: provider.isExpanded
                               ? const SmoothBorderRadius.only(
@@ -172,7 +202,7 @@ class ProfilePage extends StatelessWidget {
                                   ),
                                 ),
                           child: Container(
-                            color: Colors.grey[900],
+                            color: textFieldGrey,
                             padding: const EdgeInsets.fromLTRB(12, 2, 0, 2),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -259,6 +289,7 @@ class MySpaceWidget extends StatelessWidget {
                 )
                 .toList();
             return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: spaces.length,
               itemBuilder: (context, index) {
                 final space = spaces[index];

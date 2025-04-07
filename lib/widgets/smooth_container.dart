@@ -12,6 +12,7 @@ class SmoothContainer extends StatelessWidget {
     this.decoration,
     this.color,
     this.padding,
+    this.contentPadding,
     this.horizontalPadding,
     this.verticalPadding,
     this.onTap,
@@ -24,6 +25,7 @@ class SmoothContainer extends StatelessWidget {
   final Color? color;
   final Decoration? decoration;
   final EdgeInsets? padding;
+  final EdgeInsets? contentPadding;
   final double? horizontalPadding;
   final double? verticalPadding;
   final void Function()? onTap;
@@ -44,6 +46,7 @@ class SmoothContainer extends StatelessWidget {
         child: GestureDetector(
           onTap: onTap,
           child: Container(
+            padding: contentPadding ?? EdgeInsets.zero,
             height: height,
             width: width,
             color: color,

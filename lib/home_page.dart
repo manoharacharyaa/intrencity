@@ -52,18 +52,7 @@ class _HomePageState extends State<HomePage> {
         onTap: _onItemTapped,
       ),
       floatingActionButton: !approved
-          ? TextButton(
-              style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(
-                  primaryBlue,
-                ),
-              ),
-              onPressed: () => context.push('/verification-page'),
-              child: Text(
-                'Verify',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            )
+          ? null
           : FloatingActionButton(
               onPressed: () => context.push('/space-posting-page'),
               backgroundColor: primaryBlue,
@@ -80,3 +69,33 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+      // floatingActionButton: StreamBuilder<Object>(
+      //   stream: context.watch<UsersProvider>().getCurrentUser(),
+      //   builder: (context, snapshot) {
+      //     return snapshot.data == false
+      //         ? TextButton(
+      //             style: const ButtonStyle(
+      //               backgroundColor: WidgetStatePropertyAll(
+      //                 primaryBlue,
+      //               ),
+      //             ),
+      //             onPressed: () => context.push('/verification-page'),
+      //             child: Text(
+      //               'Verify',
+      //               style: Theme.of(context).textTheme.bodySmall,
+      //             ),
+      //           )
+      //         : FloatingActionButton(
+      //             onPressed: () => context.push('/space-posting-page'),
+      //             backgroundColor: primaryBlue,
+      //             shape: RoundedRectangleBorder(
+      //               borderRadius: BorderRadius.circular(100),
+      //             ),
+      //             child: const Icon(
+      //               Icons.add,
+      //               color: Colors.white,
+      //             ),
+      //           );
+      //   },
+      // ),

@@ -35,4 +35,20 @@ class UsersProvider extends ChangeNotifier {
       }
     }
   }
+
+  // Stream<bool> getApprovalStatus() {
+  //   return FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(_uid)
+  //       .snapshots()
+  //       .map((snapshot) {
+  //     if (snapshot.exists) {
+  //       final userData = snapshot.data();
+  //       _user = UserProfileModel.fromJson(userData!);
+  //       notifyListeners();
+  //       return userData['is_approved'] ?? false;
+  //     }
+  //     return false;
+  //   });
+  // }
 }
