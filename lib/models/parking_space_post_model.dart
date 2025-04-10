@@ -97,6 +97,7 @@ class Booking {
   final DateTime startDateTime;
   final DateTime endDateTime;
   final DateTime bookingTime;
+  final String bookingId;
 
   Booking({
     this.isApproved = false,
@@ -106,6 +107,7 @@ class Booking {
     required this.startDateTime,
     required this.endDateTime,
     required this.bookingTime,
+    required this.bookingId,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -117,6 +119,7 @@ class Booking {
       startDateTime: (json['start_time'] as Timestamp).toDate(),
       endDateTime: (json['end_time'] as Timestamp).toDate(),
       bookingTime: (json['booking_time'] as Timestamp).toDate(),
+      bookingId: json['booking_id'] ?? '',
     );
   }
 
@@ -129,6 +132,7 @@ class Booking {
       'start_time': Timestamp.fromDate(startDateTime),
       'end_time': Timestamp.fromDate(endDateTime),
       'booking_time': Timestamp.fromDate(bookingTime),
+      'booking_id': bookingId,
     };
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,6 +14,7 @@ import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({
@@ -286,10 +288,15 @@ class _BookingPageState extends State<BookingPage> {
                                     startDateTime: startDateTime!,
                                     endDateTime: endDateTime!,
                                     bookingTime: DateTime.now(),
+                                    bookingId: Random().nextInt(6).toString(),
                                   ).toJson(),
                                 ])
                               }).then(
-                                (_) => Navigator.pop(context),
+                                (_) {
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                },
                               );
                             }
                           },

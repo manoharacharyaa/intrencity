@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/views/admin/applications_page.dart';
-import 'package:intrencity/views/admin/approved_applications_page.dart';
-import 'package:intrencity/views/admin/rejected_applications_page.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/applications_page.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/approved_applications_page.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/rejected_applications_page.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});

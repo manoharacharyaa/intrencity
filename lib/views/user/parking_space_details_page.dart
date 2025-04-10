@@ -14,6 +14,7 @@ import 'package:intrencity/views/user/parking_slot_page.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:intrencity/widgets/cutsom_divider.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
+import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 
 class ParkingSpaceDetailsPage extends StatefulWidget {
@@ -36,13 +37,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
   String profilePic = '';
   bool currentUser = false;
   bool isGuest = false;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchHostUser();
-    isCurrentUser();
-  }
+  bool isTimePassed = false;
 
   void isCurrentUser() {
     bool guest = context.read<AuthenticationProvider>().isGuest;
@@ -76,6 +71,33 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<void> isBookingTimePassed() async {
+    final DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('spaces')
+        .doc(widget.spaceDetails.docId)
+        .get();
+
+    if (snapshot.exists) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      if (data.containsKey('endDate')) {
+        DateTime endDate = data['endDate'].toDate();
+        if (endDate.isBefore(DateTime.now())) {
+          setState(() {
+            isTimePassed = true;
+          });
+        }
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchHostUser();
+    isCurrentUser();
+    isBookingTimePassed();
   }
 
   @override
@@ -129,6 +151,28 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 15),
+                isTimePassed
+                    ? SizedBox(
+                        height: 30,
+                        width: double.infinity,
+                        child: Marquee(
+                          text:
+                              'Booking for ${widget.spaceDetails.spaceName} has closed',
+                          style: const TextStyle(color: Colors.red),
+                          scrollAxis: Axis.horizontal,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          blankSpace: 20.0,
+                          velocity: 100.0,
+                          pauseAfterRound: const Duration(seconds: 1),
+                          startPadding: 10.0,
+                          accelerationDuration: const Duration(seconds: 1),
+                          accelerationCurve: Curves.linear,
+                          decelerationDuration:
+                              const Duration(milliseconds: 500),
+                          decelerationCurve: Curves.easeOut,
+                        ),
+                      )
+                    : const SizedBox.shrink(),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -317,7 +361,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                 ),
               ],
             ),
-            (currentUser || isGuest)
+            (currentUser || isGuest || isTimePassed)
                 ? const SizedBox()
                 : CustomButton(
                     title: 'Book',

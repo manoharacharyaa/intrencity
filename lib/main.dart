@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intrencity/providers/admin/space_admin_viewmodel.dart';
 import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/providers/parking_list_provider.dart';
 import 'package:intrencity/providers/profile_provider.dart';
@@ -41,7 +42,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (context) => UsersProvider()),
         ChangeNotifierProvider(create: (context) => VerificationProvider()),
-        // ChangeNotifierProvider(create: (context) => AdminProvide()),
+        ChangeNotifierProvider(create: (context) => SpaceAdminViewmodel()),
         // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp.router(

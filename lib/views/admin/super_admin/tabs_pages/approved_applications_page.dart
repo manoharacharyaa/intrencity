@@ -5,23 +5,25 @@ import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
+import 'package:intrencity/widgets/buttons/small_button.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
-class ApplicationsPage extends StatefulWidget {
-  const ApplicationsPage({super.key});
+class ApprovedApplicationsPage extends StatefulWidget {
+  const ApprovedApplicationsPage({super.key});
 
   @override
-  State<ApplicationsPage> createState() => _ApplicationsPageState();
+  State<ApprovedApplicationsPage> createState() =>
+      _ApprovedApplicationsPageState();
 }
 
-class _ApplicationsPageState extends State<ApplicationsPage> {
+class _ApprovedApplicationsPageState extends State<ApprovedApplicationsPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VerificationProvider>();
+
     return StreamBuilder<List<UserProfileModel>>(
-      stream:
-          context.read<VerificationProvider>().getPendingApplicationsStream(),
+      stream: context.read<VerificationProvider>().getApprovedUsersStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -34,7 +36,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
         final users = snapshot.data ?? [];
 
         if (users.isEmpty) {
-          return const Center(child: Text('No Active Applications Found'));
+          return const Center(child: Text('No Approved Applications Found'));
         }
 
         return ListView.builder(
@@ -78,7 +80,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             showDialog(
                               context: context,
@@ -97,7 +99,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                                     width: 50,
                                     child: Center(
                                       child: Text(
-                                        'Confirm Approval',
+                                        'Confirm Rejection',
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
@@ -107,33 +109,16 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        AdminPageButton(
-                                          onTap: () => provider
-                                              .confirmApproval(user.uid)
-                                              .then(
-                                            (_) {
-                                              if (context.mounted) {
-                                                context.pop();
-                                              }
-                                            },
-                                          ),
-                                          color: greenAccent,
-                                          label: 'Confirm',
-                                        ),
-                                        AdminPageButton(
+                                        SmallButton(
                                           onTap: () {
                                             provider
                                                 .rejectApproval(
-                                              'rejectionReason',
-                                              user.uid,
-                                            )
+                                                  'rejectionReason',
+                                                  user.uid,
+                                                )
                                                 .then(
-                                              (_) {
-                                                if (context.mounted) {
-                                                  context.pop();
-                                                }
-                                              },
-                                            );
+                                                  (_) => context.pop(),
+                                                );
                                           },
                                           color: redAccent,
                                           label: 'Reject',
@@ -145,11 +130,11 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                               ),
                             );
                           },
-                          color: const Color.fromARGB(255, 0, 255, 13),
-                          label: 'Approve',
+                          color: redAccent,
+                          label: 'Reject',
                         ),
                         const SizedBox(width: 12),
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             if (user.aadhaarUrl!.contains('.pdf')) {
                               context
@@ -164,7 +149,7 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
                           label: 'Aadhaar',
                         ),
                         const SizedBox(width: 12),
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             if (user.documentUrl!.contains('.pdf')) {
                               context
@@ -187,36 +172,6 @@ class _ApplicationsPageState extends State<ApplicationsPage> {
           },
         );
       },
-    );
-  }
-}
-
-class AdminPageButton extends StatelessWidget {
-  const AdminPageButton({
-    super.key,
-    this.onTap,
-    this.color,
-    this.label,
-  });
-
-  final void Function()? onTap;
-  final Color? color;
-  final String? label;
-
-  @override
-  Widget build(BuildContext context) {
-    return SmoothContainer(
-      onTap: onTap,
-      cornerRadius: 10,
-      height: 35,
-      width: 90,
-      color: color ?? primaryBlue,
-      child: Center(
-        child: Text(
-          label ?? '',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-      ),
     );
   }
 }

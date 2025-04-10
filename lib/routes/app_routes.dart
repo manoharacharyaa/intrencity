@@ -2,7 +2,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intrencity/home_page.dart';
 import 'package:intrencity/main.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
-import 'package:intrencity/views/admin/admin_page.dart';
+import 'package:intrencity/views/admin/super_admin/admin_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/admin_parking_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/my_spaces_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_page.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
 import 'package:intrencity/views/user/edit_post_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
@@ -68,6 +71,34 @@ class AppRoutes {
       GoRoute(
         path: '/admin-page',
         builder: (context, state) => const AdminPage(),
+      ),
+      GoRoute(
+        path: '/parking-bookings-page',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final spaceId = args['spaceId'] as String;
+          final docId = args['docId'] as String;
+          return BookingsPage(
+            spaceId: spaceId,
+            docId: docId,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/my-spaces-page',
+        builder: (context, state) => const MySpacesPage(),
+      ),
+      GoRoute(
+        path: '/admin-parking-page',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final spaceId = args['spaceId'] as String;
+          final docId = args['docId'] as String;
+          return AdminParkingPage(
+            spaceId: spaceId,
+            docId: docId,
+          );
+        },
       ),
     ],
   );

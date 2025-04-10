@@ -5,7 +5,7 @@ import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
-import 'package:intrencity/views/admin/applications_page.dart';
+import 'package:intrencity/widgets/buttons/small_button.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
@@ -80,7 +80,7 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             showDialog(
                               context: context,
@@ -109,7 +109,7 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        AdminPageButton(
+                                        SmallButton(
                                           onTap: () => provider
                                               .confirmApproval(user.uid)
                                               .then(
@@ -129,7 +129,7 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                           label: 'Approve',
                         ),
                         const SizedBox(width: 12),
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             if (user.aadhaarUrl!.contains('.pdf')) {
                               context
@@ -144,7 +144,7 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                           label: 'Aadhaar',
                         ),
                         const SizedBox(width: 12),
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             if (user.documentUrl!.contains('.pdf')) {
                               context

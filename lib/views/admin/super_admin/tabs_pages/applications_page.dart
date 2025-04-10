@@ -3,27 +3,25 @@ import 'package:go_router/go_router.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
-import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
-import 'package:intrencity/views/admin/applications_page.dart';
+import 'package:intrencity/widgets/buttons/small_button.dart';
+import 'package:intrencity/widgets/dialogs/confirmation_dialog.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
-class ApprovedApplicationsPage extends StatefulWidget {
-  const ApprovedApplicationsPage({super.key});
+class ApplicationsPage extends StatefulWidget {
+  const ApplicationsPage({super.key});
 
   @override
-  State<ApprovedApplicationsPage> createState() =>
-      _ApprovedApplicationsPageState();
+  State<ApplicationsPage> createState() => _ApplicationsPageState();
 }
 
-class _ApprovedApplicationsPageState extends State<ApprovedApplicationsPage> {
+class _ApplicationsPageState extends State<ApplicationsPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VerificationProvider>();
-
     return StreamBuilder<List<UserProfileModel>>(
-      stream: context.read<VerificationProvider>().getApprovedUsersStream(),
+      stream:
+          context.read<VerificationProvider>().getPendingApplicationsStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -36,7 +34,7 @@ class _ApprovedApplicationsPageState extends State<ApprovedApplicationsPage> {
         final users = snapshot.data ?? [];
 
         if (users.isEmpty) {
-          return const Center(child: Text('No Approved Applications Found'));
+          return const Center(child: Text('No Active Applications Found'));
         }
 
         return ListView.builder(
@@ -80,61 +78,43 @@ class _ApprovedApplicationsPageState extends State<ApprovedApplicationsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             showDialog(
                               context: context,
-                              builder: (context) => StatefulBuilder(
-                                builder: (context, setState) => AlertDialog(
-                                  contentPadding: EdgeInsets.zero,
-                                  backgroundColor: textFieldGrey,
-                                  shape: SmoothRectangleBorder(
-                                    borderRadius: SmoothBorderRadius(
-                                      cornerRadius: 20,
-                                      cornerSmoothing: 0.8,
-                                    ),
-                                  ),
-                                  content: const SizedBox(
-                                    height: 100,
-                                    width: 50,
-                                    child: Center(
-                                      child: Text(
-                                        'Confirm Rejection',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  actions: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        AdminPageButton(
-                                          onTap: () {
-                                            provider
-                                                .rejectApproval(
-                                                  'rejectionReason',
-                                                  user.uid,
-                                                )
-                                                .then(
-                                                  (_) => context.pop(),
-                                                );
-                                          },
-                                          color: redAccent,
-                                          label: 'Reject',
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                              builder: (context) => ConfirmationDialog(
+                                title: 'Confirm Approval',
+                                onConfirm: () {
+                                  provider.confirmApproval(user.uid).then(
+                                    (_) {
+                                      if (context.mounted) {
+                                        context.pop();
+                                      }
+                                    },
+                                  );
+                                },
+                                onReject: () {
+                                  provider
+                                      .rejectApproval(
+                                    'rejectionReason',
+                                    user.uid,
+                                  )
+                                      .then(
+                                    (_) {
+                                      if (context.mounted) {
+                                        context.pop();
+                                      }
+                                    },
+                                  );
+                                },
                               ),
                             );
                           },
-                          color: redAccent,
-                          label: 'Reject',
+                          color: const Color.fromARGB(255, 0, 255, 13),
+                          label: 'Approve',
                         ),
                         const SizedBox(width: 12),
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             if (user.aadhaarUrl!.contains('.pdf')) {
                               context
@@ -149,7 +129,7 @@ class _ApprovedApplicationsPageState extends State<ApprovedApplicationsPage> {
                           label: 'Aadhaar',
                         ),
                         const SizedBox(width: 12),
-                        AdminPageButton(
+                        SmallButton(
                           onTap: () {
                             if (user.documentUrl!.contains('.pdf')) {
                               context

@@ -60,7 +60,7 @@ class ParkingListPage extends StatelessWidget {
         ),
         child: Column(
           children: [
-            userProvider.user!.profilePic == null
+            userProvider.user?.profilePic == null
                 ? const SmoothContainer(
                     width: double.infinity,
                     height: 300,
@@ -92,6 +92,12 @@ class ParkingListPage extends StatelessWidget {
                   label: 'Verification',
                   iconSize: 25,
                   icon: Icons.verified,
+                ),
+                CustomDrawerTile(
+                  onTap: () => context.push('/my-spaces-page'),
+                  label: 'My Spaces',
+                  iconSize: 25,
+                  icon: Icons.book_rounded,
                 ),
               ],
             ),
