@@ -28,9 +28,7 @@ class SpaceAdminServices {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .map((doc) => ParkingSpacePostModel.fromJson(
-                doc.data() as Map<String, dynamic>,
-              ))
+          .map((doc) => ParkingSpacePostModel.fromJson(doc.data()))
           .toList();
     });
   }
@@ -119,6 +117,44 @@ class SpaceAdminServices {
     });
   }
 
+  Stream<List<BookingWithUser>> getRejectedBookingsStream(String docId) {
+    return _firestore.collection('spaces').doc(docId).snapshots().asyncMap(
+      (snapshot) async {
+        List<BookingWithUser> bookingWithUsers = [];
+
+        if (!snapshot.exists) return bookingWithUsers;
+
+        final data = snapshot.data() as Map<String, dynamic>;
+        if (!data.containsKey('bookings')) return bookingWithUsers;
+
+        for (var booking in data['bookings']) {
+          if (booking['is_rejected'] == true &&
+              booking['is_approved'] == false) {
+            Booking bookingObj = Booking.fromJson(booking);
+            try {
+              DocumentSnapshot userSnapshot = await _firestore
+                  .collection('users')
+                  .doc(bookingObj.uid)
+                  .get();
+
+              if (userSnapshot.exists) {
+                UserProfileModel user = UserProfileModel.fromJson(
+                  userSnapshot.data() as Map<String, dynamic>,
+                );
+                bookingWithUsers.add(
+                  BookingWithUser(booking: bookingObj, user: user),
+                );
+              }
+            } catch (e) {
+              debugPrint('Error fetching user: $e');
+            }
+          }
+        }
+        return bookingWithUsers;
+      },
+    );
+  }
+
   Future<void> confirmBooking(String bookingId, String docId) async {
     try {
       await _firestore.runTransaction((transaction) async {
@@ -136,6 +172,7 @@ class SpaceAdminServices {
 
         if (bookingIndex != -1) {
           bookings[bookingIndex]['is_approved'] = true;
+          bookings[bookingIndex]['is_rejected'] = false;
           transaction.update(_firestore.collection('spaces').doc(docId),
               {'bookings': bookings});
         }
@@ -163,6 +200,7 @@ class SpaceAdminServices {
 
         if (bookingIndex != -1) {
           bookings[bookingIndex]['is_rejected'] = true;
+          bookings[bookingIndex]['is_approved'] = false;
           transaction.update(_firestore.collection('spaces').doc(docId),
               {'bookings': bookings});
         }

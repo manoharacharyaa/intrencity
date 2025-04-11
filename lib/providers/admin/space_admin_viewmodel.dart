@@ -25,6 +25,10 @@ class SpaceAdminViewmodel extends ChangeNotifier {
     return _admin.getConfirmedBookingsStream(docId);
   }
 
+  Stream<List<BookingWithUser>> getCancledBookingsStream(String docId) {
+    return _admin.getRejectedBookingsStream(docId);
+  }
+
   Future<void> confirmBooking(String bookingId, String docId) async {
     try {
       _setLoading(true);

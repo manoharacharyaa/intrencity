@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/approved_bookings_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/tab_pages/canceled_booking_page.dart';
 
 class AdminParkingPage extends StatefulWidget {
   const AdminParkingPage({
@@ -24,13 +25,16 @@ class _AdminParkingPageState extends State<AdminParkingPage>
 
   @override
   void initState() {
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _pages = [
       BookingsPage(
         spaceId: widget.spaceId,
         docId: widget.docId,
       ),
       ApprovedBookingsPage(
+        spaceId: widget.docId,
+      ),
+      CanceledBookingPage(
         spaceId: widget.docId,
       ),
     ];
@@ -55,6 +59,9 @@ class _AdminParkingPageState extends State<AdminParkingPage>
             ),
             Tab(
               child: Text('Approved'),
+            ),
+            Tab(
+              child: Text('Rejected'),
             ),
           ],
         ),

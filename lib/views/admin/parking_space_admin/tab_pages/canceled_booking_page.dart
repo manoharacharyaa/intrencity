@@ -4,8 +4,8 @@ import 'package:intrencity/providers/admin/space_admin_viewmodel.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_page.dart';
 import 'package:provider/provider.dart';
 
-class ApprovedBookingsPage extends StatelessWidget {
-  const ApprovedBookingsPage({
+class CanceledBookingPage extends StatelessWidget {
+  const CanceledBookingPage({
     super.key,
     required this.spaceId,
   });
@@ -18,28 +18,26 @@ class ApprovedBookingsPage extends StatelessWidget {
       body: StreamBuilder(
         stream: context
             .read<SpaceAdminViewmodel>()
-            .getConfirmedBookingsStream(spaceId),
+            .getCancledBookingsStream(spaceId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CupertinoActivityIndicator());
+            const Center(child: CupertinoActivityIndicator());
           }
-
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
           }
-
-          final approvedBookings = snapshot.data ?? [];
-
-          if (approvedBookings.isEmpty) {
-            return const Center(child: Text('No Bookings Found'));
+          final cancledBookings = snapshot.data ?? [];
+          if (cancledBookings.isEmpty) {
+            return const Center(child: Text('No Rejected Bookings Found'));
           }
-
           return ListView.builder(
-            itemCount: approvedBookings.length,
+            itemCount: cancledBookings.length,
             itemBuilder: (context, index) {
-              final bookingWithUser = approvedBookings[index];
+              final bookingWithUser = cancledBookings[index];
               return BookingCard(
-                pageType: BookingPageType.approved,
+                pageType: BookingPageType.rejected,
                 bookingWithUser: bookingWithUser,
                 docId: spaceId,
               );
