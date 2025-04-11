@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 
@@ -107,7 +106,7 @@ class SpaceAdminServices {
 
         if (data.containsKey('bookings')) {
           List<dynamic> bookings = (data['bookings'] as List<dynamic>);
-          print('Booking ID to update: $bookingId');
+          debugPrint('Booking ID to update: $bookingId');
 
           int bookingIndex = bookings.indexWhere(
               (booking) => booking['booking_id'].toString() == bookingId);

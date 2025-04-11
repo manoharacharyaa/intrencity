@@ -36,11 +36,21 @@ class _LoginPageState extends State<LoginPage> {
       await _auth.sendPasswordResetEmail(email: email).then((_) {
         forgetPasswordEmailController.clear();
       });
-      CustomDilogue.showSuccessDialog(context, 'assets/animations/tick.json',
-          'Sucessfully Send Password Reser Link');
+      if (context.mounted) {
+        CustomDilogue.showSuccessDialog(
+          context,
+          'assets/animations/tick.json',
+          'Sucessfully Send Password Reser Link',
+        );
+      }
     } catch (e) {
-      CustomDilogue.showSuccessDialog(context, 'assets/animations/cross.json',
-          'Error While Sending Password Reser Link');
+      if (context.mounted) {
+        CustomDilogue.showSuccessDialog(
+          context,
+          'assets/animations/cross.json',
+          'Error While Sending Password Reser Link',
+        );
+      }
     }
   }
 
@@ -54,7 +64,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading = false;
     final size = MediaQuery.of(context).size;
     final auth = context.watch<AuthenticationProvider>();
     final validator = context.watch<AuthValidationProvider>();

@@ -65,7 +65,7 @@ class _MySpacesPageState extends State<MySpacesPage> {
                             cornerRadius: 12,
                             height: 100,
                             width: 100,
-                            color: Colors.amber,
+                            color: Colors.blueGrey,
                             child: Image.network(
                               mySpace.spaceThumbnail[0],
                               fit: BoxFit.cover,

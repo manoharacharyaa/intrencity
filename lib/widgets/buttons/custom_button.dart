@@ -26,7 +26,6 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.sizeOf(context).height;
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: verticalPadding,

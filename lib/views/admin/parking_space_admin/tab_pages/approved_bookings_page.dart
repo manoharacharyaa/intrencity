@@ -49,6 +49,7 @@ class _ApprovedBookingsPageState extends State<ApprovedBookingsPage> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: CircleAvatar(
+                                backgroundColor: Colors.cyanAccent,
                                 radius: 45,
                                 backgroundImage: NetworkImage(
                                   bookingWithUser.user.profilePic ?? '',

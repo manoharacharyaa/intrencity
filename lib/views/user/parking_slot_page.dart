@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
-import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';

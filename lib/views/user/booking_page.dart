@@ -14,7 +14,6 @@ import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({

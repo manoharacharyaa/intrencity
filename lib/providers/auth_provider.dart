@@ -23,7 +23,7 @@ class AuthenticationProvider extends ChangeNotifier {
       );
       return await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
     notifyListeners();
   }
@@ -58,9 +58,9 @@ class AuthenticationProvider extends ChangeNotifier {
         email: email,
         password: password,
       );
-      print('User signed in: ${userCredential.user?.email}');
+      debugPrint('User signed in: ${userCredential.user?.email}');
     } catch (e) {
-      print('Login error: $e');
+      debugPrint('Login error: $e');
     }
   }
 

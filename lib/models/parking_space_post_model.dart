@@ -91,6 +91,7 @@ class ParkingSpacePostModel {
 
 class Booking {
   final bool isApproved;
+  final bool isRejected;
   final String uid;
   final String spaceId;
   final int slotNumber;
@@ -101,6 +102,7 @@ class Booking {
 
   Booking({
     this.isApproved = false,
+    this.isRejected = false,
     required this.uid,
     required this.spaceId,
     required this.slotNumber,
@@ -113,6 +115,7 @@ class Booking {
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       isApproved: json['is_approved'] ?? false,
+      isRejected: json['is_rejected'] ?? false,
       uid: json['uid'] ?? '',
       spaceId: json['space_id'] ?? '',
       slotNumber: json['slot_number'] ?? 0,
@@ -126,6 +129,7 @@ class Booking {
   Map<String, dynamic> toJson() {
     return {
       'is_approved': isApproved,
+      'is_rejected': isRejected,
       'uid': uid,
       'space_id': spaceId,
       'slot_number': slotNumber,

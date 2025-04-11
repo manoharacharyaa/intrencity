@@ -15,7 +15,7 @@ class ParkingListProvider with ChangeNotifier {
   bool _speechEnabled = false;
   bool _isListening = false;
   String _lastWords = '';
-  String _profilePic = '';
+  final String _profilePic = '';
   Timer? _timer;
   List<ParkingSpacePostModel> searchParkingSpace = [];
   late Future<List<ParkingSpacePostModel>> _fetchSpaces;
@@ -44,12 +44,12 @@ class ParkingListProvider with ChangeNotifier {
   void _initSpeech() async {
     try {
       _speechEnabled = await _speechToText.initialize(
-        onError: (error) => print("Speech-to-Text Error: $error"),
-        onStatus: (status) => print("Speech-to-Text Status: $status"),
+        onError: (error) => debugPrint("Speech-to-Text Error: $error"),
+        onStatus: (status) => debugPrint("Speech-to-Text Status: $status"),
       );
       notifyListeners();
     } catch (e) {
-      print("Error initializing Speech-to-Text: $e");
+      debugPrint("Error initializing Speech-to-Text: $e");
     }
   }
 

@@ -10,10 +10,10 @@ class BookingProvider extends ChangeNotifier {
   }
 
   final _uid = FirebaseAuth.instance.currentUser!.uid;
-  List<Booking> _bookings = [];
+  final List<Booking> _bookings = [];
   List<ParkingSpacePostModel> _parkings = [];
-  List<UserProfileModel> _bookedUsers = [];
-  bool _bookingExists = false;
+  final List<UserProfileModel> _bookedUsers = [];
+  final bool _bookingExists = false;
 
   List<Booking> get bookings => _bookings;
   bool get bookingExists => _bookingExists;
@@ -56,12 +56,5 @@ class BookingProvider extends ChangeNotifier {
       }
     }
     return false;
-  }
-
-  Future<void> _getSpaceData() async {
-    final QuerySnapshot spanshot =
-        await FirebaseFirestore.instance.collection('spaces').get();
-
-    if (spanshot.docs.isNotEmpty) {}
   }
 }
