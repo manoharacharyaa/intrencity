@@ -24,16 +24,15 @@ class _MyBookingPageState extends State<MyBookingPage> {
             enableFeedback: false,
             labelColor: primaryBlue,
             overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-            labelStyle: Theme.of(context).textTheme.bodyMedium,
-            indicator: const UnderlineTabIndicator(
-              borderSide: BorderSide.none,
-            ),
+            labelStyle: Theme.of(context).textTheme.titleSmall,
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorColor: primaryBlue,
             tabs: const [
               Tab(
                 text: 'Booking',
               ),
               Tab(
-                text: 'Approval',
+                text: 'Approved',
               ),
             ],
           ),

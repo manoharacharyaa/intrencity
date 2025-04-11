@@ -264,7 +264,7 @@ class MySpaceWidget extends StatelessWidget {
       child: Container(
         height: size.height * 0.35,
         width: double.infinity,
-        color: Colors.grey[900],
+        color: textFieldGrey,
         child: FutureBuilder(
           future: FirebaseFirestore.instance
               .collection('spaces')
@@ -303,10 +303,8 @@ class MySpaceWidget extends StatelessWidget {
                         'viewedByCurrentUser': true,
                       },
                     ),
-                    child: SmoothContainer(
-                      color: Colors.grey[900],
-                      padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                      cornerRadius: 20,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 14),
                       child: Column(
                         children: [
                           Row(

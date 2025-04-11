@@ -10,11 +10,20 @@ import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:intrencity/widgets/custom_chip.dart';
 import 'package:intrencity/widgets/custom_text_form_field.dart';
 import 'package:intrencity/widgets/dilogue_widget.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+extension DateTimeExtension on DateTime {
+  DateTime startOfDay() {
+    return DateTime(year, month, day);
+  }
+}
 
 enum Per { day, hr, month }
 
@@ -69,33 +78,175 @@ class _EditPostPageState extends State<EditPostPage> {
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
+    DateTime? selectedDateTime = startDate;
+    final now = DateTime.now();
+    // Normalize the current date to start of day
+    final normalizedNow = DateTime(now.year, now.month, now.day);
+
+    await showCupertinoModalPopup(
       context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      builder: (BuildContext context) {
+        // Ensure initialDateTime is not before minimumDate
+        final effectiveInitialDate =
+            selectedDateTime?.startOfDay() ?? normalizedNow;
+        final initialDateTime = effectiveInitialDate.isBefore(normalizedNow)
+            ? normalizedNow
+            : effectiveInitialDate;
+
+        return ClipSmoothRect(
+          radius: SmoothBorderRadius(cornerRadius: 15, cornerSmoothing: 0.8),
+          child: Container(
+            height: 300,
+            color: const Color.fromARGB(255, 26, 26, 26),
+            child: Column(
+              children: [
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: initialDateTime,
+                    minimumDate: normalizedNow,
+                    maximumDate: DateTime(2101),
+                    backgroundColor: const Color.fromARGB(255, 26, 26, 26),
+                    onDateTimeChanged: (DateTime newDateTime) {
+                      selectedDateTime = newDateTime;
+                    },
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MaterialButton(
+                      onPressed: () => Navigator.pop(context),
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 8,
+                          cornerSmoothing: 0.8,
+                        ),
+                      ),
+                      color: redAccent,
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    MaterialButton(
+                      color: greenAccent,
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 8,
+                          cornerSmoothing: 0.8,
+                        ),
+                      ),
+                      onPressed: () {
+                        if (selectedDateTime != null) {
+                          setState(() {
+                            startDate = selectedDateTime!.startOfDay();
+                            if (endDate != null &&
+                                endDate!.isBefore(startDate!)) {
+                              endDate = null;
+                            }
+                          });
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Confirm',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+              ],
+            ),
+          ),
+        );
+      },
     );
-    if (pickedDate != null && pickedDate != startDate) {
-      setState(() {
-        startDate = pickedDate;
-        if (endDate != null && endDate!.isBefore(startDate!)) {
-          endDate = null;
-        }
-      });
-    }
   }
 
   Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
+    DateTime? selectedDateTime = endDate;
+    final minimumDate = startDate?.startOfDay() ?? DateTime.now().startOfDay();
+
+    await showCupertinoModalPopup(
       context: context,
-      initialDate: endDate ?? (startDate ?? DateTime.now()),
-      firstDate: startDate ?? DateTime.now(),
-      lastDate: DateTime(2101),
+      builder: (BuildContext context) {
+        // Ensure initialDateTime is not before minimumDate
+        final effectiveInitialDate =
+            selectedDateTime?.startOfDay() ?? minimumDate;
+        final initialDateTime = effectiveInitialDate.isBefore(minimumDate)
+            ? minimumDate
+            : effectiveInitialDate;
+
+        return ClipSmoothRect(
+          radius: SmoothBorderRadius(cornerRadius: 15, cornerSmoothing: 0.8),
+          child: Container(
+            height: 300,
+            color: const Color.fromARGB(255, 26, 26, 26),
+            child: Column(
+              children: [
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: CupertinoDatePickerMode.date,
+                    initialDateTime: initialDateTime,
+                    minimumDate: minimumDate,
+                    maximumDate: DateTime(2101),
+                    backgroundColor: const Color.fromARGB(255, 26, 26, 26),
+                    onDateTimeChanged: (DateTime newDateTime) {
+                      selectedDateTime = newDateTime;
+                    },
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    MaterialButton(
+                      onPressed: () => Navigator.pop(context),
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 8,
+                          cornerSmoothing: 0.8,
+                        ),
+                      ),
+                      color: redAccent,
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                    MaterialButton(
+                      color: greenAccent,
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 8,
+                          cornerSmoothing: 0.8,
+                        ),
+                      ),
+                      onPressed: () {
+                        if (selectedDateTime != null) {
+                          setState(() {
+                            endDate = selectedDateTime!.startOfDay();
+                          });
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        'Confirm',
+                        style: GoogleFonts.poppins(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+              ],
+            ),
+          ),
+        );
+      },
     );
-    if (pickedDate != null && pickedDate != endDate) {
-      setState(() {
-        endDate = pickedDate;
-      });
-    }
   }
 
 //Format datetime dd/mm/yy
@@ -132,8 +283,8 @@ class _EditPostPageState extends State<EditPostPage> {
     if (widget.currentUserSpace!.startDate != null &&
         widget.currentUserSpace!.endDate != null) {
       setState(() {
-        startDate = widget.currentUserSpace!.startDate;
-        endDate = widget.currentUserSpace!.endDate;
+        startDate = widget.currentUserSpace!.startDate!.startOfDay();
+        endDate = widget.currentUserSpace!.endDate!.startOfDay();
       });
     }
   }
@@ -234,8 +385,8 @@ class _EditPostPageState extends State<EditPostPage> {
           if (fireSelected) 'Fire Extinguisher',
           if (guardSelected) 'Security Guard',
         ],
-        startDate: startDate,
-        endDate: endDate,
+        startDate: startDate?.startOfDay(),
+        endDate: endDate?.startOfDay(),
         spaceThumbnail: updatedThumbnails,
         description: spaceDescController.text,
       );
