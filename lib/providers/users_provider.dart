@@ -1,54 +1,43 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 
 class UsersProvider extends ChangeNotifier {
-  UsersProvider() {
-    _getCurrentUser();
-  }
-  final String _uid = FirebaseAuth.instance.currentUser!.uid;
   UserProfileModel? _user;
-  bool _approved = false;
+  StreamSubscription<DocumentSnapshot>? _userSubscription;
 
-  String get uid => _uid;
   UserProfileModel? get user => _user;
-  bool get approved => _approved;
+  bool get approved => _user?.isApproved ?? false;
 
-  void _setApproved(bool status) {
-    _approved = status;
+  void resetUser() {
+    _user = null;
+    _userSubscription?.cancel();
     notifyListeners();
   }
 
-  Future<void> _getCurrentUser() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('users').doc(_uid).get();
-
-    if (snapshot.exists) {
-      final userData = snapshot.data();
-      _user = UserProfileModel.fromJson(userData!);
-      notifyListeners();
-      if (_user!.isApproved == true) {
-        _setApproved(true);
-      } else {
-        _setApproved(false);
-      }
+  void fetchUserData() {
+    final auth = FirebaseAuth.instance;
+    if (auth.currentUser != null) {
+      final uid = auth.currentUser!.uid;
+      _userSubscription = FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .snapshots()
+          .listen((doc) {
+        if (doc.exists) {
+          _user = UserProfileModel.fromJson(doc.data()!);
+          notifyListeners();
+        }
+      });
     }
   }
 
-  // Stream<bool> getApprovalStatus() {
-  //   return FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(_uid)
-  //       .snapshots()
-  //       .map((snapshot) {
-  //     if (snapshot.exists) {
-  //       final userData = snapshot.data();
-  //       _user = UserProfileModel.fromJson(userData!);
-  //       notifyListeners();
-  //       return userData['is_approved'] ?? false;
-  //     }
-  //     return false;
-  //   });
-  // }
+  @override
+  void dispose() {
+    _userSubscription?.cancel();
+    super.dispose();
+  }
 }

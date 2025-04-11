@@ -16,8 +16,24 @@ import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
-class ParkingListPage extends StatelessWidget {
+class ParkingListPage extends StatefulWidget {
   const ParkingListPage({super.key});
+
+  @override
+  State<ParkingListPage> createState() => _ParkingListPageState();
+}
+
+class _ParkingListPageState extends State<ParkingListPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Reset user state when page is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = Provider.of<UsersProvider>(context, listen: false);
+      userProvider.resetUser();
+      userProvider.fetchUserData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +68,8 @@ class ParkingListPage extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
+        key: ValueKey(
+            userProvider.user?.uid ?? 'guest'), // Add key to force rebuild
         shape: const SmoothRectangleBorder(
           borderRadius: SmoothBorderRadius.only(
             topRight: SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
