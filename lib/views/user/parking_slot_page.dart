@@ -24,39 +24,44 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
   Set<int> bookedSlotNumber = {};
   bool isTimePassed = false;
 
-  Stream<void> getBookings() async* {
-    final currentUser = FirebaseAuth.instance.currentUser!.uid;
-    final currentDateTime = DateTime.now();
-
-    DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+  Stream<List<Booking>> getBookings() {
+    return FirebaseFirestore.instance
         .collection('spaces')
         .doc(widget.space.docId)
-        .get();
-
-    if (docSnapshot.exists) {
-      var data = docSnapshot.data() as Map<String, dynamic>;
-
-      if (data.containsKey('bookings')) {
-        List<dynamic> bookingsList = data['bookings'];
-        List<Booking> bookings =
-            bookingsList.map((booking) => Booking.fromJson(booking)).toList();
-
-        List<Booking> validBookings = bookings.where((booking) {
-          DateTime endTime = booking.endDateTime;
-          return endTime.isAfter(currentDateTime);
-        }).toList();
-
-        if (validBookings.isEmpty) return;
-        if (mounted) {
-          setState(() {
-            bookedSlotNumber = validBookings
-                .where((booking) => booking.uid == currentUser)
-                .map((booking) => booking.slotNumber)
-                .toSet();
-          });
-        }
+        .snapshots()
+        .map((docSnapshot) {
+      if (!docSnapshot.exists) {
+        return [];
       }
-    }
+
+      final data = docSnapshot.data() as Map<String, dynamic>;
+      if (!data.containsKey('bookings')) {
+        return [];
+      }
+
+      final currentUser = FirebaseAuth.instance.currentUser!.uid;
+      final currentDateTime = DateTime.now();
+
+      List<dynamic> bookingsList = data['bookings'];
+      List<Booking> bookings =
+          bookingsList.map((booking) => Booking.fromJson(booking)).toList();
+
+      List<Booking> validBookings = bookings.where((booking) {
+        DateTime endTime = booking.endDateTime;
+        return endTime.isAfter(currentDateTime);
+      }).toList();
+
+      if (mounted) {
+        setState(() {
+          bookedSlotNumber = validBookings
+              .where((booking) => booking.uid == currentUser)
+              .map((booking) => booking.slotNumber)
+              .toSet();
+        });
+      }
+
+      return validBookings;
+    });
   }
 
   Future<void> isBookingTimePassed() async {
@@ -112,7 +117,7 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
                       color: primaryBlueTransparent,
                     ),
                   ),
-                  StreamBuilder(
+                  StreamBuilder<List<Booking>>(
                     stream: getBookings(),
                     builder: (context, snapshot) => GridView.builder(
                       gridDelegate:
