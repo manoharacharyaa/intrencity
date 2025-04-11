@@ -67,7 +67,14 @@ class MySpacesPage extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    Text(mySpace.spaceName),
+                    SizedBox(
+                      width: MediaQuery.sizeOf(context).width * 0.4,
+                      child: Text(
+                        mySpace.spaceName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     const Spacer(),
                     const Icon(Icons.arrow_forward_ios_rounded)
                   ],

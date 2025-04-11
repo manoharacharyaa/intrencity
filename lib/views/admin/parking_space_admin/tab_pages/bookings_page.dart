@@ -27,20 +27,16 @@ class BookingsPage extends StatelessWidget {
             .read<SpaceAdminViewmodel>()
             .getParkingBookingsStream(spaceId),
         builder: (context, snapshot) {
+          final bookingWithUsers = snapshot.data ?? [];
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CupertinoActivityIndicator());
-          }
-
-          if (snapshot.hasError) {
+          } else if (snapshot.data == null) {
+            return const Center(child: Text('No Bookings Found'));
+          } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          final bookingWithUsers = snapshot.data ?? [];
-
-          if (bookingWithUsers.isEmpty) {
+          } else if (bookingWithUsers.isEmpty) {
             return const Center(child: Text('There Are No Active Bookings'));
           }
-
           return ListView.builder(
             shrinkWrap: true,
             itemCount: bookingWithUsers.length,

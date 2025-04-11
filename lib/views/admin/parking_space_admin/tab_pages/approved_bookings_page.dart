@@ -20,18 +20,15 @@ class ApprovedBookingsPage extends StatelessWidget {
             .read<SpaceAdminViewmodel>()
             .getConfirmedBookingsStream(spaceId),
         builder: (context, snapshot) {
+          final approvedBookings = snapshot.data ?? [];
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CupertinoActivityIndicator());
-          }
-
-          if (snapshot.hasError) {
+          } else if (snapshot.data == null) {
+            return const Center(child: Text('No Approved Bookings'));
+          } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          final approvedBookings = snapshot.data ?? [];
-
-          if (approvedBookings.isEmpty) {
-            return const Center(child: Text('No Bookings Found'));
+          } else if (approvedBookings.isEmpty) {
+            return const Center(child: Text('There Are No Active Bookings'));
           }
 
           return ListView.builder(

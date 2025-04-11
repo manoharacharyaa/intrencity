@@ -25,7 +25,9 @@ class SpacesListShimmer extends StatelessWidget {
                     highlightColor: const Color.fromARGB(255, 95, 95, 95),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 10),
+                        vertical: 5,
+                        horizontal: 10,
+                      ),
                       child: ClipSmoothRect(
                         radius: SmoothBorderRadius(
                           cornerRadius: 20,
