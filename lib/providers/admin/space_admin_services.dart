@@ -15,55 +15,45 @@ class BookingWithUser {
 }
 
 class SpaceAdminServices {
-  Future<List<ParkingSpacePostModel>> fetchMySpaces() async {
-    try {
-      final currentUid = FirebaseAuth.instance.currentUser!.uid;
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('spaces')
-          .where('uid', isEqualTo: currentUid)
-          .get();
+  final _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
 
-      if (snapshot.docs.isNotEmpty) {
-        List<ParkingSpacePostModel> spaces = List.from(snapshot.docs)
-            .map(
-              (space) => ParkingSpacePostModel.fromJson(
-                space.data() as Map<String, dynamic>,
-              ),
-            )
-            .toList();
-        print(spaces.length);
-        return spaces;
-      } else {
-        return [];
-      }
-    } catch (e) {
-      debugPrint('fetchMySpaces() $e');
-      return [];
-    }
+  Stream<List<ParkingSpacePostModel>> getMySpacesStream() {
+    final currentUid = _auth.currentUser?.uid;
+    if (currentUid == null) return Stream.value([]);
+
+    return _firestore
+        .collection('spaces')
+        .where('uid', isEqualTo: currentUid)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => ParkingSpacePostModel.fromJson(
+                doc.data() as Map<String, dynamic>,
+              ))
+          .toList();
+    });
   }
 
-  Future<List<BookingWithUser>> fetchParkingBookings(String spaceId) async {
-    List<Booking> bookingsList = [];
-    List<BookingWithUser> bookingWithUsers = [];
-    try {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('spaces')
-          .where('docId', isEqualTo: spaceId)
-          .get();
+  Stream<List<BookingWithUser>> getParkingBookingsStream(String spaceId) {
+    return _firestore
+        .collection('spaces')
+        .where('docId', isEqualTo: spaceId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<BookingWithUser> bookingWithUsers = [];
 
-      if (snapshot.docs.isNotEmpty) {
-        for (var doc in snapshot.docs) {
-          var data = doc.data() as Map<String, dynamic>;
-          if (data.containsKey('bookings')) {
-            List<dynamic> bookings = data['bookings'];
-            for (var booking in bookings) {
-              if (booking['is_approved'] == false &&
-                  booking['is_rejected'] == false) {
-                Booking bookingObj = Booking.fromJson(booking);
+      for (var doc in snapshot.docs) {
+        var data = doc.data();
+        if (data.containsKey('bookings')) {
+          List<dynamic> bookings = data['bookings'];
+          for (var booking in bookings) {
+            if (booking['is_approved'] == false &&
+                booking['is_rejected'] == false) {
+              Booking bookingObj = Booking.fromJson(booking);
 
-                bookingsList.add(bookingObj);
-
-                DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+              try {
+                DocumentSnapshot userSnapshot = await _firestore
                     .collection('users')
                     .doc(bookingObj.uid)
                     .get();
@@ -80,125 +70,106 @@ class SpaceAdminServices {
                     ),
                   );
                 }
+              } catch (e) {
+                debugPrint('Error fetching user: $e');
               }
             }
           }
         }
-        return bookingWithUsers;
-      } else {
-        return [];
       }
-    } catch (e) {
-      debugPrint('Error fetching bookings with users: $e');
-      return [];
-    }
+      return bookingWithUsers;
+    });
+  }
+
+  Stream<List<BookingWithUser>> getConfirmedBookingsStream(String docId) {
+    return _firestore
+        .collection('spaces')
+        .doc(docId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<BookingWithUser> bookingWithUsers = [];
+
+      if (!snapshot.exists) return bookingWithUsers;
+
+      final data = snapshot.data() as Map<String, dynamic>;
+      if (!data.containsKey('bookings')) return bookingWithUsers;
+
+      for (var booking in data['bookings']) {
+        if (booking['is_approved'] == true && booking['is_rejected'] == false) {
+          Booking bookingObj = Booking.fromJson(booking);
+
+          try {
+            DocumentSnapshot userSnapshot =
+                await _firestore.collection('users').doc(bookingObj.uid).get();
+
+            if (userSnapshot.exists) {
+              UserProfileModel user = UserProfileModel.fromJson(
+                userSnapshot.data() as Map<String, dynamic>,
+              );
+              bookingWithUsers.add(
+                BookingWithUser(booking: bookingObj, user: user),
+              );
+            }
+          } catch (e) {
+            debugPrint('Error fetching user: $e');
+          }
+        }
+      }
+      return bookingWithUsers;
+    });
   }
 
   Future<void> confirmBooking(String bookingId, String docId) async {
     try {
-      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-          .collection('spaces')
-          .doc(docId)
-          .get();
+      await _firestore.runTransaction((transaction) async {
+        DocumentSnapshot docSnapshot =
+            await transaction.get(_firestore.collection('spaces').doc(docId));
 
-      if (docSnapshot.exists) {
+        if (!docSnapshot.exists) return;
+
         Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+        if (!data.containsKey('bookings')) return;
 
-        if (data.containsKey('bookings')) {
-          List<dynamic> bookings = (data['bookings'] as List<dynamic>);
-          debugPrint('Booking ID to update: $bookingId');
+        List<dynamic> bookings = List.from(data['bookings']);
+        int bookingIndex = bookings.indexWhere(
+            (booking) => booking['booking_id'].toString() == bookingId);
 
-          int bookingIndex = bookings.indexWhere(
-              (booking) => booking['booking_id'].toString() == bookingId);
-
-          if (bookingIndex != -1) {
-            bookings[bookingIndex]['is_approved'] = true;
-            await FirebaseFirestore.instance
-                .collection('spaces')
-                .doc(docId)
-                .update({'bookings': bookings});
-          }
+        if (bookingIndex != -1) {
+          bookings[bookingIndex]['is_approved'] = true;
+          transaction.update(_firestore.collection('spaces').doc(docId),
+              {'bookings': bookings});
         }
-      }
+      });
     } catch (e) {
       debugPrint('Error in confirmBooking(): $e');
+      rethrow;
     }
   }
 
   Future<void> rejectBooking(String bookingId, String docId) async {
     try {
-      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-          .collection('spaces')
-          .doc(docId)
-          .get();
+      await _firestore.runTransaction((transaction) async {
+        DocumentSnapshot docSnapshot =
+            await transaction.get(_firestore.collection('spaces').doc(docId));
 
-      if (docSnapshot.exists) {
+        if (!docSnapshot.exists) return;
+
         Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+        if (!data.containsKey('bookings')) return;
 
-        if (data.containsKey('bookings')) {
-          List<dynamic> bookings = (data['bookings'] as List<dynamic>);
-          print('Booking ID to update: $bookingId');
+        List<dynamic> bookings = List.from(data['bookings']);
+        int bookingIndex = bookings.indexWhere(
+            (booking) => booking['booking_id'].toString() == bookingId);
 
-          int bookingIndex = bookings.indexWhere(
-              (booking) => booking['booking_id'].toString() == bookingId);
-
-          if (bookingIndex != -1) {
-            bookings[bookingIndex]['is_rejected'] = true;
-            await FirebaseFirestore.instance
-                .collection('spaces')
-                .doc(docId)
-                .update({'bookings': bookings});
-          }
+        if (bookingIndex != -1) {
+          bookings[bookingIndex]['is_rejected'] = true;
+          transaction.update(_firestore.collection('spaces').doc(docId),
+              {'bookings': bookings});
         }
-      }
+      });
     } catch (e) {
-      debugPrint('Error in confirmBooking(): $e');
-    }
-  }
-
-  Future<List<BookingWithUser>> fetchConfirmedBookings(String docId) async {
-    List<Booking> bookingsList = [];
-    List<BookingWithUser> bookingWithUsers = [];
-    try {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('spaces')
-          .doc(docId)
-          .get();
-
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-        if (data.containsKey('bookings')) {
-          for (var booking in data['bookings']) {
-            if (booking['is_approved'] == true &&
-                booking['is_rejected'] == false) {
-              Booking bookingObj = Booking.fromJson(booking);
-              bookingsList.add(bookingObj);
-
-              DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(bookingObj.uid)
-                  .get();
-
-              if (userSnapshot.exists) {
-                UserProfileModel user = UserProfileModel.fromJson(
-                  userSnapshot.data() as Map<String, dynamic>,
-                );
-                bookingWithUsers.add(
-                  BookingWithUser(booking: bookingObj, user: user),
-                );
-              }
-            }
-          }
-          return bookingWithUsers;
-        } else {
-          return [];
-        }
-      } else {
-        return [];
-      }
-    } catch (e) {
-      debugPrint('Error getConfirmedBookings(String docId)');
-      return [];
+      debugPrint('Error in rejectBooking(): $e');
+      rethrow;
     }
   }
 }
