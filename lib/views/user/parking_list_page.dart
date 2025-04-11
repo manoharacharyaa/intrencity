@@ -82,23 +82,27 @@ class ParkingListPage extends StatelessWidget {
             Column(
               children: [
                 const SizedBox(height: 8),
-                CustomDrawerTile(
-                  onTap: () => context.push('/admin-page'),
-                  label: 'Admin Pannel',
-                  icon: Icons.admin_panel_settings_rounded,
-                ),
+                userProvider.user?.role == 1
+                    ? CustomDrawerTile(
+                        onTap: () => context.push('/admin-page'),
+                        label: 'Admin Pannel',
+                        icon: Icons.admin_panel_settings_rounded,
+                      )
+                    : const SizedBox(),
                 CustomDrawerTile(
                   onTap: () => context.push('/verification-page'),
                   label: 'Verification',
                   iconSize: 25,
                   icon: Icons.verified,
                 ),
-                CustomDrawerTile(
-                  onTap: () => context.push('/my-spaces-page'),
-                  label: 'My Spaces',
-                  iconSize: 25,
-                  icon: Icons.book_rounded,
-                ),
+                userProvider.user?.isApproved == false
+                    ? const SizedBox()
+                    : CustomDrawerTile(
+                        onTap: () => context.push('/my-spaces-page'),
+                        label: 'My Spaces',
+                        iconSize: 25,
+                        icon: Icons.book_rounded,
+                      ),
               ],
             ),
           ],

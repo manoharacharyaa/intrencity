@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfileModel {
   final String uid;
+  final int role;
   final String name;
   final String email;
   final String phoneNumber;
@@ -14,6 +15,7 @@ class UserProfileModel {
 
   UserProfileModel({
     required this.uid,
+    this.role = 0,
     required this.name,
     required this.email,
     required this.phoneNumber,
@@ -28,6 +30,7 @@ class UserProfileModel {
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
+      'role': role,
       'name': name,
       'email': email,
       'phoneNumber': phoneNumber,
@@ -43,6 +46,7 @@ class UserProfileModel {
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
       uid: json['uid'] ?? '',
+      role: json['role'] ?? 0,
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
@@ -57,9 +61,9 @@ class UserProfileModel {
     );
   }
 
-  // Create a copy of the model with updated fields
   UserProfileModel copyWith({
     String? uid,
+    int? role,
     String? name,
     String? email,
     String? phoneNumber,
@@ -72,6 +76,7 @@ class UserProfileModel {
   }) {
     return UserProfileModel(
       uid: uid ?? this.uid,
+      role: role ?? this.role,
       name: name ?? this.name,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
