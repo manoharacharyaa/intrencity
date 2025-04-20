@@ -5,7 +5,7 @@ import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/views/admin/super_admin/admin_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/admin_parking_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/my_spaces_page.dart';
-import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_tab.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
 import 'package:intrencity/views/user/edit_post_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
@@ -78,7 +78,7 @@ class AppRoutes {
           final args = state.extra as Map<String, dynamic>;
           final spaceId = args['spaceId'] as String;
           final docId = args['docId'] as String;
-          return BookingsPage(
+          return BookingsTab(
             spaceId: spaceId,
             docId: docId,
           );

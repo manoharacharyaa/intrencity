@@ -8,14 +8,14 @@ import 'package:intrencity/widgets/dialogs/confirmation_dialog.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
-class ApplicationsPage extends StatefulWidget {
-  const ApplicationsPage({super.key});
+class ApplicationsTab extends StatefulWidget {
+  const ApplicationsTab({super.key});
 
   @override
-  State<ApplicationsPage> createState() => _ApplicationsPageState();
+  State<ApplicationsTab> createState() => _ApplicationsTabState();
 }
 
-class _ApplicationsPageState extends State<ApplicationsPage> {
+class _ApplicationsTabState extends State<ApplicationsTab> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VerificationProvider>();

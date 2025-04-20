@@ -9,8 +9,8 @@ import 'package:intrencity/widgets/dialogs/confirmation_dialog.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
-class BookingsPage extends StatelessWidget {
-  const BookingsPage({
+class BookingsTab extends StatelessWidget {
+  const BookingsTab({
     super.key,
     required this.spaceId,
     required this.docId,

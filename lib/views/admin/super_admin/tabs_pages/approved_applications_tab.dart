@@ -9,21 +9,21 @@ import 'package:intrencity/widgets/buttons/small_button.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
-class RejectedApplicationsPage extends StatefulWidget {
-  const RejectedApplicationsPage({super.key});
+class ApprovedApplicationsTab extends StatefulWidget {
+  const ApprovedApplicationsTab({super.key});
 
   @override
-  State<RejectedApplicationsPage> createState() =>
-      _RejectedApplicationsPageState();
+  State<ApprovedApplicationsTab> createState() =>
+      _ApprovedApplicationsTabState();
 }
 
-class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
+class _ApprovedApplicationsTabState extends State<ApprovedApplicationsTab> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VerificationProvider>();
 
     return StreamBuilder<List<UserProfileModel>>(
-      stream: context.read<VerificationProvider>().getRejectedUsersStream(),
+      stream: context.read<VerificationProvider>().getApprovedUsersStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -36,7 +36,7 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
         final users = snapshot.data ?? [];
 
         if (users.isEmpty) {
-          return const Center(child: Text('No Rejected Applications Found'));
+          return const Center(child: Text('No Approved Applications Found'));
         }
 
         return ListView.builder(
@@ -99,7 +99,7 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                                     width: 50,
                                     child: Center(
                                       child: Text(
-                                        'Confirm Approval',
+                                        'Confirm Rejection',
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
@@ -110,13 +110,18 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         SmallButton(
-                                          onTap: () => provider
-                                              .confirmApproval(user.uid)
-                                              .then(
-                                                (_) => context.pop(),
-                                              ),
-                                          color: greenAccent,
-                                          label: 'Confirm',
+                                          onTap: () {
+                                            provider
+                                                .rejectApproval(
+                                                  'rejectionReason',
+                                                  user.uid,
+                                                )
+                                                .then(
+                                                  (_) => context.pop(),
+                                                );
+                                          },
+                                          color: redAccent,
+                                          label: 'Reject',
                                         ),
                                       ],
                                     ),
@@ -125,8 +130,8 @@ class _RejectedApplicationsPageState extends State<RejectedApplicationsPage> {
                               ),
                             );
                           },
-                          color: const Color.fromARGB(255, 0, 255, 13),
-                          label: 'Approve',
+                          color: redAccent,
+                          label: 'Reject',
                         ),
                         const SizedBox(width: 12),
                         SmallButton(

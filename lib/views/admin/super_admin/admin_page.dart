@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/views/admin/super_admin/tabs_pages/applications_page.dart';
-import 'package:intrencity/views/admin/super_admin/tabs_pages/approved_applications_page.dart';
-import 'package:intrencity/views/admin/super_admin/tabs_pages/rejected_applications_page.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/applications_tab.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/approved_applications_tab.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/rejected_applications_tab.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -15,9 +15,9 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> views = [
-      const ApplicationsPage(),
-      const ApprovedApplicationsPage(),
-      const RejectedApplicationsPage(),
+      const ApplicationsTab(),
+      const ApprovedApplicationsTab(),
+      const RejectedApplicationsTab(),
     ];
 
     return DefaultTabController(

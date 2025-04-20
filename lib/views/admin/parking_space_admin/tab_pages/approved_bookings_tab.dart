@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity/providers/admin/space_admin_viewmodel.dart';
-import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_tab.dart';
 import 'package:provider/provider.dart';
 
-class ApprovedBookingsPage extends StatelessWidget {
-  const ApprovedBookingsPage({
+class ApprovedBookingsTab extends StatelessWidget {
+  const ApprovedBookingsTab({
     super.key,
     required this.spaceId,
   });
