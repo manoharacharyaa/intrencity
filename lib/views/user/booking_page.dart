@@ -287,7 +287,10 @@ class _BookingPageState extends State<BookingPage> {
                                     startDateTime: startDateTime!,
                                     endDateTime: endDateTime!,
                                     bookingTime: DateTime.now(),
-                                    bookingId: Random().nextInt(6).toString(),
+                                    bookingId: Random()
+                                        .nextInt(900000)
+                                        .toString()
+                                        .padLeft(6, '0'),
                                   ).toJson(),
                                 ])
                               }).then(

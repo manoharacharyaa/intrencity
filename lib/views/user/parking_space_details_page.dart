@@ -22,10 +22,12 @@ class ParkingSpaceDetailsPage extends StatefulWidget {
     super.key,
     required this.spaceDetails,
     required this.viewedByCurrentUser,
+    this.alreadyBooked = false,
   });
 
   final ParkingSpacePostModel spaceDetails;
   final bool viewedByCurrentUser;
+  final bool alreadyBooked;
 
   @override
   State<ParkingSpaceDetailsPage> createState() =>
@@ -361,7 +363,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                 ),
               ],
             ),
-            (currentUser || isGuest || isTimePassed)
+            (currentUser || isGuest || isTimePassed || widget.alreadyBooked)
                 ? const SizedBox()
                 : CustomButton(
                     title: 'Book',

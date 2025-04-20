@@ -16,6 +16,7 @@ class SmoothContainer extends StatelessWidget {
     this.horizontalPadding,
     this.verticalPadding,
     this.onTap,
+    this.radius,
   });
 
   final double? cornerRadius;
@@ -29,6 +30,7 @@ class SmoothContainer extends StatelessWidget {
   final double? horizontalPadding;
   final double? verticalPadding;
   final void Function()? onTap;
+  final SmoothBorderRadius? radius;
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +41,11 @@ class SmoothContainer extends StatelessWidget {
             vertical: verticalPadding ?? 0,
           ),
       child: ClipSmoothRect(
-        radius: SmoothBorderRadius(
-          cornerRadius: cornerRadius ?? 18,
-          cornerSmoothing: 0.8,
-        ),
+        radius: radius ??
+            SmoothBorderRadius(
+              cornerRadius: cornerRadius ?? 18,
+              cornerSmoothing: 0.8,
+            ),
         child: GestureDetector(
           onTap: onTap,
           child: Container(

@@ -15,6 +15,7 @@ class ParkingSpacePostModel {
   final String? description;
   final List<String> spaceThumbnail;
   final List<Booking>? bookings;
+  final bool? isBlacklisted;
 
   ParkingSpacePostModel({
     required this.uid,
@@ -31,6 +32,7 @@ class ParkingSpacePostModel {
     this.description,
     required this.spaceThumbnail,
     this.bookings,
+    this.isBlacklisted,
   });
 
   Map<String, dynamic> toJson() {
@@ -49,6 +51,7 @@ class ParkingSpacePostModel {
       'endDate': endDate,
       'description': description,
       'bookings': bookings?.map((booking) => booking.toJson()).toList(),
+      'isBlacklisted': isBlacklisted,
     };
   }
 
@@ -85,6 +88,7 @@ class ParkingSpacePostModel {
           ? List<Booking>.from(
               (json['bookings'] as List).map((e) => Booking.fromJson(e)))
           : [],
+      isBlacklisted: json['isBlacklisted'] ?? false,
     );
   }
 }
@@ -99,6 +103,7 @@ class Booking {
   final DateTime endDateTime;
   final DateTime bookingTime;
   final String bookingId;
+  final int? otp;
 
   Booking({
     this.isApproved = false,
@@ -110,6 +115,7 @@ class Booking {
     required this.endDateTime,
     required this.bookingTime,
     required this.bookingId,
+    this.otp,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -123,6 +129,7 @@ class Booking {
       endDateTime: (json['end_time'] as Timestamp).toDate(),
       bookingTime: (json['booking_time'] as Timestamp).toDate(),
       bookingId: json['booking_id'] ?? '',
+      otp: json['otp'],
     );
   }
 
@@ -137,6 +144,7 @@ class Booking {
       'end_time': Timestamp.fromDate(endDateTime),
       'booking_time': Timestamp.fromDate(bookingTime),
       'booking_id': bookingId,
+      'otp': otp,
     };
   }
 }

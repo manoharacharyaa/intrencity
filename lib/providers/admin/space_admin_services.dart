@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/models/user_profile_model.dart';
+import 'dart:math';
 
 class BookingWithUser {
   final Booking booking;
@@ -167,14 +168,21 @@ class SpaceAdminServices {
         if (!data.containsKey('bookings')) return;
 
         List<dynamic> bookings = List.from(data['bookings']);
+
         int bookingIndex = bookings.indexWhere(
-            (booking) => booking['booking_id'].toString() == bookingId);
+          (booking) => booking['booking_id'].toString() == bookingId,
+        );
 
         if (bookingIndex != -1) {
+          final otp = 1000 + Random().nextInt(9000);
           bookings[bookingIndex]['is_approved'] = true;
           bookings[bookingIndex]['is_rejected'] = false;
-          transaction.update(_firestore.collection('spaces').doc(docId),
-              {'bookings': bookings});
+          bookings[bookingIndex]['otp'] = otp;
+
+          transaction.update(
+            _firestore.collection('spaces').doc(docId),
+            {'bookings': bookings},
+          );
         }
       });
     } catch (e) {

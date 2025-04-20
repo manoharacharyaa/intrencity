@@ -3,6 +3,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/models/user_profile_model.dart';
+import 'package:intrencity/providers/admin/space_admin_services.dart';
+
+class SpaceWithUser {
+  final ParkingSpacePostModel space;
+  final UserProfileModel user;
+  SpaceWithUser({
+    required this.space,
+    required this.user,
+  });
+}
 
 class BookingProvider extends ChangeNotifier {
   BookingProvider() {
@@ -14,6 +24,7 @@ class BookingProvider extends ChangeNotifier {
   List<ParkingSpacePostModel> _parkings = [];
   final List<UserProfileModel> _bookedUsers = [];
   final bool _bookingExists = false;
+  List<SpaceWithUser> _bookingWithUsers = [];
 
   List<Booking> get bookings => _bookings;
   bool get bookingExists => _bookingExists;
@@ -56,5 +67,64 @@ class BookingProvider extends ChangeNotifier {
       }
     }
     return false;
+  }
+
+  Stream<List<SpaceWithUser>> getMyBookingStream() {
+    if (_uid.isEmpty) {
+      debugPrint('UID is empty');
+      return Stream.value([]);
+    }
+
+    return FirebaseFirestore.instance.collection('spaces').snapshots().asyncMap(
+      (snapshots) async {
+        _bookingWithUsers.clear();
+        List<SpaceWithUser> spaceWithUsers = [];
+
+        for (var doc in snapshots.docs) {
+          var data = doc.data();
+
+          if (data.containsKey('bookings')) {
+            List<dynamic> bookings = data['bookings'];
+
+            bool hasUserBooking = bookings.any(
+              (booking) =>
+                  booking['uid'] == _uid &&
+                  booking['is_approved'] == true &&
+                  booking['is_rejected'] == false,
+            );
+
+            if (hasUserBooking) {
+              ParkingSpacePostModel space =
+                  ParkingSpacePostModel.fromJson(data);
+
+              try {
+                DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(_uid)
+                    .get();
+
+                if (userSnapshot.exists) {
+                  UserProfileModel user = UserProfileModel.fromJson(
+                      userSnapshot.data() as Map<String, dynamic>);
+
+                  spaceWithUsers.add(
+                    SpaceWithUser(
+                      space: space,
+                      user: user,
+                    ),
+                  );
+                  debugPrint('Added space with user: ${user.name}');
+                }
+              } catch (e) {
+                debugPrint('Error fetching user: $e');
+              }
+            }
+          }
+        }
+
+        debugPrint('Final spaces with users count: ${spaceWithUsers.length}');
+        return spaceWithUsers;
+      },
+    );
   }
 }

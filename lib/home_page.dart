@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intrencity/providers/users_provider.dart';
 import 'package:intrencity/utils/colors.dart';
-import 'package:intrencity/views/user/my_booking_page.dart';
+import 'package:intrencity/views/user/my_bookings/my_booking_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
 import 'package:provider/provider.dart';
 
