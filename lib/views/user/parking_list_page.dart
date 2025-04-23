@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intrencity/providers/parking_list_provider.dart';
-import 'package:intrencity/providers/users_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/providers/auth_provider.dart';
@@ -10,6 +9,7 @@ import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
+import 'package:intrencity/viewmodels/users_viewmodel.dart';
 import 'package:intrencity/widgets/profilepic_avatar.dart';
 import 'package:intrencity/widgets/shimmer/spaces_list_shimmer.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
@@ -27,11 +27,17 @@ class _ParkingListPageState extends State<ParkingListPage> {
   @override
   void initState() {
     super.initState();
-    // Reset user state when page is initialized
+    _initializeUser();
+  }
+
+  void _initializeUser() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = Provider.of<UsersProvider>(context, listen: false);
-      userProvider.resetUser();
-      userProvider.fetchUserData();
+      final userViewModel =
+          Provider.of<GetAllUsersViewmodel>(context, listen: false);
+      // Only reset if the current user is null
+      if (userViewModel.currentUser == null) {
+        userViewModel.resetCurrentUser();
+      }
     });
   }
 
@@ -39,7 +45,14 @@ class _ParkingListPageState extends State<ParkingListPage> {
   Widget build(BuildContext context) {
     final parkingProvider = Provider.of<ParkingListProvider>(context);
     final authProvider = Provider.of<AuthenticationProvider>(context);
-    final userProvider = context.watch<UsersProvider>();
+    final userViewModel = context.watch<GetAllUsersViewmodel>();
+
+    // Show shimmer only when user data is being initially loaded
+    if (userViewModel.isLoading) {
+      return const Scaffold(
+        body: SpacesListShimmer(),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -68,8 +81,8 @@ class _ParkingListPageState extends State<ParkingListPage> {
         ],
       ),
       drawer: Drawer(
-        key: ValueKey(
-            userProvider.user?.uid ?? 'guest'), // Add key to force rebuild
+        key: ValueKey(userViewModel.currentUser?.uid ??
+            'guest'), // Add key to force rebuild
         shape: const SmoothRectangleBorder(
           borderRadius: SmoothBorderRadius.only(
             topRight: SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
@@ -78,7 +91,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
         ),
         child: Column(
           children: [
-            userProvider.user?.profilePic == null
+            userViewModel.currentUser?.profilePic == null
                 ? const SmoothContainer(
                     width: double.infinity,
                     height: 300,
@@ -93,14 +106,14 @@ class _ParkingListPageState extends State<ParkingListPage> {
                     width: double.infinity,
                     height: 300,
                     child: Image.network(
-                      userProvider.user?.profilePic ?? '',
+                      userViewModel.currentUser?.profilePic ?? '',
                       fit: BoxFit.cover,
                     ),
                   ),
             Column(
               children: [
                 const SizedBox(height: 8),
-                userProvider.user?.role == 1
+                userViewModel.currentUser?.role == 1
                     ? CustomDrawerTile(
                         onTap: () => context.push('/admin-pannel-page'),
                         label: 'Admin Pannel',
@@ -113,7 +126,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
                   iconSize: 25,
                   icon: Icons.verified,
                 ),
-                userProvider.user?.isApproved == false
+                userViewModel.currentUser?.isApproved == false
                     ? const SizedBox()
                     : CustomDrawerTile(
                         onTap: () => context.push('/my-spaces-page'),
@@ -126,9 +139,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
           ],
         ),
       ),
-      body: userProvider.user == null
-          ? const SpacesListShimmer()
-          : const SpacesListPage(),
+      body: const SpacesListPage(),
     );
   }
 

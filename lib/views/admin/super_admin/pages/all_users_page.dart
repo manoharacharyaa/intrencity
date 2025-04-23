@@ -6,7 +6,7 @@ import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
-import 'package:intrencity/viewmodels/get_all_users_viewmodel.dart';
+import 'package:intrencity/viewmodels/users_viewmodel.dart';
 import 'package:intrencity/widgets/custom_text_form_field.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';

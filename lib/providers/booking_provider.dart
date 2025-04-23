@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/models/user_profile_model.dart';
-import 'package:intrencity/providers/admin/space_admin_services.dart';
 
 class SpaceWithUser {
   final ParkingSpacePostModel space;

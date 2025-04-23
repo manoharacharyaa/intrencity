@@ -45,13 +45,13 @@ class _BookingsTabState extends State<BookingsTab> {
                     ),
                   ),
                   padding: const EdgeInsets.all(10),
-                  height: 150,
+                  height: 100,
                   width: double.infinity,
                   color: textFieldGrey,
                   child: Row(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(10),
                         child: ClipSmoothRect(
                           radius: SmoothBorderRadius(
                             cornerRadius: 10,
@@ -59,18 +59,26 @@ class _BookingsTabState extends State<BookingsTab> {
                           ),
                           child: Image.network(
                             booking.spaceThumbnail[0],
-                            height: 130,
-                            width: 130,
+                            height: 80,
+                            width: 80,
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Text(booking.spaceName),
+                      SizedBox(
+                        width: MediaQuery.sizeOf(context).width * 0.45,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(
+                            booking.spaceName,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
                       const Spacer(),
                       const Icon(
                         Icons.arrow_forward_ios_rounded,
-                        size: 30,
+                        size: 25,
                       ),
                       const SizedBox(width: 10),
                     ],

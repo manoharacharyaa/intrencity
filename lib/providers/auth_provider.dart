@@ -59,13 +59,16 @@ class AuthenticationProvider extends ChangeNotifier {
         password: password,
       );
       debugPrint('User signed in: ${userCredential.user?.email}');
+      return userCredential;
     } catch (e) {
       debugPrint('Login error: $e');
+      rethrow; // Rethrow to handle in UI
     }
   }
 
   Future<dynamic> logout() async {
     await FirebaseAuth.instance.signOut();
+    isGuest = false; // Reset guest status
     notifyListeners();
   }
 }

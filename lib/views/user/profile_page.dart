@@ -12,7 +12,6 @@ import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/widgets/cutsom_divider.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum Value { edit, delete }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intrencity/providers/users_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/views/user/my_bookings/my_booking_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
 import 'package:provider/provider.dart';
+import 'package:intrencity/viewmodels/users_viewmodel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,7 +29,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final approved = context.watch<UsersProvider>().approved;
+    final userViewModel = context.watch<GetAllUsersViewmodel>();
+
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -51,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         ),
         onTap: _onItemTapped,
       ),
-      floatingActionButton: !approved
+      floatingActionButton: !userViewModel.isApproved
           ? null
           : FloatingActionButton(
               onPressed: () => context.push('/space-posting-page'),
@@ -69,33 +70,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-      // floatingActionButton: StreamBuilder<Object>(
-      //   stream: context.watch<UsersProvider>().getCurrentUser(),
-      //   builder: (context, snapshot) {
-      //     return snapshot.data == false
-      //         ? TextButton(
-      //             style: const ButtonStyle(
-      //               backgroundColor: WidgetStatePropertyAll(
-      //                 primaryBlue,
-      //               ),
-      //             ),
-      //             onPressed: () => context.push('/verification-page'),
-      //             child: Text(
-      //               'Verify',
-      //               style: Theme.of(context).textTheme.bodySmall,
-      //             ),
-      //           )
-      //         : FloatingActionButton(
-      //             onPressed: () => context.push('/space-posting-page'),
-      //             backgroundColor: primaryBlue,
-      //             shape: RoundedRectangleBorder(
-      //               borderRadius: BorderRadius.circular(100),
-      //             ),
-      //             child: const Icon(
-      //               Icons.add,
-      //               color: Colors.white,
-      //             ),
-      //           );
-      //   },
-      // ),

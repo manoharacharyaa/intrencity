@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intrencity/models/user_profile_model.dart';
+import 'package:intrencity/viewmodels/users_viewmodel.dart';
 import 'package:intrencity/widgets/dilogue_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class ProfileProvider with ChangeNotifier {
   File? _imgFile;
@@ -139,7 +141,10 @@ class ProfileProvider with ChangeNotifier {
   }
 
   void logOut(BuildContext context) async {
+    final userViewModel =
+        Provider.of<GetAllUsersViewmodel>(context, listen: false);
     await FirebaseAuth.instance.signOut().then((_) {
+      userViewModel.clearCurrentUser();
       context.pushReplacement('/auth-page');
     });
   }
