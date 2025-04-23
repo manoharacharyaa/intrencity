@@ -11,6 +11,7 @@ import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/routes/app_routes.dart';
 import 'package:intrencity/utils/theme.dart';
 import 'package:intrencity/home_page.dart';
+import 'package:intrencity/viewmodels/get_all_users_viewmodel.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
 import 'package:intrencity/providers/auth_provider.dart';
 import 'package:intrencity/providers/validator_provider.dart';
@@ -43,6 +44,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UsersProvider()),
         ChangeNotifierProvider(create: (context) => VerificationProvider()),
         ChangeNotifierProvider(create: (context) => SpaceAdminViewmodel()),
+        ChangeNotifierProvider(create: (context) => GetAllUsersViewmodel()),
         // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp.router(

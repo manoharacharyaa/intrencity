@@ -4,14 +4,15 @@ import 'package:intrencity/views/admin/super_admin/tabs_pages/applications_tab.d
 import 'package:intrencity/views/admin/super_admin/tabs_pages/approved_applications_tab.dart';
 import 'package:intrencity/views/admin/super_admin/tabs_pages/rejected_applications_tab.dart';
 
-class AdminPage extends StatefulWidget {
-  const AdminPage({super.key});
+class ApplicationApprovalPage extends StatefulWidget {
+  const ApplicationApprovalPage({super.key});
 
   @override
-  State<AdminPage> createState() => _AdminPageState();
+  State<ApplicationApprovalPage> createState() =>
+      _ApplicationApprovalPageState();
 }
 
-class _AdminPageState extends State<AdminPage> {
+class _ApplicationApprovalPageState extends State<ApplicationApprovalPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> views = [

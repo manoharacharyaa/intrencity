@@ -2,7 +2,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intrencity/home_page.dart';
 import 'package:intrencity/main.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
-import 'package:intrencity/views/admin/super_admin/admin_page.dart';
+import 'package:intrencity/views/admin/super_admin/admin_pannel_page.dart';
+import 'package:intrencity/views/admin/super_admin/pages/all_users_page.dart';
+import 'package:intrencity/views/admin/super_admin/pages/application_approval_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/admin_parking_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/my_spaces_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_tab.dart';
@@ -69,8 +71,12 @@ class AppRoutes {
         builder: (context, state) => const VerificationPage(),
       ),
       GoRoute(
-        path: '/admin-page',
-        builder: (context, state) => const AdminPage(),
+        path: '/admin-pannel-page',
+        builder: (context, state) => const AdminPannelPage(),
+      ),
+      GoRoute(
+        path: '/application-approval-page',
+        builder: (context, state) => const ApplicationApprovalPage(),
       ),
       GoRoute(
         path: '/parking-bookings-page',
@@ -99,6 +105,10 @@ class AppRoutes {
             docId: docId,
           );
         },
+      ),
+      GoRoute(
+        path: '/all-users-page',
+        builder: (context, state) => const AllUsersPage(),
       ),
     ],
   );

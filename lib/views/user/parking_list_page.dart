@@ -102,7 +102,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
                 const SizedBox(height: 8),
                 userProvider.user?.role == 1
                     ? CustomDrawerTile(
-                        onTap: () => context.push('/admin-page'),
+                        onTap: () => context.push('/admin-pannel-page'),
                         label: 'Admin Pannel',
                         icon: Icons.admin_panel_settings_rounded,
                       )
