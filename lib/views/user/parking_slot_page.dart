@@ -39,7 +39,7 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
         return [];
       }
 
-      final currentUser = FirebaseAuth.instance.currentUser!.uid;
+      // final currentUser = FirebaseAuth.instance.currentUser!.uid;
       final currentDateTime = DateTime.now();
 
       List<dynamic> bookingsList = data['bookings'];
@@ -53,10 +53,8 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
 
       if (mounted) {
         setState(() {
-          bookedSlotNumber = validBookings
-              .where((booking) => booking.uid == currentUser)
-              .map((booking) => booking.slotNumber)
-              .toSet();
+          bookedSlotNumber =
+              validBookings.map((booking) => booking.slotNumber).toSet();
         });
       }
 

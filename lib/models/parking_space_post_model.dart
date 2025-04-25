@@ -96,6 +96,7 @@ class ParkingSpacePostModel {
 class Booking {
   final bool isApproved;
   final bool isRejected;
+  final bool isOtpVerified;
   final String uid;
   final String spaceId;
   final int slotNumber;
@@ -108,6 +109,7 @@ class Booking {
   Booking({
     this.isApproved = false,
     this.isRejected = false,
+    this.isOtpVerified = false,
     required this.uid,
     required this.spaceId,
     required this.slotNumber,
@@ -122,6 +124,7 @@ class Booking {
     return Booking(
       isApproved: json['is_approved'] ?? false,
       isRejected: json['is_rejected'] ?? false,
+      isOtpVerified: json['is_otp_verified'] ?? false,
       uid: json['uid'] ?? '',
       spaceId: json['space_id'] ?? '',
       slotNumber: json['slot_number'] ?? 0,
@@ -137,6 +140,7 @@ class Booking {
     return {
       'is_approved': isApproved,
       'is_rejected': isRejected,
+      'is_otp_verified': isOtpVerified,
       'uid': uid,
       'space_id': spaceId,
       'slot_number': slotNumber,

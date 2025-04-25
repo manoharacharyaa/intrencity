@@ -118,6 +118,101 @@ class SpaceAdminServices {
     });
   }
 
+  Stream<List<BookingWithUser>> getAllBookingsStream(String docId) {
+    return _firestore
+        .collection('spaces')
+        .doc(docId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<BookingWithUser> bookingWithUsers = [];
+
+      if (!snapshot.exists) return bookingWithUsers;
+      final data = snapshot.data() as Map<String, dynamic>;
+      if (!data.containsKey('bookings')) return bookingWithUsers;
+      for (var booking in data['bookings']) {
+        Booking bookingObj = Booking.fromJson(booking);
+        try {
+          DocumentSnapshot userSnapshot =
+              await _firestore.collection('users').doc(bookingObj.uid).get();
+
+          if (userSnapshot.exists) {
+            UserProfileModel user = UserProfileModel.fromJson(
+              userSnapshot.data() as Map<String, dynamic>,
+            );
+            bookingWithUsers.add(
+              BookingWithUser(booking: bookingObj, user: user),
+            );
+          }
+        } catch (e) {
+          debugPrint('Error fetching user: $e');
+        }
+      }
+      return bookingWithUsers;
+    });
+  }
+
+  Stream<List<BookingWithUser>> fetchUserHasOTPStream(String docId) {
+    return _firestore.collection('spaces').doc(docId).snapshots().asyncMap(
+      (snapshot) async {
+        List<BookingWithUser> bookingWithUsers = [];
+        if (!snapshot.exists) return bookingWithUsers;
+
+        final data = snapshot.data() as Map<String, dynamic>;
+        if (!data.containsKey('bookings')) return bookingWithUsers;
+        final bookings = data['bookings'];
+        for (var booking in bookings) {
+          if (booking.containsKey('otp') &&
+              booking['otp'] != null &&
+              !booking.containsKey('is_otp_verified')) {
+            Booking bookingObj = Booking.fromJson(booking);
+            DocumentSnapshot userSnapshot =
+                await _firestore.collection('users').doc(bookingObj.uid).get();
+            if (userSnapshot.exists) {
+              UserProfileModel user = UserProfileModel.fromJson(
+                  userSnapshot.data() as Map<String, dynamic>);
+              bookingWithUsers.add(
+                BookingWithUser(booking: bookingObj, user: user),
+              );
+            }
+          }
+        }
+        return bookingWithUsers;
+      },
+    );
+  }
+
+  Stream<List<BookingWithUser>> fetchVerifiedOTPUsersStream(String docId) {
+    return _firestore
+        .collection('spaces')
+        .doc(docId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<BookingWithUser> bookingWithUsers = [];
+      if (!snapshot.exists) return bookingWithUsers;
+
+      final data = snapshot.data() as Map<String, dynamic>;
+      if (!data.containsKey('bookings')) return bookingWithUsers;
+
+      final bookings = data['bookings'];
+      for (var booking in bookings) {
+        if (booking.containsKey('is_otp_verified')) {
+          Booking bookingObj = Booking.fromJson(booking);
+
+          DocumentSnapshot userSnapshot =
+              await _firestore.collection('users').doc(bookingObj.uid).get();
+
+          if (userSnapshot.exists) {
+            UserProfileModel user = UserProfileModel.fromJson(
+                userSnapshot.data() as Map<String, dynamic>);
+            bookingWithUsers
+                .add(BookingWithUser(booking: bookingObj, user: user));
+          }
+        }
+      }
+      return bookingWithUsers;
+    });
+  }
+
   Stream<List<BookingWithUser>> getRejectedBookingsStream(String docId) {
     return _firestore.collection('spaces').doc(docId).snapshots().asyncMap(
       (snapshot) async {

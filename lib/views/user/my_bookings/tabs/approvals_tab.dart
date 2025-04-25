@@ -9,6 +9,7 @@ import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ApprovalsTab extends StatelessWidget {
   const ApprovalsTab({super.key});
@@ -37,10 +38,15 @@ class ApprovalsTab extends StatelessWidget {
           }
           return ListView.builder(
             shrinkWrap: true,
-            itemCount: snapshot.data?.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final userWithSpace = snapshot.data![index];
-              final booking = userWithSpace.space.bookings![index];
+              final space = userWithSpace.space;
+              // Find the booking that belongs to the current user
+              final booking = space.bookings!.firstWhere((booking) =>
+                  booking.uid == FirebaseAuth.instance.currentUser!.uid &&
+                  booking.isApproved &&
+                  !booking.isRejected);
               return Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 8,
@@ -55,6 +61,10 @@ class ApprovalsTab extends StatelessWidget {
                         cornerSmoothing: 0.8,
                       ).copyWith(
                         bottomRight: const SmoothRadius(
+                          cornerRadius: 0,
+                          cornerSmoothing: 0,
+                        ),
+                        bottomLeft: const SmoothRadius(
                           cornerRadius: 0,
                           cornerSmoothing: 0,
                         ),
@@ -210,11 +220,25 @@ class ApprovalsTab extends StatelessWidget {
                       ),
                       color: primaryBlue,
                       height: 40,
-                      width: 100,
+                      width: double.infinity,
                       child: Center(
-                        child: Text(
-                          'Otp: ${booking.otp}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Verification Code: ',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            SmoothContainer(
+                              cornerRadius: 6,
+                              contentPadding: const EdgeInsets.all(6),
+                              color: Colors.black,
+                              child: Text(
+                                '${booking.otp}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

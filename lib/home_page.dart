@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final userViewModel = context.watch<GetAllUsersViewmodel>();
+    final userViewModel = context.watch<UsersViewmodel>();
 
     return Scaffold(
       body: _pages[_selectedIndex],

@@ -2,10 +2,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intrencity/home_page.dart';
 import 'package:intrencity/main.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
+import 'package:intrencity/views/admin/parking_space_admin/manage_myspace_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/otp_verification_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/enter_otp_page.dart';
 import 'package:intrencity/views/admin/super_admin/admin_pannel_page.dart';
 import 'package:intrencity/views/admin/super_admin/pages/all_users_page.dart';
 import 'package:intrencity/views/admin/super_admin/pages/application_approval_page.dart';
-import 'package:intrencity/views/admin/parking_space_admin/admin_parking_page.dart';
+import 'package:intrencity/views/admin/parking_space_admin/tab_pages/admin_parking_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/my_spaces_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_tab.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
@@ -109,6 +112,36 @@ class AppRoutes {
       GoRoute(
         path: '/all-users-page',
         builder: (context, state) => const AllUsersPage(),
+      ),
+      GoRoute(
+        path: '/otp-verification-page',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final space = args['space'] as ParkingSpacePostModel;
+          return OTPVerificationPage(mySpace: space);
+        },
+      ),
+      GoRoute(
+        path: '/enter-otp-page',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final otp = args['otp'] as int;
+          final docId = args['docId'] as String;
+          final uid = args['uid'] as String;
+          return EnterOTPPage(
+            otp: otp,
+            docId: docId,
+            uid: uid,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/manage-my-space',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final space = args['space'] as ParkingSpacePostModel;
+          return ManageMyspacePage(space: space);
+        },
       ),
     ],
   );

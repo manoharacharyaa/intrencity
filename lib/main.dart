@@ -42,7 +42,7 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (context) => VerificationProvider()),
         ChangeNotifierProvider(create: (context) => SpaceAdminViewmodel()),
-        ChangeNotifierProvider(create: (context) => GetAllUsersViewmodel()),
+        ChangeNotifierProvider(create: (context) => UsersViewmodel()),
         // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp.router(

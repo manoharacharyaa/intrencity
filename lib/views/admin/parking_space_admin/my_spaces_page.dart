@@ -40,10 +40,9 @@ class MySpacesPage extends StatelessWidget {
               return SmoothContainer(
                 onTap: () {
                   context.push(
-                    '/admin-parking-page',
+                    '/manage-my-space',
                     extra: {
-                      'spaceId': mySpace.docId,
-                      'docId': mySpace.docId,
+                      'space': mySpace,
                     },
                   );
                 },

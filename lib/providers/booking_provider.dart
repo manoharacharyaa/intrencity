@@ -126,4 +126,26 @@ class BookingProvider extends ChangeNotifier {
       },
     );
   }
+
+  Future<void> cancelBooking(String docId, String bookingId) async {
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('spaces').doc(docId).get();
+
+    if (snapshot.exists) {
+      final data = snapshot.data() as Map<String, dynamic>;
+
+      if (data.containsKey('bookings')) {
+        List<dynamic> bookings = data['bookings'];
+        List<dynamic> updatedBookings = List.from(bookings);
+        updatedBookings.removeWhere(
+          (booking) => booking['booking_id'] == bookingId,
+        );
+
+        await FirebaseFirestore.instance
+            .collection('spaces')
+            .doc(docId)
+            .update({'bookings': updatedBookings});
+      }
+    }
+  }
 }

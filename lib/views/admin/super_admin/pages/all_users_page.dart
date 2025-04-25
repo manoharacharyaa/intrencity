@@ -25,12 +25,12 @@ class _AllUsersPageState extends State<AllUsersPage> {
   @override
   void initState() {
     super.initState();
-    final allUsers = context.read<GetAllUsersViewmodel>().users;
+    final allUsers = context.read<UsersViewmodel>().users;
     filteredUsers = List.from(allUsers);
   }
 
   void searchUsers(String query) {
-    final allUsers = context.read<GetAllUsersViewmodel>().users;
+    final allUsers = context.read<UsersViewmodel>().users;
     setState(() {
       if (query.isEmpty) {
         filteredUsers = List.from(allUsers);

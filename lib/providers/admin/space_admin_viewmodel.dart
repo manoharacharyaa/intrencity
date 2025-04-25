@@ -29,6 +29,18 @@ class SpaceAdminViewmodel extends ChangeNotifier {
     return _admin.getRejectedBookingsStream(docId);
   }
 
+  Stream<List<BookingWithUser>> getAllBookingsStream(String docId) {
+    return _admin.getAllBookingsStream(docId);
+  }
+
+  Stream<List<BookingWithUser>> getUserHasOTPStream(String docId) {
+    return _admin.fetchUserHasOTPStream(docId);
+  }
+
+  Stream<List<BookingWithUser>> getVerifiedOTPUsersStream(String docId) {
+    return _admin.fetchVerifiedOTPUsersStream(docId);
+  }
+
   Future<void> confirmBooking(String bookingId, String docId) async {
     try {
       _setLoading(true);

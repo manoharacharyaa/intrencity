@@ -32,8 +32,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
 
   void _initializeUser() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userViewModel =
-          Provider.of<GetAllUsersViewmodel>(context, listen: false);
+      final userViewModel = Provider.of<UsersViewmodel>(context, listen: false);
       // Only reset if the current user is null
       if (userViewModel.currentUser == null) {
         userViewModel.resetCurrentUser();
@@ -45,7 +44,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
   Widget build(BuildContext context) {
     final parkingProvider = Provider.of<ParkingListProvider>(context);
     final authProvider = Provider.of<AuthenticationProvider>(context);
-    final userViewModel = context.watch<GetAllUsersViewmodel>();
+    final userViewModel = context.watch<UsersViewmodel>();
 
     // Show shimmer only when user data is being initially loaded
     if (userViewModel.isLoading) {
@@ -120,12 +119,14 @@ class _ParkingListPageState extends State<ParkingListPage> {
                         icon: Icons.admin_panel_settings_rounded,
                       )
                     : const SizedBox(),
-                CustomDrawerTile(
-                  onTap: () => context.push('/verification-page'),
-                  label: 'Verification',
-                  iconSize: 25,
-                  icon: Icons.verified,
-                ),
+                userViewModel.currentUser?.isApproved == true
+                    ? const SizedBox()
+                    : CustomDrawerTile(
+                        onTap: () => context.push('/verification-page'),
+                        label: 'Verification',
+                        iconSize: 25,
+                        icon: Icons.verified,
+                      ),
                 userViewModel.currentUser?.isApproved == false
                     ? const SizedBox()
                     : CustomDrawerTile(

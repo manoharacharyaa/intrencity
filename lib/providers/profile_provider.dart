@@ -141,8 +141,7 @@ class ProfileProvider with ChangeNotifier {
   }
 
   void logOut(BuildContext context) async {
-    final userViewModel =
-        Provider.of<GetAllUsersViewmodel>(context, listen: false);
+    final userViewModel = Provider.of<UsersViewmodel>(context, listen: false);
     await FirebaseAuth.instance.signOut().then((_) {
       userViewModel.clearCurrentUser();
       context.pushReplacement('/auth-page');
