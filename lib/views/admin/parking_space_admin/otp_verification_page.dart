@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_is_empty
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -250,7 +252,8 @@ class _VerifiedOTPUsersState extends State<VerifiedOTPUsers> {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
-            if (!snapshot.hasData && snapshot.data!.isEmpty) {
+            if (!snapshot.hasData && snapshot.data!.isEmpty ||
+                snapshot.data!.length == 0) {
               return const Center(child: Text('No Bookings Found'));
             }
             return ListView.builder(

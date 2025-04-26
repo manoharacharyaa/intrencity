@@ -19,7 +19,7 @@ class ApprovalsTab extends StatelessWidget {
     final provider = context.watch<BookingProvider>();
     return Scaffold(
       body: StreamBuilder(
-        stream: provider.getMyBookingStream(),
+        stream: provider.getApprovedBookingStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(

@@ -256,12 +256,16 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                                     height: height * 0.120,
                                     width: width * 0.25,
                                     cornerRadius: 8,
-                                    color: textFieldGrey,
+                                    color: primaryBlue,
                                     child: host == null
                                         ? const SizedBox()
                                         : Image.network(
                                             profilePic,
                                             fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return const Icon(Icons.person);
+                                            },
                                           ),
                                   ),
                                   ClipSmoothRect(

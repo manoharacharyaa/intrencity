@@ -76,7 +76,7 @@ class _ParkingListPageState extends State<ParkingListPage> {
               }
               return _buildProfileAvatar(context, '');
             },
-          )
+          ),
         ],
       ),
       drawer: Drawer(

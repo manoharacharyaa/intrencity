@@ -163,7 +163,7 @@ class SpaceAdminServices {
         for (var booking in bookings) {
           if (booking.containsKey('otp') &&
               booking['otp'] != null &&
-              !booking.containsKey('is_otp_verified')) {
+              booking['is_otp_verified'] == false) {
             Booking bookingObj = Booking.fromJson(booking);
             DocumentSnapshot userSnapshot =
                 await _firestore.collection('users').doc(bookingObj.uid).get();
@@ -195,7 +195,7 @@ class SpaceAdminServices {
 
       final bookings = data['bookings'];
       for (var booking in bookings) {
-        if (booking.containsKey('is_otp_verified')) {
+        if (booking['is_otp_verified'] == true) {
           Booking bookingObj = Booking.fromJson(booking);
 
           DocumentSnapshot userSnapshot =

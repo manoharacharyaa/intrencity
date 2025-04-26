@@ -7,15 +7,18 @@ import 'package:intrencity/models/user_profile_model.dart';
 class SpaceWithUser {
   final ParkingSpacePostModel space;
   final UserProfileModel user;
+  final Booking? booking;
+
   SpaceWithUser({
     required this.space,
     required this.user,
+    this.booking,
   });
 }
 
 class BookingProvider extends ChangeNotifier {
   BookingProvider() {
-    _getMyBookedSpace();
+    getMyBookedSpace();
   }
 
   final _uid = FirebaseAuth.instance.currentUser!.uid;
@@ -30,34 +33,60 @@ class BookingProvider extends ChangeNotifier {
   List<UserProfileModel> get bookedUsers => _bookedUsers;
   List<ParkingSpacePostModel> get parkings => _parkings;
 
-  Future<void> _getMyBookedSpace() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('spaces').get();
+  Stream<List<SpaceWithUser>> getMyBookedSpace() {
+    return FirebaseFirestore.instance
+        .collection('spaces')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      List<SpaceWithUser> spaceWithUsers = [];
 
-    List<ParkingSpacePostModel> userBookedSpaces = [];
-
-    if (snapshot.docs.isNotEmpty) {
       for (var doc in snapshot.docs) {
-        var data = doc.data() as Map<String, dynamic>;
-        if (data.containsKey('bookings')) {
+        var data = doc.data();
+        if (data.containsKey('bookings') &&
+            (data['endDate'] as Timestamp).toDate().isAfter(DateTime.now())) {
           List<dynamic> bookings = data['bookings'];
-          bool hasBooking = bookings.any(
+
+          var userBooking = bookings.firstWhere(
             (booking) => booking['uid'] == _uid,
+            orElse: () => null,
           );
 
-          if (hasBooking) {
-            ParkingSpacePostModel space = ParkingSpacePostModel.fromJson(data);
-            userBookedSpaces.add(space);
+          if (userBooking != null) {
+            try {
+              ParkingSpacePostModel space =
+                  ParkingSpacePostModel.fromJson(data);
+              Booking booking = Booking.fromJson(userBooking);
+
+              DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(booking.uid)
+                  .get();
+
+              if (userSnapshot.exists) {
+                UserProfileModel user = UserProfileModel.fromJson(
+                    userSnapshot.data() as Map<String, dynamic>);
+
+                spaceWithUsers.add(
+                  SpaceWithUser(
+                    space: space,
+                    user: user,
+                    booking: booking,
+                  ),
+                );
+              }
+            } catch (e) {
+              debugPrint('Error fetching space or user: $e');
+            }
           }
         }
       }
-    }
-    _parkings = userBookedSpaces;
-    notifyListeners();
+
+      return spaceWithUsers;
+    });
   }
 
   Future<bool> doesBookingExist(String spaceId, int slotNumber) async {
-    await _getMyBookedSpace();
+    getMyBookedSpace();
     for (var booking in _bookings) {
       if (booking.spaceId == spaceId &&
           booking.slotNumber == slotNumber &&
@@ -68,7 +97,7 @@ class BookingProvider extends ChangeNotifier {
     return false;
   }
 
-  Stream<List<SpaceWithUser>> getMyBookingStream() {
+  Stream<List<SpaceWithUser>> getApprovedBookingStream() {
     if (_uid.isEmpty) {
       debugPrint('UID is empty');
       return Stream.value([]);
