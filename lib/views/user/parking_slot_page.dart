@@ -1,6 +1,5 @@
 import 'package:another_dashed_container/another_dashed_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/utils/colors.dart';
@@ -48,7 +47,9 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
 
       List<Booking> validBookings = bookings.where((booking) {
         DateTime endTime = booking.endDateTime;
-        return endTime.isAfter(currentDateTime);
+        DateTime startTime = booking.startDateTime;
+        return startTime.isBefore(currentDateTime) &&
+            endTime.isAfter(currentDateTime);
       }).toList();
 
       if (mounted) {

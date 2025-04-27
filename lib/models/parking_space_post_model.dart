@@ -151,4 +151,32 @@ class Booking {
       'otp': otp,
     };
   }
+
+  Booking copyWith({
+    bool? isApproved,
+    bool? isRejected,
+    bool? isOtpVerified,
+    String? uid,
+    String? spaceId,
+    int? slotNumber,
+    DateTime? startDateTime,
+    DateTime? endDateTime,
+    DateTime? bookingTime,
+    String? bookingId,
+    int? otp,
+  }) {
+    return Booking(
+      isApproved: isApproved ?? this.isApproved,
+      isRejected: isRejected ?? this.isRejected,
+      isOtpVerified: isOtpVerified ?? this.isOtpVerified,
+      uid: uid ?? this.uid,
+      spaceId: spaceId ?? this.spaceId,
+      slotNumber: slotNumber ?? this.slotNumber,
+      startDateTime: startDateTime ?? this.startDateTime,
+      endDateTime: endDateTime ?? this.endDateTime,
+      bookingTime: bookingTime ?? this.bookingTime,
+      bookingId: bookingId ?? this.bookingId,
+      otp: otp ?? this.otp,
+    );
+  }
 }

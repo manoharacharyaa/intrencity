@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_parking_rounded),
+            icon: Icon(Icons.space_dashboard_rounded),
             label: 'Parkings',
           ),
           BottomNavigationBarItem(

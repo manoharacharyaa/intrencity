@@ -1,19 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
+import 'package:intrencity/views/user/my_bookings/booking_details.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:marquee/marquee.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class ApprovalsTab extends StatelessWidget {
+class ApprovalsTab extends StatefulWidget {
   const ApprovalsTab({super.key});
 
+  @override
+  State<ApprovalsTab> createState() => _ApprovalsTabState();
+}
+
+class _ApprovalsTabState extends State<ApprovalsTab> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<BookingProvider>();
@@ -56,6 +64,20 @@ class ApprovalsTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     SmoothContainer(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookingDetails(
+                              space: userWithSpace,
+                              booking: booking,
+                              onBookingUpdated: (Booking updatedBooking) {
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        );
+                      },
                       radius: SmoothBorderRadius(
                         cornerRadius: 14,
                         cornerSmoothing: 0.8,

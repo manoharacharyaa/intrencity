@@ -1,14 +1,15 @@
 // ignore_for_file: prefer_is_empty
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/providers/admin/space_admin_viewmodel.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/viewmodels/users_viewmodel.dart';
+import 'package:intrencity/widgets/row_text_tile_widget.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
 
@@ -175,16 +176,34 @@ class _UnverifiedOTPUsersState extends State<UnverifiedOTPUsers> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Name: ${data.user.name}'),
-                          Text('Phone: ${data.user.phoneNumber}'),
-                          Text(
-                            'Email: ${data.user.email}',
-                            maxLines: 1,
+                          RowTextTile(
+                            label: 'Name: ',
+                            text: data.user.name,
                           ),
-                          Text('Booking Id: ${data.booking.bookingId}'),
-                          Text('Slot Number: ${data.booking.slotNumber}'),
-                          Text('Booking Time: ${data.booking.bookingTime}'),
-                          Text('OTP: ${data.booking.otp}'),
+                          RowTextTile(
+                            label: 'Phone: ',
+                            text: data.user.phoneNumber,
+                          ),
+                          RowTextTile(
+                            label: 'Email: ',
+                            text: data.user.email,
+                          ),
+                          RowTextTile(
+                            label: 'Booking Id: ',
+                            text: data.booking.bookingId,
+                          ),
+                          RowTextTile(
+                            label: 'Slot Number: ',
+                            text: data.booking.slotNumber.toString(),
+                          ),
+                          RowTextTile(
+                            label: 'Booking Time: ',
+                            text: data.booking.bookingTime.toString(),
+                          ),
+                          RowTextTile(
+                            label: 'OTP: ',
+                            text: data.booking.otp.toString(),
+                          ),
                           if (data.booking.otp != null)
                             Align(
                               alignment: Alignment.bottomRight,
@@ -328,15 +347,31 @@ class _VerifiedOTPUsersState extends State<VerifiedOTPUsers> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Name: ${data.user.name}'),
-                            Text('Phone: ${data.user.phoneNumber}'),
-                            Text(
-                              'Email: ${data.user.email}',
-                              maxLines: 1,
+                            RowTextTile(
+                              label: 'Name: ',
+                              text: data.user.name,
                             ),
-                            Text('Booking Id: ${data.booking.bookingId}'),
-                            Text('Slot Number: ${data.booking.slotNumber}'),
-                            Text('Booking Time: ${data.booking.bookingTime}'),
+                            RowTextTile(
+                              label: 'Phone: ',
+                              text: data.user.phoneNumber,
+                            ),
+                            RowTextTile(
+                              label: 'Email: ',
+                              text: data.user.email,
+                            ),
+                            RowTextTile(
+                              label: 'Booking Id: ',
+                              text: data.booking.bookingId,
+                            ),
+                            RowTextTile(
+                              label: 'Slot Number: ',
+                              text: data.booking.slotNumber.toString(),
+                            ),
+                            RowTextTile(
+                              label: 'Booking Time: ',
+                              text: DateFormat('MMM dd, yyyy hh:mm a')
+                                  .format(data.booking.bookingTime),
+                            ),
                           ],
                         ),
                       ),
