@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +14,7 @@ import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/views/user/parking_slot_page.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
+import 'package:intrencity/widgets/contact_button.dart';
 import 'package:intrencity/widgets/cutsom_divider.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:marquee/marquee.dart';
@@ -118,6 +120,10 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
         }
       }
     }
+  }
+
+  _callNumber(String phoneNumber) async {
+    await FlutterPhoneDirectCaller.callNumber(phoneNumber);
   }
 
   @override
@@ -399,46 +405,44 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                           ),
                         ),
                       ),
-                      !isCurrentUserOwner
-                          ? Align(
-                              alignment: Alignment.topRight,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 5),
-                                child: TextButton.icon(
-                                  style: const ButtonStyle(
-                                    iconColor:
-                                        WidgetStatePropertyAll(primaryBlue),
-                                  ),
-                                  label: Text(
-                                    'Chat',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(color: primaryBlue),
-                                  ),
-                                  onPressed: () {
-                                    if (currentUserId == null) {
-                                      context.push('/auth-page');
-                                      return;
-                                    }
-                                    context.push(
-                                      '/chat',
-                                      extra: {
-                                        'receiverId': widget.spaceDetails.uid,
-                                        'receiverName':
-                                            widget.spaceDetails.ownerName ??
-                                                'Space Owner',
-                                      },
-                                    );
-                                  },
-                                  icon: const Icon(Icons.chat),
-                                ),
-                              ),
-                            )
-                          : const SizedBox(),
                     ],
                   ),
                 ),
+                const SizedBox(height: 10),
+                !isCurrentUserOwner
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            ContactButton(
+                              label: 'Chat',
+                              icon: Icons.chat,
+                              onPressed: () {
+                                if (currentUserId == null) {
+                                  context.push('/auth-page');
+                                  return;
+                                }
+                                context.push(
+                                  '/chat',
+                                  extra: {
+                                    'receiverId': widget.spaceDetails.uid,
+                                    'receiverName':
+                                        widget.spaceDetails.ownerName ??
+                                            'Space Owner',
+                                  },
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 10),
+                            ContactButton(
+                              label: 'Call',
+                              icon: Icons.phone,
+                              onPressed: () => _callNumber(host!.phoneNumber),
+                            ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox(),
                 hasBooking
                     ? Column(
                         children: [

@@ -5,6 +5,7 @@ import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/utils/colors.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
+import 'package:intrencity/views/admin/super_admin/tabs_pages/applications_tab.dart';
 import 'package:intrencity/widgets/buttons/small_button.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
@@ -58,7 +59,7 @@ class _ApprovedApplicationsTabState extends State<ApprovedApplicationsTab> {
                   children: [
                     user.profilePic == null
                         ? const CircleAvatar(
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: primaryBlue,
                             radius: 40,
                             child: Icon(
                               Icons.person,
@@ -67,7 +68,7 @@ class _ApprovedApplicationsTabState extends State<ApprovedApplicationsTab> {
                             ),
                           )
                         : CircleAvatar(
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: primaryBlue,
                             radius: 40,
                             backgroundImage: NetworkImage(user.profilePic!),
                           ),
@@ -82,51 +83,89 @@ class _ApprovedApplicationsTabState extends State<ApprovedApplicationsTab> {
                       children: [
                         SmallButton(
                           onTap: () {
+                            final TextEditingController reasonController =
+                                TextEditingController();
+
                             showDialog(
                               context: context,
-                              builder: (context) => StatefulBuilder(
-                                builder: (context, setState) => AlertDialog(
-                                  contentPadding: EdgeInsets.zero,
-                                  backgroundColor: textFieldGrey,
-                                  shape: SmoothRectangleBorder(
-                                    borderRadius: SmoothBorderRadius(
-                                      cornerRadius: 20,
-                                      cornerSmoothing: 0.8,
-                                    ),
+                              builder: (context) => AlertDialog(
+                                contentPadding: EdgeInsets.zero,
+                                backgroundColor: textFieldGrey,
+                                shape: SmoothRectangleBorder(
+                                  borderRadius: SmoothBorderRadius(
+                                    cornerRadius: 20,
+                                    cornerSmoothing: 0.8,
                                   ),
-                                  content: const SizedBox(
-                                    height: 100,
-                                    width: 50,
-                                    child: Center(
-                                      child: Text(
-                                        'Confirm Rejection',
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ),
-                                  actions: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        SmallButton(
-                                          onTap: () {
-                                            provider
-                                                .rejectApproval(
-                                                  'rejectionReason',
-                                                  user.uid,
-                                                )
-                                                .then(
-                                                  (_) => context.pop(),
-                                                );
-                                          },
-                                          color: redAccent,
-                                          label: 'Reject',
-                                        ),
-                                      ],
-                                    ),
-                                  ],
                                 ),
+                                content: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'Enter Rejection Reason',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      CustomMultilineFormField(
+                                        controller: reasonController,
+                                        hintText: 'Enter reason for rejection',
+                                        maxLines: 3,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      SmallButton(
+                                        onTap: () => context.pop(),
+                                        color: Colors.grey,
+                                        label: 'Cancel',
+                                      ),
+                                      SmallButton(
+                                        onTap: () {
+                                          if (reasonController.text
+                                              .trim()
+                                              .isEmpty) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    'Please enter a rejection reason'),
+                                                backgroundColor: redAccent,
+                                              ),
+                                            );
+                                            return;
+                                          }
+
+                                          provider
+                                              .rejectApproval(
+                                                reasonController.text.trim(),
+                                                user.uid,
+                                              )
+                                              .then((_) => context.pop())
+                                              .catchError((error) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text('Error: $error'),
+                                                backgroundColor: redAccent,
+                                              ),
+                                            );
+                                          });
+                                        },
+                                        color: redAccent,
+                                        label: 'Reject',
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
                           },

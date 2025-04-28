@@ -20,6 +20,7 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.verticalPadding,
     this.horizontalPadding,
+    this.fillColor,
   });
 
   final TextEditingController? controller;
@@ -34,6 +35,7 @@ class CustomTextFormField extends StatelessWidget {
   final double? verticalPadding;
   final double? horizontalPadding;
   final int? maxLines;
+  final Color? fillColor;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +69,7 @@ class CustomTextFormField extends StatelessWidget {
                 vertical: 17,
               ),
               filled: true,
-              fillColor: textFieldGrey,
+              fillColor: fillColor ?? textFieldGrey,
               prefix: prefix,
               hintText: hintText,
               hintStyle: TextStyle(

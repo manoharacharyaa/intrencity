@@ -29,10 +29,24 @@ class DocumentState {
 }
 
 class VerificationProvider extends ChangeNotifier {
+  VerificationProvider() {
+    alreadyUploaded();
+    wasApplicationRejected();
+  }
+
   final Map<String, DocumentState> documents = {};
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  bool _pendingApproval = false;
+  bool get pendingApproval => _pendingApproval;
+
+  bool _applicationWasRejected = false;
+  bool get wasRejected => _applicationWasRejected;
+
+  String _rejectionReason = '';
+  String get rejectionReason => _rejectionReason;
 
   void _setIsLoading(bool isLoading) {
     _isLoading = isLoading;
@@ -41,6 +55,41 @@ class VerificationProvider extends ChangeNotifier {
 
   DocumentState getOrCreateState(String documentId) {
     return documents[documentId] ??= DocumentState();
+  }
+
+  Future<void> alreadyUploaded() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (snapshot.exists) {
+      final userData = snapshot.data() as Map<String, dynamic>;
+      if (userData['aadhaarUrl'] != null && userData['documentUrl'] != null) {
+        _pendingApproval = true;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> wasApplicationRejected() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (snapshot.exists) {
+      final userData = snapshot.data() as Map<String, dynamic>;
+      if (userData['aadhaarUrl'] == null &&
+          userData['documentUrl'] == null &&
+          userData.containsKey('rejection_reason') &&
+          userData['verificationSubmittedAt'] != null) {
+        _applicationWasRejected = true;
+        _rejectionReason =
+            '${userData['rejection_reason']} re-upload documents';
+        notifyListeners();
+      }
+    }
   }
 
   void pickFiles(String documentId) async {
@@ -119,9 +168,7 @@ class VerificationProvider extends ChangeNotifier {
           onPageError: (page, error) {
             debugPrint('PDF Page Error: $error');
           },
-          onViewCreated: (PDFViewController pdfViewController) {
-            // You can store the controller for future use
-          },
+          onViewCreated: (PDFViewController pdfViewController) {},
           onPageChanged: (int? page, int? total) {
             setCurrentPage(documentId, page);
           },
@@ -176,12 +223,15 @@ class VerificationProvider extends ChangeNotifier {
         'verificationSubmittedAt': FieldValue.serverTimestamp(),
       });
 
+      documents['aadhaar']?.reset();
+      documents['document']?.reset();
+
       _setIsLoading(false);
-      DocumentState().reset();
       notifyListeners();
     } catch (e) {
       debugPrint('Error submitting documents: $e');
       _setIsLoading(false);
+      rethrow;
     }
   }
 
@@ -189,11 +239,14 @@ class VerificationProvider extends ChangeNotifier {
     return FirebaseFirestore.instance
         .collection('users')
         .where('is_approved', isEqualTo: false)
-        .where('is_rejected', isEqualTo: false)
+        .where('is_rejected', isEqualTo: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
-          .where((doc) => doc.data().containsKey('verificationSubmittedAt'))
+          .where((doc) {
+            final data = doc.data();
+            return data['aadhaarUrl'] != null && data['documentUrl'] != null;
+          })
           .map((doc) => UserProfileModel.fromJson(doc.data()))
           .toList();
     });
@@ -261,6 +314,7 @@ class VerificationProvider extends ChangeNotifier {
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'is_approved': true,
         'is_rejected': false,
+        'rejection_reason': null,
       });
     } catch (e) {
       debugPrint('Error in confirmApproval()');
@@ -269,13 +323,32 @@ class VerificationProvider extends ChangeNotifier {
 
   Future<void> rejectApproval(String rejectionReason, String uid) async {
     try {
+      final userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final userData = userDoc.data();
+
+      if (userData?['aadhaarUrl'] != null) {
+        final aadhaarRef =
+            FirebaseStorage.instance.refFromURL(userData!['aadhaarUrl']);
+        await aadhaarRef.delete();
+      }
+
+      if (userData?['documentUrl'] != null) {
+        final documentRef =
+            FirebaseStorage.instance.refFromURL(userData!['documentUrl']);
+        await documentRef.delete();
+      }
+
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'is_rejected': true,
         'is_approved': false,
         'rejection_reason': rejectionReason,
+        'aadhaarUrl': null,
+        'documentUrl': null,
       });
     } catch (e) {
-      debugPrint('Error in rejectApproval(String rejectionReason)');
+      debugPrint('Error in rejectApproval(): $e');
+      rethrow;
     }
   }
 }

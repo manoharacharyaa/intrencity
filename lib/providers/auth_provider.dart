@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
@@ -26,7 +25,7 @@ class AuthenticationProvider extends ChangeNotifier {
       email: email,
       phoneNumber: phoneNumber,
       isApproved: false,
-      isVerificationPending: false,
+      isVerificationPending: true,
     );
     await FirebaseFirestore.instance
         .collection('users')

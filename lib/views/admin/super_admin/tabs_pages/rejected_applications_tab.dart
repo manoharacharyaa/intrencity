@@ -58,7 +58,7 @@ class _RejectedApplicationsTabState extends State<RejectedApplicationsTab> {
                   children: [
                     user.profilePic == null
                         ? const CircleAvatar(
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: primaryBlue,
                             radius: 40,
                             child: Icon(
                               Icons.person,
@@ -67,7 +67,7 @@ class _RejectedApplicationsTabState extends State<RejectedApplicationsTab> {
                             ),
                           )
                         : CircleAvatar(
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: primaryBlue,
                             radius: 40,
                             backgroundImage: NetworkImage(user.profilePic!),
                           ),

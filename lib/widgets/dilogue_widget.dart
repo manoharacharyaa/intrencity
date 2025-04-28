@@ -5,11 +5,27 @@ import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:lottie/lottie.dart';
 
 class CustomDilogue {
-  static void showSuccessDialog(
-      BuildContext context, String lottie, String message) {
+  static Future<void> showSuccessDialog(
+    BuildContext context,
+    String lottie,
+    String message, {
+    bool autoDismiss = false,
+    Duration dismissDuration = const Duration(seconds: 1),
+    bool popNavigator = false,
+  }) async {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
+        if (autoDismiss) {
+          Future.delayed(dismissDuration, () {
+            Navigator.of(context).pop();
+            if (popNavigator && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          });
+        }
+
         return Dialog(
           insetPadding: EdgeInsets.zero,
           shape: SmoothRectangleBorder(
@@ -40,27 +56,28 @@ class CustomDilogue {
                   ),
                 ),
                 const SizedBox(height: 40),
-                SizedBox(
-                  width: 70,
-                  height: 45,
-                  child: MaterialButton(
-                    shape: SmoothRectangleBorder(
-                      borderRadius: SmoothBorderRadius(
-                        cornerRadius: 10,
-                        cornerSmoothing: 1,
+                if (!autoDismiss)
+                  SizedBox(
+                    width: 70,
+                    height: 45,
+                    child: MaterialButton(
+                      shape: SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius(
+                          cornerRadius: 10,
+                          cornerSmoothing: 1,
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(2),
+                      color: primaryBlue,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        'OK',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
-                    padding: const EdgeInsets.all(2),
-                    color: primaryBlue,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'OK',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
                   ),
-                ),
               ],
             ),
           ),

@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 import 'package:intrencity/providers/verification_provider.dart';
 import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/buttons/small_button.dart';
 import 'package:intrencity/widgets/dialogs/confirmation_dialog.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
@@ -56,7 +59,7 @@ class _ApplicationsTabState extends State<ApplicationsTab> {
                   children: [
                     user.profilePic == null
                         ? const CircleAvatar(
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: primaryBlue,
                             radius: 40,
                             child: Icon(
                               Icons.person,
@@ -65,7 +68,7 @@ class _ApplicationsTabState extends State<ApplicationsTab> {
                             ),
                           )
                         : CircleAvatar(
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: primaryBlue,
                             radius: 40,
                             backgroundImage: NetworkImage(user.profilePic!),
                           ),
@@ -94,17 +97,98 @@ class _ApplicationsTabState extends State<ApplicationsTab> {
                                   );
                                 },
                                 onReject: () {
-                                  provider
-                                      .rejectApproval(
-                                    'rejectionReason',
-                                    user.uid,
-                                  )
-                                      .then(
-                                    (_) {
-                                      if (context.mounted) {
-                                        context.pop();
-                                      }
-                                    },
+                                  final TextEditingController reasonController =
+                                      TextEditingController();
+
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      contentPadding: EdgeInsets.zero,
+                                      backgroundColor: textFieldGrey,
+                                      shape: SmoothRectangleBorder(
+                                        borderRadius: SmoothBorderRadius(
+                                          cornerRadius: 20,
+                                          cornerSmoothing: 0.8,
+                                        ),
+                                      ),
+                                      content: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text(
+                                              'Enter Rejection Reason',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            CustomMultilineFormField(
+                                              controller: reasonController,
+                                              hintText:
+                                                  'Enter reason for rejection',
+                                              maxLines: 3,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      actions: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            SmallButton(
+                                              onTap: () => context.pop(),
+                                              color: Colors.grey,
+                                              label: 'Cancel',
+                                            ),
+                                            SmallButton(
+                                              onTap: () {
+                                                if (reasonController.text
+                                                    .trim()
+                                                    .isEmpty) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'Please enter a rejection reason'),
+                                                      backgroundColor:
+                                                          redAccent,
+                                                    ),
+                                                  );
+                                                  return;
+                                                }
+
+                                                provider
+                                                    .rejectApproval(
+                                                  reasonController.text.trim(),
+                                                  user.uid,
+                                                )
+                                                    .then((_) {
+                                                  context
+                                                      .pop(); // Close reason dialog
+                                                  context
+                                                      .pop(); // Close confirmation dialog
+                                                }).catchError((error) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                      content:
+                                                          Text('Error: $error'),
+                                                      backgroundColor:
+                                                          redAccent,
+                                                    ),
+                                                  );
+                                                });
+                                              },
+                                              color: redAccent,
+                                              label: 'Reject',
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 },
                               ),
@@ -152,6 +236,71 @@ class _ApplicationsTabState extends State<ApplicationsTab> {
           },
         );
       },
+    );
+  }
+}
+
+class CustomMultilineFormField extends StatelessWidget {
+  const CustomMultilineFormField({
+    super.key,
+    this.controller,
+    this.hintText,
+    this.maxLines = 3,
+    this.onChanged,
+    this.validator,
+    this.fillColor,
+  });
+
+  final TextEditingController? controller;
+  final String? hintText;
+  final void Function(String)? onChanged;
+  final String? Function(String?)? validator;
+  final int? maxLines;
+  final Color? fillColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipSmoothRect(
+      radius: SmoothBorderRadius(
+        cornerRadius: 12,
+        cornerSmoothing: 0.8,
+      ),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        cursorColor: Colors.white,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              fontSize: 14,
+            ),
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.all(16),
+          filled: true,
+          fillColor: Colors.grey[900],
+          hintText: hintText,
+          hintStyle: const TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+          border: InputBorder.none,
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: SmoothBorderRadius(
+              cornerRadius: 12,
+              cornerSmoothing: 0.8,
+            ),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: SmoothBorderRadius(
+              cornerRadius: 12,
+              cornerSmoothing: 0.8,
+            ),
+          ),
+          errorStyle: const TextStyle(color: redAccent),
+        ),
+        onChanged: onChanged,
+        validator: validator,
+      ),
     );
   }
 }

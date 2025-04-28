@@ -14,6 +14,7 @@ import 'package:intrencity/utils/smooth_corners/smooth_rectangle_border.dart';
 import 'package:intrencity/widgets/buttons/custom_button.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({
@@ -183,6 +184,19 @@ class _BookingPageState extends State<BookingPage> {
                 'Existing booking: ${existingStart.toString()} to ${existingEnd.toString()}');
             debugPrint(
                 'Proposed booking: ${proposedStartTime.toString()} to ${proposedEndTime.toString()}');
+
+            String formattedStartTime = DateFormat('MMM dd, yyyy hh:mm a')
+                .format(existingStart.toLocal());
+
+            await Fluttertoast.showToast(
+              msg: "Slot already booked from: $formattedStartTime",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
             return true;
           }
         }
@@ -190,7 +204,7 @@ class _BookingPageState extends State<BookingPage> {
 
       return false;
     } catch (e) {
-      debugPrint('Error checking booking conflict: $e');
+      debugPrint('Error checking booking conflicts: $e');
       rethrow;
     }
   }
@@ -232,19 +246,8 @@ class _BookingPageState extends State<BookingPage> {
 
       bool hasConflict =
           await checkBookingConflict(startDateTime!, endDateTime!);
-
       if (hasConflict) {
-        debugPrint('Showing conflict toast');
-        await Fluttertoast.showToast(
-          msg: "Slot already booked for this time period",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 3,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-        return;
+        return; // Toast is already shown in checkBookingConflict
       }
 
       await FirebaseFirestore.instance
@@ -274,11 +277,8 @@ class _BookingPageState extends State<BookingPage> {
         );
       }
     } catch (e) {
-      debugPrint('Error in _handleBooking: $e');
       Fluttertoast.showToast(
-        msg: "Error creating booking: ${e.toString()}",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
+        msg: "Error: ${e.toString()}",
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );

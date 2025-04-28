@@ -219,9 +219,18 @@ class BookingCard extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: CircleAvatar(
                     radius: 45,
-                    backgroundImage: NetworkImage(
-                      bookingWithUser.user.profilePic ?? '',
-                    ),
+                    backgroundColor: primaryBlue,
+                    backgroundImage: bookingWithUser.user.profilePic == null
+                        ? null
+                        : NetworkImage(
+                            bookingWithUser.user.profilePic ?? '',
+                          ),
+                    child: bookingWithUser.user.profilePic == null
+                        ? const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                          )
+                        : null,
                   ),
                 ),
                 SingleChildScrollView(
