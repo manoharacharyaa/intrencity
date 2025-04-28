@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intrencity/models/checkout_model.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/providers/booking_provider.dart';
 import 'package:intrencity/utils/colors.dart';
@@ -446,67 +448,83 @@ class BookingDetailsState extends State<BookingDetails> {
 
   Future<double> _calculateTotalAmount() async {
     final spacePrice = widget.space.space.spacePrice;
-    // Remove currency symbol and any whitespace, keeping only numbers
-    final cleanPrice = spacePrice.replaceAll(RegExp(r'[^0-9.]'), '');
 
-    // Parse the base price
+    // More robust price extraction
+    final cleanPrice = spacePrice.replaceAll(RegExp(r'[^0-9.]'), '');
     final basePrice = double.tryParse(cleanPrice) ?? 0.0;
 
-    // Get the unit from the original price string
-    final unit = spacePrice.toLowerCase();
+    // Enhanced unit detection
+    final unitStr = spacePrice.toLowerCase();
+    final PricingUnit unit;
+
+    if (unitStr.contains('hour') ||
+        unitStr.contains('hr') ||
+        unitStr.contains('/h')) {
+      unit = PricingUnit.hourly;
+    } else if (unitStr.contains('day') || unitStr.contains('/d')) {
+      unit = PricingUnit.daily;
+    } else if (unitStr.contains('month') || unitStr.contains('/m')) {
+      unit = PricingUnit.monthly;
+    } else {
+      // Default to hourly if unit can't be determined
+      unit = PricingUnit.hourly;
+    }
 
     final startTime = widget.booking.startDateTime;
     final endTime = widget.booking.endDateTime;
     final actualCheckoutTime = DateTime.now();
+
+    // Calculate durations
     final originalDuration = endTime.difference(startTime);
     final actualDuration = actualCheckoutTime.difference(startTime);
 
     debugPrint(
-        'Base Price: $basePrice, Unit: $unit, Original Duration: ${originalDuration.inHours} hours, Actual Duration: ${actualDuration.inHours} hours');
+        'Base Price: $basePrice, Unit: $unit, Original Duration: ${originalDuration.inHours} hours, '
+        'Actual Duration: ${actualDuration.inHours} hours');
 
     double totalAmount = 0.0;
 
-    // Calculate based on the booking unit (hour/day/month)
-    if (unit.contains('hour') || unit.contains('hr') || unit.contains('/h')) {
-      // For hourly bookings, charge by actual hours used
-      final hours = (actualDuration.inMinutes / 60.0).ceil();
-      totalAmount = basePrice * hours;
-    } else if (unit.contains('day') || unit.contains('/d')) {
-      final originalDays = (originalDuration.inHours / 24.0).ceil();
-      final actualHours = actualDuration.inHours;
+    switch (unit) {
+      case PricingUnit.hourly:
+        // Round up to the nearest hour with a minimum of 1 hour
+        final hours = max(1, (actualDuration.inMinutes / 60.0).ceil());
+        totalAmount = basePrice * hours;
+        break;
 
-      // If checked out within first hour
-      if (actualHours <= 1) {
-        totalAmount = basePrice * 0.5; // 50% of daily rate
-      }
-      // If used more than half day (12 hours)
-      else if (actualHours > 12) {
-        totalAmount = basePrice * originalDays; // Full daily rate
-      }
-      // If used between 1 hour and half day
-      else {
-        totalAmount = basePrice * 0.5; // 50% of daily rate
-      }
-    } else if (unit.contains('month') || unit.contains('/m')) {
-      final originalMonths = (originalDuration.inDays / 30.0).ceil();
-      final actualDays = actualDuration.inDays;
+      case PricingUnit.daily:
+        // Calculate in days - consider partial days
+        final originalDays = (originalDuration.inHours / 24.0).ceil();
+        final actualDays = actualDuration.inHours / 24.0;
 
-      // If checked out within first day
-      if (actualDays <= 1) {
-        totalAmount = basePrice * 0.5; // 50% of monthly rate
-      }
-      // If used more than 15 days
-      else if (actualDays > 15) {
-        totalAmount = basePrice * originalMonths; // Full monthly rate
-      }
-      // If used between 1 and 15 days
-      else {
-        totalAmount = basePrice * 0.5; // 50% of monthly rate
-      }
-    } else {
-      // Default to hourly rate if unit is not recognized
-      final hours = (actualDuration.inMinutes / 60.0).ceil();
-      totalAmount = basePrice * hours;
+        if (actualDays <= 0.125) {
+          // Less than 3 hours
+          totalAmount = basePrice * 0.25; // 25% of daily rate
+        } else if (actualDays <= 0.5) {
+          // Less than 12 hours
+          totalAmount = basePrice * 0.5; // Half day rate
+        } else {
+          // Round up to nearest day, but don't exceed original booking
+          totalAmount = basePrice * min(originalDays, actualDays.ceil());
+        }
+        break;
+
+      case PricingUnit.monthly:
+        // Calculate in months - consider partial months
+        final originalMonths = (originalDuration.inDays / 30.0).ceil();
+        final actualDays = actualDuration.inDays;
+
+        if (actualDays <= 1) {
+          totalAmount = basePrice * (1 / 30); // One day rate
+        } else if (actualDays <= 7) {
+          totalAmount = basePrice * (7 / 30); // One week rate
+        } else if (actualDays <= 15) {
+          totalAmount = basePrice * 0.5; // Half month rate
+        } else {
+          // Full month rate, but don't exceed original booking
+          final actualMonths = actualDays / 30.0;
+          totalAmount = basePrice * min(originalMonths, actualMonths.ceil());
+        }
+        break;
     }
 
     debugPrint('Calculated total amount: $totalAmount');
@@ -549,7 +567,7 @@ class BookingDetailsState extends State<BookingDetails> {
         overtimeDuration = now.difference(endDateTime);
 
         final overtimeHours = (overtimeDuration.inMinutes / 60).ceil();
-        fineAmount = overtimeHours * 10.0; // $10 per hour fine
+        fineAmount = overtimeHours * 10.0;
 
         await FirebaseFirestore.instance.collection('fines').add({
           'booking_id': widget.booking.bookingId,
@@ -562,7 +580,6 @@ class BookingDetailsState extends State<BookingDetails> {
         });
       }
 
-      // Update the booking to mark it as checked out
       bookings[bookingIndex] = {
         ...bookings[bookingIndex],
         'is_checked_out': true,
@@ -573,26 +590,29 @@ class BookingDetailsState extends State<BookingDetails> {
 
       await spaceRef.update({'bookings': bookings});
 
-      // Create checkout record
-      await FirebaseFirestore.instance.collection('checkouts').add({
-        'booking_id': widget.booking.bookingId,
-        'user_id': widget.booking.uid,
-        'space_id': widget.booking.spaceId,
-        'slot_number': widget.booking.slotNumber,
-        'checkout_time': FieldValue.serverTimestamp(),
-        'is_late_checkout': isLateCheckout,
-        'is_early_checkout': !isLateCheckout &&
+      final checkout = CheckoutModel(
+        actualCheckoutTime: DateTime.now(),
+        baseAmount: baseAmount,
+        bookingId: widget.booking.bookingId,
+        checkoutTime: DateTime.now(),
+        currency: widget.space.space.selectedCurrency ?? '',
+        endTime: widget.booking.endDateTime,
+        fineAmount: fineAmount,
+        isEarlyCheckout: !isLateCheckout &&
             DateTime.now().isBefore(widget.booking.endDateTime),
-        'overtime_duration':
-            isLateCheckout ? overtimeDuration?.inMinutes : null,
-        'fine_amount': fineAmount,
-        'base_amount': baseAmount,
-        'total_amount': baseAmount + (fineAmount ?? 0.0),
-        'currency': widget.space.space.selectedCurrency,
-        'start_time': widget.booking.startDateTime,
-        'end_time': widget.booking.endDateTime,
-        'actual_checkout_time': DateTime.now(),
-      });
+        isLateCheckout: isLateCheckout,
+        overtimeDuration: isLateCheckout ? overtimeDuration?.inMinutes : null,
+        slotNumber: widget.booking.slotNumber,
+        spaceId: widget.booking.spaceId,
+        spaceName: widget.space.space.spaceName,
+        startTime: widget.booking.startDateTime,
+        totalAmount: baseAmount + (fineAmount ?? 0.0),
+        userId: widget.booking.uid,
+      );
+
+      await FirebaseFirestore.instance
+          .collection('checkouts')
+          .add(checkout.toJson());
 
       if (mounted) {
         Navigator.pop(context);
@@ -828,3 +848,6 @@ class BookingDetailsState extends State<BookingDetails> {
     );
   }
 }
+
+// Define pricing unit enum for clearer code
+enum PricingUnit { hourly, daily, monthly }

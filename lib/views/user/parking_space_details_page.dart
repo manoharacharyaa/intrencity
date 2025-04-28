@@ -106,8 +106,11 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
         List<dynamic> bookings = space['bookings'];
 
         for (var booking in bookings) {
-          if (booking['uid'] == FirebaseAuth.instance.currentUser!.uid &&
-              booking['is_checked_out'] == false) {
+          if (booking.containsKey('is_checked_out') &&
+              booking['is_checked_out'] == true) {
+            return;
+          }
+          if (booking['uid'] == FirebaseAuth.instance.currentUser!.uid) {
             setState(() {
               hasBooking = true;
             });
