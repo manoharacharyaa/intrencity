@@ -12,10 +12,12 @@ import 'package:intrencity/utils/theme.dart';
 import 'package:intrencity/home_page.dart';
 import 'package:intrencity/viewmodels/users_viewmodel.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
+import 'package:intrencity/views/onboarding/onboarding_page.dart';
 import 'package:intrencity/providers/auth_provider.dart';
 import 'package:intrencity/providers/validator_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intrencity/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,13 +45,11 @@ class MainApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => VerificationProvider()),
         ChangeNotifierProvider(create: (context) => SpaceAdminViewmodel()),
         ChangeNotifierProvider(create: (context) => UsersViewmodel()),
-        // ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         theme: darkTheme,
         routerConfig: AppRoutes().router,
-        // home: const AuthChecker(),
       ),
     );
   }
@@ -66,7 +66,18 @@ class AuthChecker extends StatelessWidget {
         if (snapshot.hasData && snapshot.data != null) {
           return const HomePage();
         }
-        return const AuthPage();
+        return FutureBuilder<bool>(
+          future: SharedPreferences.getInstance()
+              .then((prefs) => prefs.getBool('showOnboarding') ?? true),
+          builder: (context, prefSnapshot) {
+            if (prefSnapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+            return prefSnapshot.data == true
+                ? const OnboardingPage()
+                : const AuthPage();
+          },
+        );
       },
     );
   }

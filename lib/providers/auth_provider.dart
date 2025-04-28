@@ -12,22 +12,6 @@ class AuthenticationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<dynamic> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-      return await FirebaseAuth.instance.signInWithCredential(credential);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-    notifyListeners();
-  }
-
   Future<dynamic> signUp(
       String email, String password, String name, String phoneNumber) async {
     final FirebaseAuth auth = FirebaseAuth.instance;

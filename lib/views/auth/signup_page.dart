@@ -289,69 +289,6 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                 ),
                 SizedBox(height: size.height * 0.02),
-                const Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.all(15),
-                        child: Divider(
-                          thickness: 0.2,
-                        ),
-                      ),
-                    ),
-                    Text('or'),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.all(15),
-                        child: Divider(
-                          thickness: 0.2,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: size.height * 0.03),
-                ClipSmoothRect(
-                  radius: SmoothBorderRadius(
-                    cornerRadius: 15,
-                    cornerSmoothing: 1,
-                  ),
-                  child: MaterialButton(
-                    onPressed: () async {
-                      await auth.signInWithGoogle().then(
-                            (_) => context.push('/home-page'),
-                          );
-                    },
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/google_gradient.png',
-                              height: 29,
-                            ),
-                            SizedBox(width: size.width * 0.03),
-                            Text(
-                              'Signin with Google',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),

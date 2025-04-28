@@ -457,27 +457,55 @@ class BookingDetailsState extends State<BookingDetails> {
 
     final startTime = widget.booking.startDateTime;
     final endTime = widget.booking.endDateTime;
-    final duration = endTime.difference(startTime);
+    final actualCheckoutTime = DateTime.now();
+    final originalDuration = endTime.difference(startTime);
+    final actualDuration = actualCheckoutTime.difference(startTime);
 
     debugPrint(
-        'Base Price: $basePrice, Unit: $unit, Duration: ${duration.inHours} hours');
+        'Base Price: $basePrice, Unit: $unit, Original Duration: ${originalDuration.inHours} hours, Actual Duration: ${actualDuration.inHours} hours');
 
     double totalAmount = 0.0;
+
+    // Calculate based on the booking unit (hour/day/month)
     if (unit.contains('hour') || unit.contains('hr') || unit.contains('/h')) {
-      // Calculate hourly rate
-      final hours = (duration.inMinutes / 60.0).ceil();
+      // For hourly bookings, charge by actual hours used
+      final hours = (actualDuration.inMinutes / 60.0).ceil();
       totalAmount = basePrice * hours;
     } else if (unit.contains('day') || unit.contains('/d')) {
-      // Calculate daily rate, round up to nearest day
-      final days = (duration.inHours / 24.0).ceil();
-      totalAmount = basePrice * days;
+      final originalDays = (originalDuration.inHours / 24.0).ceil();
+      final actualHours = actualDuration.inHours;
+
+      // If checked out within first hour
+      if (actualHours <= 1) {
+        totalAmount = basePrice * 0.5; // 50% of daily rate
+      }
+      // If used more than half day (12 hours)
+      else if (actualHours > 12) {
+        totalAmount = basePrice * originalDays; // Full daily rate
+      }
+      // If used between 1 hour and half day
+      else {
+        totalAmount = basePrice * 0.5; // 50% of daily rate
+      }
     } else if (unit.contains('month') || unit.contains('/m')) {
-      // Calculate monthly rate, round up to nearest month (assume 30 days)
-      final months = (duration.inDays / 30.0).ceil();
-      totalAmount = basePrice * months;
+      final originalMonths = (originalDuration.inDays / 30.0).ceil();
+      final actualDays = actualDuration.inDays;
+
+      // If checked out within first day
+      if (actualDays <= 1) {
+        totalAmount = basePrice * 0.5; // 50% of monthly rate
+      }
+      // If used more than 15 days
+      else if (actualDays > 15) {
+        totalAmount = basePrice * originalMonths; // Full monthly rate
+      }
+      // If used between 1 and 15 days
+      else {
+        totalAmount = basePrice * 0.5; // 50% of monthly rate
+      }
     } else {
       // Default to hourly rate if unit is not recognized
-      final hours = (duration.inMinutes / 60.0).ceil();
+      final hours = (actualDuration.inMinutes / 60.0).ceil();
       totalAmount = basePrice * hours;
     }
 
@@ -538,8 +566,9 @@ class BookingDetailsState extends State<BookingDetails> {
       bookings[bookingIndex] = {
         ...bookings[bookingIndex],
         'is_checked_out': true,
-        'checkout_time':
-            DateTime.now().toIso8601String(), // Use string timestamp instead
+        'checkout_time': DateTime.now().toIso8601String(),
+        'early_checkout': !isLateCheckout &&
+            DateTime.now().isBefore(widget.booking.endDateTime),
       };
 
       await spaceRef.update({'bookings': bookings});
@@ -550,9 +579,10 @@ class BookingDetailsState extends State<BookingDetails> {
         'user_id': widget.booking.uid,
         'space_id': widget.booking.spaceId,
         'slot_number': widget.booking.slotNumber,
-        'checkout_time': FieldValue
-            .serverTimestamp(), // This is fine here as it's not in an array
+        'checkout_time': FieldValue.serverTimestamp(),
         'is_late_checkout': isLateCheckout,
+        'is_early_checkout': !isLateCheckout &&
+            DateTime.now().isBefore(widget.booking.endDateTime),
         'overtime_duration':
             isLateCheckout ? overtimeDuration?.inMinutes : null,
         'fine_amount': fineAmount,
@@ -561,6 +591,7 @@ class BookingDetailsState extends State<BookingDetails> {
         'currency': widget.space.space.selectedCurrency,
         'start_time': widget.booking.startDateTime,
         'end_time': widget.booking.endDateTime,
+        'actual_checkout_time': DateTime.now(),
       });
 
       if (mounted) {
@@ -585,13 +616,11 @@ class BookingDetailsState extends State<BookingDetails> {
         }
       }
     } catch (e) {
-      if (mounted) {
-        Fluttertoast.showToast(
-          msg: 'Checkout failed: ${e.toString()}',
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-        );
-      }
+      Fluttertoast.showToast(
+        msg: 'Error during checkout: ${e.toString()}',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     } finally {
       setState(() {
         _isLoading = false;
