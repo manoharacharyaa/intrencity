@@ -198,7 +198,8 @@ class _UnverifiedOTPUsersState extends State<UnverifiedOTPUsers> {
                           ),
                           RowTextTile(
                             label: 'Booking Time: ',
-                            text: data.booking.bookingTime.toString(),
+                            text: DateFormat('MMM dd, yyyy hh:mm a')
+                                .format(data.booking.bookingTime),
                           ),
                           RowTextTile(
                             label: 'OTP: ',

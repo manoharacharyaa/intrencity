@@ -27,13 +27,13 @@ class _AdminPannelPageState extends State<AdminPannelPage> {
             ),
             AdminPannelTile(
               onTap: () => context.push('/all-users-page'),
-              label: 'Applications',
+              label: 'Users',
               icon: Icons.people_alt_rounded,
             ),
             AdminPannelTile(
-              onTap: () => context.push('/application-approval-page'),
-              label: 'Applications',
-              icon: Icons.article_rounded,
+              onTap: () => context.push('/all-spaces'),
+              label: 'All Spaces',
+              icon: Icons.space_dashboard_rounded,
             ),
           ],
         ),
@@ -70,7 +70,7 @@ class AdminPannelTile extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Icon(
               icon,
-              size: 50,
+              size: 40,
             ),
           ),
           Text(label ?? ''),

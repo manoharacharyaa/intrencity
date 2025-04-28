@@ -444,6 +444,47 @@ class BookingDetailsState extends State<BookingDetails> {
     }
   }
 
+  Future<double> _calculateTotalAmount() async {
+    final spacePrice = widget.space.space.spacePrice;
+    // Remove currency symbol and any whitespace, keeping only numbers
+    final cleanPrice = spacePrice.replaceAll(RegExp(r'[^0-9.]'), '');
+
+    // Parse the base price
+    final basePrice = double.tryParse(cleanPrice) ?? 0.0;
+
+    // Get the unit from the original price string
+    final unit = spacePrice.toLowerCase();
+
+    final startTime = widget.booking.startDateTime;
+    final endTime = widget.booking.endDateTime;
+    final duration = endTime.difference(startTime);
+
+    debugPrint(
+        'Base Price: $basePrice, Unit: $unit, Duration: ${duration.inHours} hours');
+
+    double totalAmount = 0.0;
+    if (unit.contains('hour') || unit.contains('hr') || unit.contains('/h')) {
+      // Calculate hourly rate
+      final hours = (duration.inMinutes / 60.0).ceil();
+      totalAmount = basePrice * hours;
+    } else if (unit.contains('day') || unit.contains('/d')) {
+      // Calculate daily rate, round up to nearest day
+      final days = (duration.inHours / 24.0).ceil();
+      totalAmount = basePrice * days;
+    } else if (unit.contains('month') || unit.contains('/m')) {
+      // Calculate monthly rate, round up to nearest month (assume 30 days)
+      final months = (duration.inDays / 30.0).ceil();
+      totalAmount = basePrice * months;
+    } else {
+      // Default to hourly rate if unit is not recognized
+      final hours = (duration.inMinutes / 60.0).ceil();
+      totalAmount = basePrice * hours;
+    }
+
+    debugPrint('Calculated total amount: $totalAmount');
+    return totalAmount;
+  }
+
   Future<void> _handleCheckout({bool isLateCheckout = false}) async {
     setState(() {
       _isLoading = true;
@@ -472,6 +513,7 @@ class BookingDetailsState extends State<BookingDetails> {
 
       Duration? overtimeDuration;
       double? fineAmount;
+      double baseAmount = await _calculateTotalAmount();
 
       if (isLateCheckout) {
         final endDateTime = widget.booking.endDateTime;
@@ -479,7 +521,7 @@ class BookingDetailsState extends State<BookingDetails> {
         overtimeDuration = now.difference(endDateTime);
 
         final overtimeHours = (overtimeDuration.inMinutes / 60).ceil();
-        fineAmount = overtimeHours * 10.0;
+        fineAmount = overtimeHours * 10.0; // $10 per hour fine
 
         await FirebaseFirestore.instance.collection('fines').add({
           'booking_id': widget.booking.bookingId,
@@ -492,19 +534,33 @@ class BookingDetailsState extends State<BookingDetails> {
         });
       }
 
-      bookings.removeAt(bookingIndex);
+      // Update the booking to mark it as checked out
+      bookings[bookingIndex] = {
+        ...bookings[bookingIndex],
+        'is_checked_out': true,
+        'checkout_time':
+            DateTime.now().toIso8601String(), // Use string timestamp instead
+      };
 
       await spaceRef.update({'bookings': bookings});
 
+      // Create checkout record
       await FirebaseFirestore.instance.collection('checkouts').add({
         'booking_id': widget.booking.bookingId,
         'user_id': widget.booking.uid,
         'space_id': widget.booking.spaceId,
-        'checkout_time': FieldValue.serverTimestamp(),
+        'slot_number': widget.booking.slotNumber,
+        'checkout_time': FieldValue
+            .serverTimestamp(), // This is fine here as it's not in an array
         'is_late_checkout': isLateCheckout,
         'overtime_duration':
             isLateCheckout ? overtimeDuration?.inMinutes : null,
         'fine_amount': fineAmount,
+        'base_amount': baseAmount,
+        'total_amount': baseAmount + (fineAmount ?? 0.0),
+        'currency': widget.space.space.selectedCurrency,
+        'start_time': widget.booking.startDateTime,
+        'end_time': widget.booking.endDateTime,
       });
 
       if (mounted) {
@@ -513,16 +569,18 @@ class BookingDetailsState extends State<BookingDetails> {
         if (isLateCheckout) {
           Fluttertoast.showToast(
             msg:
-                'Late checkout processed. Fine amount: \$${fineAmount?.toStringAsFixed(2)}',
+                'Late checkout processed.\nBase amount: ${widget.space.space.selectedCurrency}${baseAmount.toStringAsFixed(2)}\nFine amount: ${widget.space.space.selectedCurrency}${fineAmount?.toStringAsFixed(2)}\nTotal: ${widget.space.space.selectedCurrency}${(baseAmount + (fineAmount ?? 0.0)).toStringAsFixed(2)}',
             backgroundColor: Colors.orange,
             textColor: Colors.white,
             toastLength: Toast.LENGTH_LONG,
           );
         } else {
           Fluttertoast.showToast(
-            msg: 'Checkout successful',
+            msg:
+                'Checkout successful.\nTotal amount: ${widget.space.space.selectedCurrency}${baseAmount.toStringAsFixed(2)}',
             backgroundColor: Colors.green,
             textColor: Colors.white,
+            toastLength: Toast.LENGTH_LONG,
           );
         }
       }

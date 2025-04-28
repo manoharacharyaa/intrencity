@@ -6,6 +6,7 @@ import 'package:intrencity/views/admin/parking_space_admin/manage_myspace_page.d
 import 'package:intrencity/views/admin/parking_space_admin/otp_verification_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/enter_otp_page.dart';
 import 'package:intrencity/views/admin/super_admin/admin_pannel_page.dart';
+import 'package:intrencity/views/admin/super_admin/pages/all_spaces_page.dart';
 import 'package:intrencity/views/admin/super_admin/pages/all_users_page.dart';
 import 'package:intrencity/views/admin/super_admin/pages/application_approval_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/admin_parking_page.dart';
@@ -13,6 +14,7 @@ import 'package:intrencity/views/admin/parking_space_admin/my_spaces_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_tab.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
 import 'package:intrencity/views/user/edit_post_page.dart';
+import 'package:intrencity/views/user/my_bookings/booking_history_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
 import 'package:intrencity/views/user/parking_space_details_page.dart';
 import 'package:intrencity/views/user/post_space_page.dart';
@@ -142,6 +144,16 @@ class AppRoutes {
           final space = args['space'] as ParkingSpacePostModel;
           return ManageMyspacePage(space: space);
         },
+      ),
+      GoRoute(
+        path: '/booking-history',
+        builder: (context, state) {
+          return const BookingHistoryPage();
+        },
+      ),
+      GoRoute(
+        path: '/all-spaces',
+        builder: (context, state) => const AllSpacesPage(),
       ),
     ],
   );

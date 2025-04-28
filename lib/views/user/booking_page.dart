@@ -141,6 +141,150 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
+  Future<bool> checkBookingConflict(
+      DateTime proposedStartTime, DateTime proposedEndTime) async {
+    try {
+      final spaceDoc = await FirebaseFirestore.instance
+          .collection('spaces')
+          .doc(widget.spaceId)
+          .get();
+
+      if (!spaceDoc.exists) {
+        throw Exception('Space not found');
+      }
+
+      final data = spaceDoc.data() as Map<String, dynamic>;
+
+      if (data.containsKey('bookings')) {
+        List<dynamic> bookings = data['bookings'];
+
+        for (var booking in bookings) {
+          if (booking['slot_number'] != widget.slotNumber) {
+            continue;
+          }
+
+          if (booking['is_checked_out'] == true) {
+            continue;
+          }
+
+          DateTime existingStart =
+              (booking['start_time'] as Timestamp).toDate();
+          DateTime existingEnd = (booking['end_time'] as Timestamp).toDate();
+
+          bool hasOverlap =
+              ((proposedStartTime.isAtSameMomentAs(existingStart) ||
+                      proposedStartTime.isBefore(existingEnd)) &&
+                  (proposedEndTime.isAtSameMomentAs(existingEnd) ||
+                      proposedEndTime.isAfter(existingStart)));
+
+          if (hasOverlap) {
+            debugPrint('Booking conflict found:');
+            debugPrint(
+                'Existing booking: ${existingStart.toString()} to ${existingEnd.toString()}');
+            debugPrint(
+                'Proposed booking: ${proposedStartTime.toString()} to ${proposedEndTime.toString()}');
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch (e) {
+      debugPrint('Error checking booking conflict: $e');
+      rethrow;
+    }
+  }
+
+  void _handleBooking() async {
+    try {
+      if (startDateTime == null || endDateTime == null) {
+        Fluttertoast.showToast(
+          msg: "Please select both start and end times",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      if (endDateTime!.isBefore(startDateTime!)) {
+        Fluttertoast.showToast(
+          msg: "End time cannot be before start time",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      if (startDateTime!.isBefore(DateTime.now())) {
+        Fluttertoast.showToast(
+          msg: "Cannot book for past time",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+        return;
+      }
+
+      bool hasConflict =
+          await checkBookingConflict(startDateTime!, endDateTime!);
+
+      if (hasConflict) {
+        debugPrint('Showing conflict toast');
+        await Fluttertoast.showToast(
+          msg: "Slot already booked for this time period",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('spaces')
+          .doc(widget.spaceId)
+          .update({
+        'bookings': FieldValue.arrayUnion([
+          Booking(
+            isApproved: false,
+            uid: FirebaseAuth.instance.currentUser!.uid,
+            spaceId: widget.spaceId,
+            slotNumber: widget.slotNumber,
+            startDateTime: startDateTime!,
+            endDateTime: endDateTime!,
+            bookingTime: DateTime.now(),
+            bookingId: Random().nextInt(900000).toString().padLeft(6, '0'),
+          ).toJson(),
+        ])
+      });
+
+      if (context.mounted) {
+        Navigator.pop(context);
+        Fluttertoast.showToast(
+          msg: "Slot No.${widget.slotNumber} Booked Sucessfully",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error in _handleBooking: $e');
+      Fluttertoast.showToast(
+        msg: "Error creating booking: ${e.toString()}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -256,52 +400,7 @@ class _BookingPageState extends State<BookingPage> {
                         CustomButton(
                           horizontalPadding: 10,
                           title: 'Book',
-                          onTap: () {
-                            if (startDateTime == null || endDateTime == null) {
-                              Fluttertoast.showToast(
-                                msg: "Start & End Date Cant Be Null",
-                              );
-                              return;
-                            } else if (endDateTime!.isBefore(startDateTime!)) {
-                              Fluttertoast.showToast(
-                                msg: "End time cannot be before start time.",
-                              );
-                              return;
-                            } else if (startDateTime!
-                                .isBefore(DateTime.now())) {
-                              Fluttertoast.showToast(
-                                msg: "The time selected has already passed.",
-                              );
-                              return;
-                            } else {
-                              FirebaseFirestore.instance
-                                  .collection('spaces')
-                                  .doc(widget.spaceId)
-                                  .update({
-                                'bookings': FieldValue.arrayUnion([
-                                  Booking(
-                                    isApproved: false,
-                                    uid: FirebaseAuth.instance.currentUser!.uid,
-                                    spaceId: widget.spaceId,
-                                    slotNumber: widget.slotNumber,
-                                    startDateTime: startDateTime!,
-                                    endDateTime: endDateTime!,
-                                    bookingTime: DateTime.now(),
-                                    bookingId: Random()
-                                        .nextInt(900000)
-                                        .toString()
-                                        .padLeft(6, '0'),
-                                  ).toJson(),
-                                ])
-                              }).then(
-                                (_) {
-                                  if (context.mounted) {
-                                    Navigator.pop(context);
-                                  }
-                                },
-                              );
-                            }
-                          },
+                          onTap: _handleBooking,
                         ),
                       ],
                     ),

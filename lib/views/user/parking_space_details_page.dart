@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intrencity/utils/colors.dart';
@@ -40,6 +41,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
   bool currentUser = false;
   bool isGuest = false;
   bool isTimePassed = false;
+  bool hasBooking = false;
 
   void isCurrentUser() {
     bool guest = context.read<AuthenticationProvider>().isGuest;
@@ -94,9 +96,31 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
     }
   }
 
+  Future<void> userHasBooking() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('spaces').get();
+
+    for (var doc in snapshot.docs) {
+      final space = doc.data() as Map<String, dynamic>;
+      if (space.containsKey('bookings')) {
+        List<dynamic> bookings = space['bookings'];
+
+        for (var booking in bookings) {
+          if (booking['uid'] == FirebaseAuth.instance.currentUser!.uid &&
+              booking['is_checked_out'] == false) {
+            setState(() {
+              hasBooking = true;
+            });
+          }
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    userHasBooking();
     fetchHostUser();
     isCurrentUser();
     isBookingTimePassed();
@@ -365,25 +389,53 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                     ),
                   ),
                 ),
+                hasBooking
+                    ? Column(
+                        children: [
+                          SmoothContainer(
+                            onTap: () => context.push('/home-page'),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 10,
+                            ),
+                            color: textFieldGrey,
+                            height: 60,
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                'You already have a booking',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(color: primaryBlue),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      )
+                    : (currentUser ||
+                            isGuest ||
+                            isTimePassed ||
+                            widget.alreadyBooked)
+                        ? const SizedBox()
+                        : CustomButton(
+                            title: 'Book',
+                            horizontalPadding: 10,
+                            verticalPadding: 20,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ParkingSlotPage(
+                                    space: widget.spaceDetails,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
               ],
             ),
-            (currentUser || isGuest || isTimePassed || widget.alreadyBooked)
-                ? const SizedBox()
-                : CustomButton(
-                    title: 'Book',
-                    horizontalPadding: 10,
-                    verticalPadding: 20,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ParkingSlotPage(
-                            space: widget.spaceDetails,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
           ],
         ),
       ),

@@ -47,7 +47,8 @@ class BookingProvider extends ChangeNotifier {
           List<dynamic> bookings = data['bookings'];
 
           var userBooking = bookings.firstWhere(
-            (booking) => booking['uid'] == _uid,
+            (booking) =>
+                booking['uid'] == _uid && booking['is_otp_verified'] == false,
             orElse: () => null,
           );
 
@@ -118,7 +119,8 @@ class BookingProvider extends ChangeNotifier {
               (booking) =>
                   booking['uid'] == _uid &&
                   booking['is_approved'] == true &&
-                  booking['is_rejected'] == false,
+                  booking['is_rejected'] == false &&
+                  booking['is_checked_out'] == false,
             );
 
             if (hasUserBooking) {
