@@ -13,6 +13,8 @@ import 'package:intrencity/views/admin/parking_space_admin/tab_pages/admin_parki
 import 'package:intrencity/views/admin/parking_space_admin/my_spaces_page.dart';
 import 'package:intrencity/views/admin/parking_space_admin/tab_pages/bookings_tab.dart';
 import 'package:intrencity/views/auth/auth_page.dart';
+import 'package:intrencity/views/chat/chat_page.dart';
+import 'package:intrencity/views/chat/conversations_page.dart';
 import 'package:intrencity/views/user/edit_post_page.dart';
 import 'package:intrencity/views/user/my_bookings/booking_history_page.dart';
 import 'package:intrencity/views/user/parking_list_page.dart';
@@ -154,6 +156,22 @@ class AppRoutes {
       GoRoute(
         path: '/all-spaces',
         builder: (context, state) => const AllSpacesPage(),
+      ),
+      GoRoute(
+        path: '/conversations',
+        builder: (context, state) => const ConversationsPage(),
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final receiverId = args['receiverId'] as String;
+          final receiverName = args['receiverName'] as String;
+          return ChatPage(
+            receiverId: receiverId,
+            receiverName: receiverName,
+          );
+        },
       ),
     ],
   );

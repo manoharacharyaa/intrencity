@@ -135,6 +135,11 @@ class _ParkingListPageState extends State<ParkingListPage> {
                         iconSize: 25,
                         icon: Icons.book_rounded,
                       ),
+                CustomDrawerTile(
+                  onTap: () => context.push('/conversations'),
+                  label: 'Messages',
+                  icon: Icons.chat,
+                ),
               ],
             ),
           ],

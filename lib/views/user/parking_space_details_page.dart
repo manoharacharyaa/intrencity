@@ -139,6 +139,8 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
     final height = MediaQuery.sizeOf(context).height;
     final width = MediaQuery.sizeOf(context).width;
     bool isGuest = context.watch<AuthenticationProvider>().isGuest;
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final isCurrentUserOwner = widget.spaceDetails.uid == currentUserId;
 
     return Scaffold(
       appBar: AppBar(
@@ -257,139 +259,184 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                     ),
                   ),
                 ),
-                //Hosted Persons Card
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: SmoothContainer(
-                    // padding: const EdgeInsets.fromLTRB(17, 10, 10, 0),
-                    height: height * 0.155,
-                    width: double.infinity,
-                    cornerRadius: 14,
-                    color: Colors.grey[900],
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(width: 15),
-                          Stack(
-                            alignment: Alignment.bottomCenter,
+                  child: Stack(
+                    children: [
+                      SmoothContainer(
+                        height: height * 0.155,
+                        width: double.infinity,
+                        cornerRadius: 14,
+                        color: Colors.grey[900],
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              const SizedBox(width: 15),
                               Stack(
+                                alignment: Alignment.bottomCenter,
                                 children: [
-                                  SmoothContainer(
-                                    height: height * 0.120,
-                                    width: width * 0.25,
-                                    cornerRadius: 8,
-                                    color: primaryBlue,
-                                    child: host == null
-                                        ? const SizedBox()
-                                        : Image.network(
-                                            profilePic,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return const Icon(Icons.person);
-                                            },
+                                  Stack(
+                                    children: [
+                                      SmoothContainer(
+                                        height: height * 0.120,
+                                        width: width * 0.25,
+                                        cornerRadius: 8,
+                                        color: primaryBlue,
+                                        child: host == null
+                                            ? const SizedBox()
+                                            : Image.network(
+                                                profilePic,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(
+                                                      Icons.person);
+                                                },
+                                              ),
+                                      ),
+                                      ClipSmoothRect(
+                                        radius: SmoothBorderRadius(
+                                          cornerRadius: 8,
+                                        ),
+                                        child: Container(
+                                          height: height * 0.120,
+                                          width: width * 0.25,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.transparent,
+                                                Colors.transparent,
+                                                Color.fromARGB(60, 0, 0, 0),
+                                                Color.fromARGB(120, 0, 0, 0),
+                                                Color.fromARGB(180, 0, 0, 0),
+                                                Color.fromARGB(240, 0, 0, 0),
+                                              ],
+                                              begin: Alignment.center,
+                                              end: Alignment.bottomCenter,
+                                            ),
                                           ),
-                                  ),
-                                  ClipSmoothRect(
-                                    radius: SmoothBorderRadius(
-                                      cornerRadius: 8,
-                                    ),
-                                    child: Container(
-                                      height: height * 0.120,
-                                      width: width * 0.25,
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.transparent,
-                                            Color.fromARGB(60, 0, 0, 0),
-                                            Color.fromARGB(120, 0, 0, 0),
-                                            Color.fromARGB(180, 0, 0, 0),
-                                            Color.fromARGB(240, 0, 0, 0),
-                                          ],
-                                          begin: Alignment.center,
-                                          end: Alignment.bottomCenter,
                                         ),
                                       ),
-                                    ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.verified,
+                                        size: 18,
+                                        color: Color.fromARGB(255, 12, 225, 19),
+                                      ),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        'Verified',
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 12),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                              Row(
+                              const SizedBox(height: 4),
+                              const SizedBox(width: 14),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.verified,
-                                    size: 18,
-                                    color: Color.fromARGB(255, 12, 225, 19),
-                                  ),
-                                  const SizedBox(width: 2),
                                   Text(
-                                    'Verified',
-                                    style: GoogleFonts.poppins(fontSize: 12),
+                                    'Hosted By',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                            color: primaryBlue, fontSize: 18),
                                   ),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      const Icon(Icons.person, size: 18),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        host == null ? '' : host!.name,
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      const Icon(Icons.email, size: 18),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        host == null ? '' : host!.email,
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      const Icon(Icons.phone, size: 18),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        host == null ? '' : host!.phoneNumber,
+                                        style:
+                                            GoogleFonts.poppins(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
                                 ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Hosted By',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(color: primaryBlue, fontSize: 18),
-                              ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  const Icon(Icons.person, size: 18),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    host == null ? '' : host!.name,
-                                    style: GoogleFonts.poppins(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  const Icon(Icons.email, size: 18),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    host == null ? '' : host!.email,
-                                    style: GoogleFonts.poppins(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  const Icon(Icons.phone, size: 18),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    host == null ? '' : host!.phoneNumber,
-                                    style: GoogleFonts.poppins(fontSize: 14),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      !isCurrentUserOwner
+                          ? Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: TextButton.icon(
+                                  style: const ButtonStyle(
+                                    iconColor:
+                                        WidgetStatePropertyAll(primaryBlue),
+                                  ),
+                                  label: Text(
+                                    'Chat',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
+                                        .copyWith(color: primaryBlue),
+                                  ),
+                                  onPressed: () {
+                                    if (currentUserId == null) {
+                                      context.push('/auth-page');
+                                      return;
+                                    }
+                                    context.push(
+                                      '/chat',
+                                      extra: {
+                                        'receiverId': widget.spaceDetails.uid,
+                                        'receiverName':
+                                            widget.spaceDetails.ownerName ??
+                                                'Space Owner',
+                                      },
+                                    );
+                                  },
+                                  icon: const Icon(Icons.chat),
+                                ),
+                              ),
+                            )
+                          : const SizedBox(),
+                    ],
                   ),
                 ),
                 hasBooking
@@ -437,6 +484,7 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                               );
                             },
                           ),
+                const SizedBox(height: 20),
               ],
             ),
           ],

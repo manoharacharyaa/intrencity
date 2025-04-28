@@ -214,9 +214,15 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
         imageUrls.add(downloadUrl);
       }
 
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser?.uid)
+          .get();
+
       final docId = const Uuid().v1();
       ParkingSpacePostModel parkingSlotPost = ParkingSpacePostModel(
-        uid: FirebaseAuth.instance.currentUser!.uid,
+        uid: currentUser?.uid ?? '',
         docId: docId,
         spaceName: spaceNameController.text.trim(),
         spacePrice: spacePriceController.text.trim(),
@@ -231,6 +237,7 @@ class _SpacePostingPageState extends State<SpacePostingPage> {
         endDate: endDate,
         description: spaceDescController.text.trim(),
         spaceThumbnail: imageUrls,
+        ownerName: userDoc.data()?['name'] ?? 'Space Owner',
       );
 
       await FirebaseFirestore.instance

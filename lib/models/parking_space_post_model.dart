@@ -16,6 +16,7 @@ class ParkingSpacePostModel {
   final List<String> spaceThumbnail;
   final List<Booking>? bookings;
   final bool? isBlacklisted;
+  final String? ownerName;
 
   ParkingSpacePostModel({
     required this.uid,
@@ -33,6 +34,7 @@ class ParkingSpacePostModel {
     required this.spaceThumbnail,
     this.bookings,
     this.isBlacklisted,
+    this.ownerName,
   });
 
   Map<String, dynamic> toJson() {
@@ -52,6 +54,7 @@ class ParkingSpacePostModel {
       'description': description,
       'bookings': bookings?.map((booking) => booking.toJson()).toList(),
       'isBlacklisted': isBlacklisted,
+      'ownerName': ownerName,
     };
   }
 
@@ -89,6 +92,7 @@ class ParkingSpacePostModel {
               (json['bookings'] as List).map((e) => Booking.fromJson(e)))
           : [],
       isBlacklisted: json['isBlacklisted'] ?? false,
+      ownerName: json['ownerName'],
     );
   }
 }
@@ -105,6 +109,10 @@ class Booking {
   final DateTime bookingTime;
   final String bookingId;
   final int? otp;
+  // Add new optional checkout fields
+  final bool? isCheckedOut;
+  final String? checkoutTime;
+  final bool? earlyCheckout;
 
   Booking({
     this.isApproved = false,
@@ -118,6 +126,9 @@ class Booking {
     required this.bookingTime,
     required this.bookingId,
     this.otp,
+    this.isCheckedOut,
+    this.checkoutTime,
+    this.earlyCheckout,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -133,6 +144,9 @@ class Booking {
       bookingTime: (json['booking_time'] as Timestamp).toDate(),
       bookingId: json['booking_id'] ?? '',
       otp: json['otp'],
+      isCheckedOut: json['is_checked_out'],
+      checkoutTime: json['checkout_time'],
+      earlyCheckout: json['early_checkout'],
     );
   }
 
@@ -149,6 +163,9 @@ class Booking {
       'booking_time': Timestamp.fromDate(bookingTime),
       'booking_id': bookingId,
       'otp': otp,
+      'is_checked_out': isCheckedOut,
+      'checkout_time': checkoutTime,
+      'early_checkout': earlyCheckout,
     };
   }
 
@@ -164,6 +181,9 @@ class Booking {
     DateTime? bookingTime,
     String? bookingId,
     int? otp,
+    bool? isCheckedOut,
+    String? checkoutTime,
+    bool? earlyCheckout,
   }) {
     return Booking(
       isApproved: isApproved ?? this.isApproved,
@@ -177,6 +197,9 @@ class Booking {
       bookingTime: bookingTime ?? this.bookingTime,
       bookingId: bookingId ?? this.bookingId,
       otp: otp ?? this.otp,
+      isCheckedOut: isCheckedOut ?? this.isCheckedOut,
+      checkoutTime: checkoutTime ?? this.checkoutTime,
+      earlyCheckout: earlyCheckout ?? this.earlyCheckout,
     );
   }
 }

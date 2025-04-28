@@ -140,7 +140,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
             return Center(
               child: Text(
                 'No booking history found',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             );
           }

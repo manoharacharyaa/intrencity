@@ -116,7 +116,8 @@ class BookingProvider extends ChangeNotifier {
             List<dynamic> bookings = data['bookings'];
 
             for (var booking in bookings) {
-              if (!booking.containsKey('is_checked_out')) {
+              if (!booking.containsKey('is_checked_out') ||
+                  booking['is_checked_out'] == false) {
                 bool hasUserBooking = bookings.any((booking) =>
                     booking['uid'] == _uid &&
                     booking['is_approved'] == true &&
