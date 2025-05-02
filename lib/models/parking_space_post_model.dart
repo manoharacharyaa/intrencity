@@ -14,7 +14,7 @@ class ParkingSpacePostModel {
   final DateTime? endDate;
   final String? description;
   final List<String> spaceThumbnail;
-  final List<Booking>? bookings;
+  final List<Booking> bookings;
   final bool? isBlacklisted;
   final String? ownerName;
 
@@ -32,7 +32,7 @@ class ParkingSpacePostModel {
     this.endDate,
     this.description,
     required this.spaceThumbnail,
-    this.bookings,
+    this.bookings = const [],
     this.isBlacklisted,
     this.ownerName,
   });

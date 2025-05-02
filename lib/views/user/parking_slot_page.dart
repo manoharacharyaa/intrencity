@@ -49,8 +49,7 @@ class _ParkingSlotPageState extends State<ParkingSlotPage> {
         DateTime endTime = booking.endDateTime;
         DateTime startTime = booking.startDateTime;
         return startTime.isBefore(currentDateTime) &&
-            endTime.isAfter(currentDateTime) &&
-            booking.isCheckedOut == false;
+            endTime.isAfter(currentDateTime);
       }).toList();
 
       if (mounted) {

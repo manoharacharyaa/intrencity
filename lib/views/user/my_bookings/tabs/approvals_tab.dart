@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/models/user_profile_model.dart';
 import 'package:intrencity/providers/booking_provider.dart';
@@ -64,6 +65,15 @@ class _ApprovalsTabState extends State<ApprovalsTab> {
                   children: [
                     SmoothContainer(
                       onTap: () {
+                        if (!booking.isOtpVerified) {
+                          Fluttertoast.showToast(
+                            msg: 'Please verify your OTP',
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            gravity: ToastGravity.CENTER,
+                          );
+                          return;
+                        }
                         Navigator.push(
                           context,
                           MaterialPageRoute(

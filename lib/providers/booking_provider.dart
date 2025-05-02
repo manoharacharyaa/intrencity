@@ -48,7 +48,7 @@ class BookingProvider extends ChangeNotifier {
 
           var userBooking = bookings.firstWhere(
             (booking) =>
-                booking['uid'] == _uid && booking['is_otp_verified'] == false,
+                booking['uid'] == _uid && booking['is_approved'] == false,
             orElse: () => null,
           );
 
@@ -115,41 +115,36 @@ class BookingProvider extends ChangeNotifier {
           if (data.containsKey('bookings')) {
             List<dynamic> bookings = data['bookings'];
 
-            for (var booking in bookings) {
-              if (!booking.containsKey('is_checked_out') ||
-                  booking['is_checked_out'] == false) {
-                bool hasUserBooking = bookings.any((booking) =>
-                    booking['uid'] == _uid &&
-                    booking['is_approved'] == true &&
-                    booking['is_rejected'] == false);
+            bool hasUserBooking = bookings.any((booking) =>
+                booking['uid'] == _uid &&
+                booking['is_approved'] == true &&
+                booking['is_rejected'] == false &&
+                booking['is_checked_out'] == null);
 
-                if (hasUserBooking) {
-                  ParkingSpacePostModel space =
-                      ParkingSpacePostModel.fromJson(data);
+            if (hasUserBooking) {
+              ParkingSpacePostModel space =
+                  ParkingSpacePostModel.fromJson(data);
 
-                  try {
-                    DocumentSnapshot userSnapshot = await FirebaseFirestore
-                        .instance
-                        .collection('users')
-                        .doc(_uid)
-                        .get();
+              try {
+                DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(_uid)
+                    .get();
 
-                    if (userSnapshot.exists) {
-                      UserProfileModel user = UserProfileModel.fromJson(
-                          userSnapshot.data() as Map<String, dynamic>);
+                if (userSnapshot.exists) {
+                  UserProfileModel user = UserProfileModel.fromJson(
+                      userSnapshot.data() as Map<String, dynamic>);
 
-                      spaceWithUsers.add(
-                        SpaceWithUser(
-                          space: space,
-                          user: user,
-                        ),
-                      );
-                      debugPrint('Added space with user: ${user.name}');
-                    }
-                  } catch (e) {
-                    debugPrint('Error fetching user: $e');
-                  }
+                  spaceWithUsers.add(
+                    SpaceWithUser(
+                      space: space,
+                      user: user,
+                    ),
+                  );
+                  debugPrint('Added space with user: ${user.name}');
                 }
+              } catch (e) {
+                debugPrint('Error fetching user: $e');
               }
             }
           }

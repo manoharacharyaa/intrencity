@@ -12,6 +12,7 @@ import 'package:intrencity/viewmodels/users_viewmodel.dart';
 import 'package:intrencity/widgets/row_text_tile_widget.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class OTPVerificationPage extends StatefulWidget {
   const OTPVerificationPage({
@@ -201,22 +202,53 @@ class _UnverifiedOTPUsersState extends State<UnverifiedOTPUsers> {
                             text: DateFormat('MMM dd, yyyy hh:mm a')
                                 .format(data.booking.bookingTime),
                           ),
-                          RowTextTile(
-                            label: 'OTP: ',
-                            text: data.booking.otp.toString(),
-                          ),
                           if (data.booking.otp != null)
                             Align(
                               alignment: Alignment.bottomRight,
                               child: ElevatedButton(
-                                onPressed: () => context.push(
-                                  '/enter-otp-page',
-                                  extra: {
-                                    'otp': data.booking.otp,
-                                    'docId': widget.mySpace.docId,
-                                    'uid': data.booking.uid,
-                                  },
-                                ),
+                                onPressed: () {
+                                  // Get today's date at midnight for comparison
+                                  final today = DateTime.now().copyWith(
+                                      hour: 0,
+                                      minute: 0,
+                                      second: 0,
+                                      millisecond: 0,
+                                      microsecond: 0);
+
+                                  // Get booking start date at midnight
+                                  final bookingStartDate =
+                                      data.booking.startDateTime.copyWith(
+                                          hour: 0,
+                                          minute: 0,
+                                          second: 0,
+                                          millisecond: 0,
+                                          microsecond: 0);
+
+                                  // Check if booking starts today
+                                  if (bookingStartDate
+                                      .isAtSameMomentAs(today)) {
+                                    context.push(
+                                      '/enter-otp-page',
+                                      extra: {
+                                        'otp': data.booking.otp,
+                                        'docId': widget.mySpace.docId,
+                                        'uid': data.booking.uid,
+                                      },
+                                    );
+                                  } else {
+                                    // Format the date for display
+                                    final formattedDate =
+                                        DateFormat('MMM dd, yyyy')
+                                            .format(data.booking.startDateTime);
+                                    Fluttertoast.showToast(
+                                      msg:
+                                          'Booking start date is $formattedDate',
+                                      backgroundColor: Colors.orange,
+                                      textColor: Colors.white,
+                                      toastLength: Toast.LENGTH_LONG,
+                                    );
+                                  }
+                                },
                                 style: const ButtonStyle(
                                   backgroundColor:
                                       WidgetStatePropertyAll(primaryBlue),

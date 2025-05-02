@@ -99,23 +99,38 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
   }
 
   Future<void> userHasBooking() async {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return;
+
+    final now = DateTime.now();
+    setState(() {
+      hasBooking = false;
+    });
+
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('spaces').get();
 
     for (var doc in snapshot.docs) {
       final space = doc.data() as Map<String, dynamic>;
       if (space.containsKey('bookings')) {
-        List<dynamic> bookings = space['bookings'];
+        List<dynamic> bookings = space['bookings'] ?? [];
 
         for (var booking in bookings) {
+          if (booking['uid'] != currentUserId) continue;
+
           if (booking.containsKey('is_checked_out') &&
               booking['is_checked_out'] == true) {
-            return;
+            continue;
           }
-          if (booking['uid'] == FirebaseAuth.instance.currentUser!.uid) {
+
+          final startDateTime = (booking['start_time'] as Timestamp).toDate();
+          final endDateTime = (booking['end_time'] as Timestamp).toDate();
+
+          if (now.isAfter(startDateTime) && now.isBefore(endDateTime)) {
             setState(() {
               hasBooking = true;
             });
+            return;
           }
         }
       }
@@ -446,10 +461,10 @@ class _ParkingSpaceDetailsPageState extends State<ParkingSpaceDetailsPage> {
                 hasBooking
                     ? Column(
                         children: [
+                          const SizedBox(height: 20),
                           SmoothContainer(
-                            onTap: () => context.push('/home-page'),
+                            onTap: () => context.pop(),
                             padding: const EdgeInsets.symmetric(
-                              vertical: 20,
                               horizontal: 10,
                             ),
                             color: textFieldGrey,

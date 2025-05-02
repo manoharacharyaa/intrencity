@@ -125,41 +125,59 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: size.height * 0.05),
                 AuthButton(
-                  onPressed: () {
-                    try {
-                      validator.loading(true);
-                      assert(
-                          EmailValidator.validate(loginEmailController.text));
-                      auth
-                          .login(
-                        loginEmailController.text,
-                        loginPasswordController.text,
-                      )
-                          .then(
-                        (value) {
-                          Future.delayed(
-                            const Duration(seconds: 1),
-                            () {
-                              validator.loading(false);
-                              loginEmailController.clear();
-                              loginPasswordController.clear();
-                              context.pushReplacement('/home-page');
-                            },
-                          );
-                        },
-                      ).onError(
-                        (error, stackTrace) {
-                          validator.loading(false);
-                        },
-                      );
-                    } catch (e) {
-                      validator.loading(false);
-                      validator.isLoading = false;
-                      Fluttertoast.showToast(msg: 'Enter a valid email');
-                    }
+                  onPressed: () async {
+                    // Set both fields as validated when attempting to login
+
                     if (_formKey.currentState!.validate()) {
-                    } else {
-                      validator.setError(true);
+                      try {
+                        validator.loading(true);
+                        await auth
+                            .login(
+                          loginEmailController.text,
+                          loginPasswordController.text,
+                        )
+                            .then(
+                          (value) {
+                            validator.loading(false);
+                            loginEmailController.clear();
+                            loginPasswordController.clear();
+                            // Reset validation states
+
+                            context.pushReplacement('/home-page');
+                          },
+                        ).catchError((error) {
+                          validator.loading(false);
+                          String errorMessage = 'An error occurred';
+                          if (error is FirebaseAuthException) {
+                            switch (error.code) {
+                              case 'user-not-found':
+                                errorMessage = 'No user found with this email';
+                                break;
+                              case 'wrong-password':
+                                errorMessage = 'Incorrect password';
+                                break;
+                              case 'invalid-email':
+                                errorMessage = 'Invalid email address';
+                                break;
+                              default:
+                                errorMessage =
+                                    error.message ?? 'Authentication failed';
+                            }
+                          }
+                          Fluttertoast.showToast(
+                            msg: errorMessage,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                          );
+                        });
+                      } catch (e) {
+                        validator.loading(false);
+                        Fluttertoast.showToast(
+                          msg: 'An unexpected error occurred',
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                        );
+                      }
                     }
                   },
                   widget: validator.isLoading

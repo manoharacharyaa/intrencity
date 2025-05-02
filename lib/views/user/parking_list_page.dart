@@ -79,74 +79,77 @@ class _ParkingListPageState extends State<ParkingListPage> {
           ),
         ],
       ),
-      drawer: Drawer(
-        key: ValueKey(userViewModel.currentUser?.uid ??
-            'guest'), // Add key to force rebuild
-        shape: const SmoothRectangleBorder(
-          borderRadius: SmoothBorderRadius.only(
-            topRight: SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
-            bottomRight: SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
-          ),
-        ),
-        child: Column(
-          children: [
-            userViewModel.currentUser?.profilePic == null
-                ? const SmoothContainer(
-                    width: double.infinity,
-                    height: 300,
-                    color: primaryBlue,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                  )
-                : SmoothContainer(
-                    width: double.infinity,
-                    height: 300,
-                    child: Image.network(
-                      userViewModel.currentUser?.profilePic ?? '',
-                      fit: BoxFit.cover,
-                    ),
+      drawer: authProvider.isGuest
+          ? null
+          : Drawer(
+              key: ValueKey(userViewModel.currentUser?.uid ?? 'guest'),
+              shape: const SmoothRectangleBorder(
+                borderRadius: SmoothBorderRadius.only(
+                  topRight:
+                      SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+                  bottomRight:
+                      SmoothRadius(cornerRadius: 12, cornerSmoothing: 0.8),
+                ),
+              ),
+              child: Column(
+                children: [
+                  userViewModel.currentUser?.profilePic == null
+                      ? const SmoothContainer(
+                          width: double.infinity,
+                          height: 300,
+                          color: primaryBlue,
+                          child: Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                        )
+                      : SmoothContainer(
+                          width: double.infinity,
+                          height: 300,
+                          child: Image.network(
+                            userViewModel.currentUser?.profilePic ?? '',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                  Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      userViewModel.currentUser?.role == 1
+                          ? CustomDrawerTile(
+                              onTap: () => context.push('/admin-pannel-page'),
+                              label: 'Admin Pannel',
+                              icon: Icons.admin_panel_settings_rounded,
+                            )
+                          : const SizedBox(),
+                      userViewModel.currentUser?.isApproved == true
+                          ? const SizedBox()
+                          : CustomDrawerTile(
+                              onTap: () => context.push('/verification-page'),
+                              label: 'Verification',
+                              iconSize: 25,
+                              icon: Icons.verified,
+                            ),
+                      userViewModel.currentUser?.isApproved == false
+                          ? const SizedBox()
+                          : CustomDrawerTile(
+                              onTap: () => context.push('/my-spaces-page'),
+                              label: 'My Spaces',
+                              iconSize: 25,
+                              icon: Icons.book_rounded,
+                            ),
+                      userViewModel.currentUser?.isApproved == false
+                          ? const SizedBox()
+                          : CustomDrawerTile(
+                              onTap: () => context.push('/conversations'),
+                              label: 'Messages',
+                              icon: Icons.chat,
+                            ),
+                    ],
                   ),
-            Column(
-              children: [
-                const SizedBox(height: 8),
-                userViewModel.currentUser?.role == 1
-                    ? CustomDrawerTile(
-                        onTap: () => context.push('/admin-pannel-page'),
-                        label: 'Admin Pannel',
-                        icon: Icons.admin_panel_settings_rounded,
-                      )
-                    : const SizedBox(),
-                userViewModel.currentUser?.isApproved == true
-                    ? const SizedBox()
-                    : CustomDrawerTile(
-                        onTap: () => context.push('/verification-page'),
-                        label: 'Verification',
-                        iconSize: 25,
-                        icon: Icons.verified,
-                      ),
-                userViewModel.currentUser?.isApproved == false
-                    ? const SizedBox()
-                    : CustomDrawerTile(
-                        onTap: () => context.push('/my-spaces-page'),
-                        label: 'My Spaces',
-                        iconSize: 25,
-                        icon: Icons.book_rounded,
-                      ),
-                userViewModel.currentUser?.isApproved == false
-                    ? const SizedBox()
-                    : CustomDrawerTile(
-                        onTap: () => context.push('/conversations'),
-                        label: 'Messages',
-                        icon: Icons.chat,
-                      ),
-              ],
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
       body: const SpacesListPage(),
     );
   }

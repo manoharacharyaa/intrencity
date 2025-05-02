@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intrencity/providers/profile_provider.dart';
 import 'package:intrencity/utils/colors.dart';
+import 'package:intrencity/models/parking_space_post_model.dart';
 import 'package:intrencity/utils/smooth_corners/clip_smooth_rect.dart';
 import 'package:intrencity/utils/smooth_corners/smooth_border_radius.dart';
+import 'package:intrencity/utils/smooth_corners/smooth_radius.dart';
 import 'package:intrencity/widgets/cutsom_divider.dart';
 import 'package:intrencity/widgets/smooth_container.dart';
 import 'package:provider/provider.dart';
@@ -205,7 +208,52 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 15),
+                        // My Postings Section
+                        ClipSmoothRect(
+                          radius: provider.isExpanded
+                              ? const SmoothBorderRadius.only(
+                                  topLeft: SmoothRadius(
+                                      cornerRadius: 14, cornerSmoothing: 0.8),
+                                  topRight: SmoothRadius(
+                                      cornerRadius: 14, cornerSmoothing: 0.8),
+                                )
+                              : const SmoothBorderRadius.all(
+                                  SmoothRadius(
+                                    cornerRadius: 14,
+                                    cornerSmoothing: 0.8,
+                                  ),
+                                ),
+                          child: Container(
+                            color: textFieldGrey,
+                            padding: const EdgeInsets.fromLTRB(12, 2, 0, 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'My Postings',
+                                  style: GoogleFonts.poppins(fontSize: 18),
+                                ),
+                                IconButton(
+                                  onPressed: provider.toggleExpanded,
+                                  icon: Icon(
+                                    size: 24,
+                                    color: primaryBlue,
+                                    provider.isExpanded
+                                        ? Icons.arrow_circle_down_sharp
+                                        : Icons.arrow_forward_ios_rounded,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        provider.isExpanded
+                            ? MySpaceWidget(
+                                size: size,
+                                provider: provider,
+                              )
+                            : const SizedBox(),
                       ],
                     ),
                   ],
@@ -255,6 +303,130 @@ class UserDetailsCardItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class MySpaceWidget extends StatelessWidget {
+  const MySpaceWidget({
+    super.key,
+    required this.size,
+    required this.provider,
+  });
+
+  final Size size;
+  final ProfileProvider provider;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipSmoothRect(
+      radius: const SmoothBorderRadius.only(
+        bottomLeft: SmoothRadius(cornerRadius: 14, cornerSmoothing: 0.8),
+        bottomRight: SmoothRadius(cornerRadius: 14, cornerSmoothing: 0.8),
+      ),
+      child: Container(
+        height: size.height * 0.35,
+        width: double.infinity,
+        color: textFieldGrey,
+        child: FutureBuilder(
+          future: FirebaseFirestore.instance
+              .collection('spaces')
+              .where('uid', isEqualTo: provider.uid)
+              .get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CupertinoActivityIndicator(radius: 14),
+              );
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Text('No Spaces Found'),
+              );
+            }
+            final spaces = snapshot.data!.docs
+                .map(
+                  (space) => ParkingSpacePostModel.fromJson(
+                    space.data(),
+                  ),
+                )
+                .toList();
+            return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: spaces.length,
+              itemBuilder: (context, index) {
+                final space = spaces[index];
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: InkWell(
+                    onTap: () => context.push(
+                      '/parking-space-details',
+                      extra: {
+                        'spaceDetails': space,
+                        'viewedByCurrentUser': true,
+                      },
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 14),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: SmoothContainer(
+                                  height: size.height * 0.08,
+                                  width: size.width * 0.18,
+                                  color: primaryBlue,
+                                  cornerRadius: 14,
+                                  child: Image.network(
+                                    space.spaceThumbnail[0],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 20),
+                              Text(space.spaceName),
+                              const Spacer(),
+                              PopupMenuButton<Value>(
+                                onSelected: (Value item) {
+                                  if (item == Value.edit) {
+                                    context.push('/edit-post-page',
+                                        extra: space);
+                                  } else if (item == Value.delete) {
+                                    provider.deleteSpaceByDocId(
+                                      space.docId!,
+                                    );
+                                  }
+                                },
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                color: textFieldGrey,
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: Value.edit,
+                                    child: Center(child: Text('Edit')),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: Value.delete,
+                                    child: Center(child: Text('Delete')),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const CustomDivider(),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
     );
   }
 }

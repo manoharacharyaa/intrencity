@@ -125,7 +125,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: Text(
                     isLastPage ? 'Done' : 'Next',
                     style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       fontSize: 16,
                       color: Colors.blue,
                     ),

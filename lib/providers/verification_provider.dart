@@ -239,7 +239,7 @@ class VerificationProvider extends ChangeNotifier {
     return FirebaseFirestore.instance
         .collection('users')
         .where('is_approved', isEqualTo: false)
-        .where('is_rejected', isEqualTo: true)
+        // .where('is_rejected', isEqualTo: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs
